@@ -1,6 +1,7 @@
 # EMT30205 Monitoring System Integration — course website
 
-Interactive lecture notes for EMT30205 (Electronic Engineering Technology, FKTEN),
+Interactive lecture notes for EMT30205 (Bachelor of Electrical Maintenance System,
+Faculty of Electrical Engineering (FKTE)),
 served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use it as lecture notes.
 
 ## Files
