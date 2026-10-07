@@ -1163,7 +1163,11 @@ function renderProg(){$$('.side a').forEach(a=>a.classList.toggle('seen',seen.ha
 renderProg();
 const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
   $$('.side a').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
-  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080) cur.scrollIntoView({inline:'center',block:'nearest'});
+  /* Centre the current item in the top menu by scrolling only the menu sideways.
+     (scrollIntoView also scrolls the page and stops a finger swipe on iPhone.) */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const ol=nav, d=cur.getBoundingClientRect().left-ol.getBoundingClientRect().left;
+    ol.scrollLeft=ol.scrollLeft+d-(ol.clientWidth-cur.offsetWidth)/2}
   if(!seen.has(id)){seen.add(id);store.set('scada-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
 secs.forEach(s=>io.observe(s));
 
