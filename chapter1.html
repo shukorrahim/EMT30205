@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
 <title>Introduction to SCADA | Monitoring System Integration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -462,6 +465,43 @@ dialog#lb p{color:#fff;margin:8px 0 0;font-size:14px}
 .fig.photo img{aspect-ratio:4/3;object-fit:cover;background:var(--panel2)}
 .fig .credit{display:block;font-size:12px;margin-top:2px}
 .fig .credit a{color:var(--ink2)}
+
+/* Phones and tablets (iOS and Android) */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,input,label,[role=button]{touch-action:manipulation}
+.flip .f,.flip .b{-webkit-backface-visibility:hidden}
+.sim-col,.hmi,.hmi-body,.ind>*,.anat>*{min-width:0}
+.pan{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+.hmi .pan-hint{color:var(--hd);background:var(--hp)}
+.pan-hint.show{display:block}
+@media (max-width:600px){
+  .seg{display:flex}
+  .seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+}
+@media (max-width:700px){
+  #wHmi .pan>svg{min-width:520px}
+  .arch .pan>svg{min-width:700px}
+  #vSld .pan>svg{min-width:440px}
+  .field .pan>svg{min-width:380px}
+  .diagram svg{min-width:760px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip,.acro button,.pyr button,.media button,.anat-list button{min-height:44px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .hmi-nav button,.hbtn{min-height:36px;padding-left:14px;padding-right:14px}
+  .face header button{min-width:36px;min-height:32px}
+  .alarms li .btn{min-height:32px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+  .side a{padding:10px 12px}
+  .fig:not(.photo) figcaption::after{content:" Tap the picture to enlarge.";font-style:italic}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
 </style>
 </head>
 <body>
@@ -1102,11 +1142,12 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function press(group,btn){group.forEach(b=>b.setAttribute('aria-pressed',b===btn?'true':'false'))}
 
 /* Lightbox */
-const lb=$('#lb');document.addEventListener('click',e=>{const im=e.target.closest('.fig img');if(im){lb.querySelector('img').src=im.src;lb.querySelector('p').textContent=im.alt+' (tap outside to close)';lb.showModal();return}if(e.target===lb||e.target.closest('#lb'))lb.close()});
+const lb=$('#lb');document.addEventListener('click',e=>{const im=e.target.closest('.fig img');if(im){if(!lb.showModal){window.open(im.src,'_blank');return}lb.querySelector('img').src=im.src;lb.querySelector('p').textContent=im.alt+' (tap outside to close)';lb.showModal();return}if(e.target===lb||e.target.closest('#lb'))lb.close()});
 /* Theme */
 const tb=$('#themeBtn');
 function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
-function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode'}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
 const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
 setThemeLabel();
 tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
@@ -1453,6 +1494,14 @@ function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class=
 function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('scada-best')||0;
   if(answered===Q.length&&score>best){best=score;store.set('scada-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
 $('#qReset').onclick=buildQuiz;buildQuiz();
+
+/* Phones: let wide HMI screens pan sideways instead of shrinking the text */
+['#wHmi .hmi-body>svg','.arch .hmi-body>svg','#vSld>svg','.field>svg'].forEach(sel=>$$(sel).forEach(svg=>{
+  const pan=document.createElement('div');pan.className='pan';svg.before(pan);pan.appendChild(svg)}));
+$$('.pan,.dscroll,.scroller').forEach(p=>{const h=document.createElement('div');h.className='pan-hint';h.setAttribute('aria-hidden','true');
+  h.textContent='↔ Swipe sideways to see the whole screen';p.after(h);
+  const upd=()=>h.classList.toggle('show',p.scrollWidth>p.clientWidth+4&&p.scrollLeft<4);
+  p.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);new ResizeObserver(upd).observe(p);upd()});
 })();
 </script>
 </body>

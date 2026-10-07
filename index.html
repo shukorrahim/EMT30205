@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
 <title>EMT30205 Monitoring System Integration</title>
 <meta name="description" content="Interactive lecture notes for EMT30205 Monitoring System Integration, Bachelor of Electrical Maintenance System, Faculty of Electrical Engineering (FKTE).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,6 +136,19 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 .theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
 @media (max-width:600px){main{padding:0 16px 60px}.panel{padding:14px}.stations{grid-template-columns:repeat(2,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Phones and tablets (iOS and Android) */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role=button]{touch-action:manipulation}
+@media (pointer:coarse){
+  .btn,.seg button{min-height:44px;display:inline-flex;align-items:center}
+  .hmi-nav button,.hbtn{min-height:36px;padding-left:14px;padding-right:14px;display:inline-flex;align-items:center}
+  .st{min-height:68px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+}
 </style>
 </head>
 <body>
@@ -246,7 +262,8 @@ function progress(c){
 /* Theme (shared key with the chapter pages) */
 const tb=$('#themeBtn');
 function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
-function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode'}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
 const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
 setThemeLabel();
 tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};

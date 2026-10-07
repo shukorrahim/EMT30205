@@ -26,5 +26,14 @@ Every page is one self-contained HTML file: all CSS and JS inline, no build step
 - Progress keys: Chapter 1 uses `scada-seen` / `scada-best`. New pages use their own keys
   (e.g. `ch2-seen`, `ch2-best`) and must be registered in the homepage `CH` array.
 
+## Phones (iOS and Android)
+Most students open the site on a phone. Every page must:
+- Have no page-wide sideways scroll at 375 px wide.
+- Keep HMI/diagram SVG text at about 8 px or larger: on phones (max-width 700px) wrap wide
+  SVGs in a `.pan` container with a `min-width` so they swipe sideways, with a `.pan-hint`.
+- Give touch targets at least 44 px (36 px inside HMI screens) under `@media (pointer:coarse)`.
+- Use the round icon theme button below 1080 px, `theme-color` metas, and
+  `-webkit-text-size-adjust:100%` (copy the "Phones and tablets" CSS block from chapter1.html).
+
 ## Workflow
 Always show the lecturer what changed before pushing to GitHub.
