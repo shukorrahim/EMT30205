@@ -502,19 +502,26 @@ button,a,input,label,[role=button]{touch-action:manipulation}
   .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
   .score{margin-right:56px}
 }
+/* Home links: top of page, desktop side menu, and first item of the phone menu */
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0;color:var(--sel)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){.side .home{display:block;margin:0 18px 6px;font-size:14px}.side .home-m{display:none}}
 </style>
 </head>
 <body>
 <div class="layout">
 <nav class="side" aria-label="Chapter sections">
   <div class="brand"><b>Introduction to SCADA</b><span>Monitoring System Integration, Chapter 1</span></div>
-  <ol id="navlist"></ol>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
   <div class="progress"><span id="progTxt">0 of 13 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
 </nav>
 
 <main>
 <div class="wrap">
 <header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
   <div class="course">Monitoring System Integration, Chapter 1</div>
   <h1>Introduction to SCADA<small>Supervisory Control and Data Acquisition</small></h1>
   <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>

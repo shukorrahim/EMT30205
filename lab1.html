@@ -71,7 +71,7 @@ main{padding:0 20px 60px;min-width:0}
 
 /* Hero */
 header.hero{padding:44px 0 34px}
-.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:14px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
 .hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
 .hero h1{font-size:clamp(42px,7.5vw,88px);font-weight:700;letter-spacing:-.01em}
 .hero h1 small{display:block;font-size:.36em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
@@ -414,6 +414,8 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   .score{margin-right:56px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){.side .home-m{display:none}}
 </style>
 </head>
 <body>
@@ -421,7 +423,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <nav class="side" aria-label="Lab sections">
   <div class="brand"><b>Lab 1: OMRON CPM1A and CX-Programmer</b><span>Monitoring System Integration</span></div>
   <a class="home" href="index.html">&larr; Course homepage</a>
-  <ol id="navlist"></ol>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
   <div class="progress"><span id="progTxt">0 of 9 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
 </nav>
 

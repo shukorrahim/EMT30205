@@ -23,6 +23,9 @@ Every page is one self-contained HTML file: all CSS and JS inline, no build step
 - Images: the lecturer's own slide images, freely licensed Wikimedia Commons photos with
   credits, or SVG diagrams. No watermarked or textbook-scanned images.
 - Each page ends with a quiz with instant feedback.
+- Every page except the homepage links back to `index.html` in three places: "← Course homepage"
+  at the top of the hero (`.hero .back`), in the desktop side menu (`.side .home`), and as the
+  first item of the phone/tablet section menu (`<li class="home-m">⌂ Home</li>` in `#navlist`).
 - Progress keys: Chapter 1 uses `scada-seen` / `scada-best`. New pages use their own keys
   (e.g. `ch2-seen`, `ch2-best`) and must be registered in the homepage `CH` array.
 
