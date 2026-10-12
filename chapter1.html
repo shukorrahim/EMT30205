@@ -502,6 +502,22 @@ button,a,input,label,[role=button]{touch-action:manipulation}
   .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
   .score{margin-right:56px}
 }
+/* 1.14 name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
 /* Home links: top of page, desktop side menu, and first item of the phone menu */
 .hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0;color:var(--sel)}
 .side .home{display:none}
@@ -1132,6 +1148,41 @@ button,a,input,label,[role=button]{touch-action:manipulation}
   <div class="score"><span>Score: <b id="qScore">0 / 10</b> <span class="muted" id="qBest"></span></span><button class="btn" id="qReset">Start again</button></div>
 </section>
 
+<!-- 1.14 -->
+<section class="topic" id="s14">
+  <h2><span class="n">1.14</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
 <footer>
   Monitoring System Integration, Chapter 1: Introduction to SCADA. Content and TNB photos from the lecture notes of Mohamad Shukor bin Abdul Rahim. Other photos from Wikimedia Commons, credited under each image. Screens and values in the simulators are for learning and do not represent live TNB data.
 </footer>
@@ -1505,6 +1556,48 @@ function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class=
 function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('scada-best')||0;
   if(answered===Q.length&&score>best){best=score;store.set('scada-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
 $('#qReset').onclick=buildQuiz;buildQuiz();
+
+/* 1.14 Name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch1-pool')||names.slice(), picked=store.get('ch1-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch1-pool',pool);store.set('ch1-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():box.requestFullscreen()};
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
 
 /* Phones: let wide HMI screens pan sideways instead of shrinking the text */
 ['#wHmi .hmi-body>svg','.arch .hmi-body>svg','#vSld>svg','.field>svg'].forEach(sel=>$$(sel).forEach(svg=>{

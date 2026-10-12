@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>Communication Protocols | Monitoring System Integration</title>
+<meta name="description" content="Chapter 2 of EMT30205: SCADA communication protocols, OSI and TCP/IP, Ethernet, Modbus, IEC 60870-5, DNP3 and IEC 61850, with interactive simulations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side .home-m{display:none}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.ticker{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.lead{max-width:700px;font-size:19px;margin-top:24px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;row-gap:6px}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.ask{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:16px 0;font-size:16px}
+.ask b{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--warn)}
+.ask details{margin-top:6px}.ask summary{cursor:pointer;color:var(--sel);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.threecol{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.threecol{grid-template-columns:repeat(3,1fr)}}
+.twocol ul,.threecol ul{padding-left:20px;margin:0}
+.twocol h3,.threecol h3{margin-top:0;font-size:21px}
+.out{min-height:60px}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.danger{border-color:var(--alarm);color:var(--alarm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+input[type=range]{width:100%;accent-color:var(--sel)}
+
+/* Light diagrams */
+.diagram{margin:14px 0}
+.diagram svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.diagram svg text{fill:var(--ink);font-family:var(--body)}
+.diagram svg .lb{font-family:var(--cond);font-weight:600}
+.diagram svg .dim{fill:var(--ink2)}
+.diagram figcaption{font-size:14px;color:var(--ink2);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.diagram figcaption i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.wide svg{min-width:720px}.pan-hint{display:block}.hmi .pan-hint{color:#8A99A6;background:#172028}}
+
+/* HMI screens (same as Chapter 1) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--kv132:#5AA8FF;--kv33:#F0C04A;--cls:#E5484D;--opn:#3FB950;--val:#7FE3FF;
+  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);margin-top:12px;font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
+.hmi-nav button,.hmi-nav span{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
+.hmi-body{position:relative;min-width:0}
+.hmi svg{display:block;width:100%;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi svg .dim{fill:var(--hd)}
+.hmi svg .lb{font-family:var(--cond);font-weight:600}
+.vbox rect{fill:#000;stroke:var(--hl)}
+.vbox text{font-variant-numeric:tabular-nums;font-weight:600;fill:var(--val)!important}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
+.hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
+.hmi-foot .alm.okk{background:#1F5130;color:#fff}
+@keyframes hblink{50%{background:#7E1A1D}}
+.hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
+.hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
+.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer}
+.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}.hbtn.red{background:#9E2A2E;border-color:#C23A3F;color:#fff}
+.hbtn[disabled]{opacity:.4;cursor:not-allowed}
+.hmi .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--hp);border-top:1px solid var(--hl);color:var(--hd)}
+.hmi .ctl label{display:inline-flex;gap:6px;align-items:center}
+.hmi .ctl input[type=range]{width:120px}
+.hlog{list-style:none;margin:0;padding:6px 10px;font:12px/1.5 Consolas,"Courier New",monospace;max-height:120px;overflow-y:auto;border-top:1px solid var(--hl)}
+.hlog li.a{color:#FF8A84}.hlog li.k{color:#7FE3A0}.hlog li.i{color:var(--val)}
+.flowline{stroke-dasharray:10 8;animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.blink{animation:blinkf 1s steps(2) infinite}
+@keyframes blinkf{50%{opacity:.2}}
+.hmi .ln{transition:opacity .3s}
+.netsvg[data-sel] .ln:not(.on){opacity:.12}
+
+/* 2.1 */
+.babel{display:grid;grid-template-columns:1fr;gap:16px;margin-top:10px}
+@media (min-width:860px){.babel{grid-template-columns:1.2fr 1fr}}
+.kn svg{display:block;width:100%;max-width:300px;margin:0 auto;height:auto}
+.kn .big{font-family:var(--cond);font-size:44px;font-weight:700;line-height:1}
+.bars{display:grid;gap:4px;margin-top:10px}
+.bars .r{display:grid;grid-template-columns:110px 1fr 70px;gap:8px;align-items:center;font-size:14px}
+.bars .t{height:16px;background:var(--panel2);border-radius:2px;position:relative;overflow:hidden}
+.bars .t i{position:absolute;left:0;top:0;bottom:0;width:0;transition:width .5s}
+.bars .t i.d{background:var(--ok)}.bars .t i.n{background:var(--warn)}
+.bars .v{font-variant-numeric:tabular-nums;text-align:right;color:var(--ink2)}
+
+/* 2.3 matching */
+.tbl{width:100%;border-collapse:collapse;font-size:16px}
+.tbl th,.tbl td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{font-family:var(--cond);font-size:19px;font-weight:600}
+.tbl tr.hi td{background:var(--sel-soft)}
+.game .q1{font-family:var(--cond);font-size:30px;font-weight:600;margin:4px 0 6px}
+
+/* 2.4 envelope */
+.frame{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0;min-height:64px;align-items:stretch}
+.fld{border:2px solid;border-radius:4px;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;min-width:64px;animation:pop .35s ease-out;background:var(--panel)}
+.fld b{font-family:var(--cond);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.fld code{font:600 15px Consolas,"Courier New",monospace}
+.fld.dst{border-color:#2F6FB5}.fld.src{border-color:#7A4FD0}.fld.dat{border-color:var(--ok)}.fld.tim{border-color:#B87F00}.fld.chk{border-color:var(--alarm)}.fld.flip code{background:#FFE0DE;color:#A01010}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.steprow{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.wire svg{display:block;width:100%;height:auto}
+
+/* 2.5 OSI */
+.osi{display:grid;grid-template-columns:1fr;gap:16px;margin-top:10px}
+@media (min-width:860px){.osi{grid-template-columns:300px 1fr}}
+.layers{display:grid;gap:4px}
+.layers button{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;text-align:left;border:1px solid var(--line);border-radius:4px;padding:8px 10px;cursor:pointer;background:var(--panel);font-size:15px}
+.layers button b{font-family:var(--cond);font-size:22px;font-weight:700;text-align:center;border-radius:3px;color:#fff}
+.layers button small{color:var(--ink2);font-size:12px}
+.layers button[aria-pressed="true"]{border-color:var(--sel);box-shadow:inset 3px 0 0 var(--sel)}
+.L7{background:#C0392B}.L6{background:#D35400}.L5{background:#B7950B}.L4{background:#2E8B57}.L3{background:#1F7A8C}.L2{background:#2F6FB5}.L1{background:#6C4AB6}
+.enc{display:grid;grid-template-columns:1fr 60px 1fr;gap:8px;margin-top:12px;align-items:stretch}
+.stk{display:grid;gap:3px}
+.stk div{font-size:13px;padding:4px 8px;border-radius:3px;background:var(--panel2);color:var(--ink2);transition:background .25s,color .25s}
+.stk div.on{color:#fff;font-weight:600}
+.mid{display:flex;align-items:flex-end;justify-content:center}
+.mid svg{width:60px;height:40px}
+.pkt{display:flex;flex-wrap:wrap;gap:2px;margin:10px 0;min-height:34px;font:600 13px Consolas,"Courier New",monospace}
+.pkt span{padding:6px 7px;border-radius:3px;color:#fff;animation:pop .3s}
+.pkt span.dat{background:var(--ink);color:var(--canvas)}
+.pkt span.bits{background:#6C4AB6;letter-spacing:.06em}
+
+/* 2.6 mapping */
+.map{display:grid;grid-template-columns:1fr 70px 1fr;gap:6px;margin-top:10px}
+.mcol{display:grid;gap:4px}
+.mcol button,.mcol div{border:1px solid var(--line);border-radius:4px;padding:6px 10px;background:var(--panel);font-size:15px;text-align:left;cursor:pointer;display:flex;align-items:center}
+.mcol .h{border:0;background:none;font-family:var(--cond);font-weight:600;font-size:20px;cursor:default;padding:0 0 4px}
+.mcol .lit{border-color:var(--sel);background:var(--sel-soft);font-weight:600}
+.pdu{display:grid;gap:4px}
+.pdu div{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink2);text-align:center;border-left:2px solid var(--line)}
+
+/* 2.7 */
+.tl{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.tl button{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:6px 12px;cursor:pointer;text-align:left}
+.tl button b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1}
+.tl button span{font-size:13px;color:var(--ink2)}
+.tl button[aria-pressed="true"]{border-color:var(--sel);background:var(--sel-soft)}
+
+/* 2.8 frame builder */
+.fbuild{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:860px){.fbuild{grid-template-columns:300px 1fr}}
+.fbuild label{display:grid;gap:4px;font-size:15px;margin-bottom:10px}
+.fbuild select,.fbuild input{font:inherit;font-size:16px;padding:6px 8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.bytes{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.byte{display:flex;flex-direction:column;align-items:center;border:2px solid;border-radius:4px;padding:4px 6px;min-width:48px;background:var(--panel)}
+.byte code{font:700 18px Consolas,"Courier New",monospace}
+.byte small{font-size:11px;color:var(--ink2);white-space:nowrap}
+.byte.a{border-color:#2F6FB5}.byte.f{border-color:#7A4FD0}.byte.d{border-color:var(--ok)}.byte.c{border-color:var(--alarm)}
+
+/* Flip cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:170px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:26px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+
+/* 2.10 */
+.cmp{width:100%;border-collapse:collapse;font-size:16px}
+.cmp th,.cmp td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.cmp th{font-family:var(--cond);font-size:20px;font-weight:600}
+.cmp td:first-child{color:var(--ink2);width:26%}
+.scen{margin-top:14px}
+.scen .q1{font-size:17px;font-weight:600;margin:4px 0 8px}
+
+/* 2.11 */
+.lvls{display:grid;gap:6px}
+.lvls button{text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:10px 12px;cursor:pointer}
+.lvls button b{font-family:var(--cond);font-size:20px;font-weight:600;display:block}
+.lvls button span{font-size:14px;color:var(--ink2)}
+.lvls button[aria-pressed="true"]{border-color:var(--sel);box-shadow:inset 3px 0 0 var(--sel)}
+.meter{height:12px;background:#000;border:1px solid var(--hl);border-radius:2px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F0C04A,#E5484D)}
+
+/* Class game: name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){
+  .panel{padding:14px}main{padding:0 14px 60px}
+  .seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+  .bars .r{grid-template-columns:86px 1fr 56px}
+  .enc{grid-template-columns:1fr 34px 1fr}.mid svg{width:34px}
+  .map{grid-template-columns:1fr 46px 1fr}.mcol button,.mcol div{font-size:13px;padding:5px 6px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip,.layers button,.tl button,.lvls button{min-height:44px}
+  .mcol button{min-height:40px}
+  .hbtn,.hmi-nav button{min-height:36px;padding-left:14px;padding-right:14px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .side a{padding:10px 12px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .flip .b{transform:none;display:none}.flip.on .b{display:flex}.flip.on .in{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Chapter sections">
+  <div class="brand"><b>Communication Protocols</b><span>Monitoring System Integration, Chapter 2</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 14 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">Monitoring System Integration, Chapter 2</div>
+  <h1>Communication Protocols<small>The languages SCADA systems speak</small></h1>
+  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
+  <figure class="diagram wide" style="margin-top:24px"><div class="scroll-x"><svg viewBox="0 0 1000 340" role="img" aria-label="A SCADA control centre, the brain, sends commands to local PLCs and remote RTUs and receives data back along network links, the nerves">
+    <defs><path id="hp1" d="M250,170 C420,170 470,90 690,90"/><path id="hp2" d="M250,190 C420,190 470,260 690,260"/></defs>
+    <rect x="40" y="110" width="210" height="140" rx="6" fill="var(--panel)" stroke="var(--line)"/>
+    <rect x="58" y="128" width="54" height="36" rx="2" fill="#0D1317"/><rect x="120" y="128" width="54" height="36" rx="2" fill="#0D1317"/><rect x="182" y="128" width="54" height="36" rx="2" fill="#0D1317"/>
+    <path d="M64,154 L76,144 L88,150 L104,136" stroke="#3FB950" stroke-width="2" fill="none"/><path d="M126,152 H168 M126,142 H156" stroke="#7FE3FF" stroke-width="2"/><path d="M188,150 L200,138 L214,148 L230,140" stroke="#F0C04A" stroke-width="2" fill="none"/>
+    <text x="145" y="200" text-anchor="middle" class="lb" font-size="22">The brain</text><text x="145" y="222" text-anchor="middle" class="dim" font-size="13">SCADA control centre</text>
+    <use href="#hp1" stroke="var(--pipe)" stroke-width="3" fill="none"/><use href="#hp2" stroke="var(--pipe)" stroke-width="3" fill="none"/>
+    <circle r="7" fill="var(--sel)"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#hp1"/></animateMotion></circle>
+    <circle r="7" fill="#D39A00"><animateMotion dur="3s" begin="1.5s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#hp1"/></animateMotion></circle>
+    <circle r="7" fill="var(--sel)"><animateMotion dur="3.4s" begin=".7s" repeatCount="indefinite"><mpath href="#hp2"/></animateMotion></circle>
+    <circle r="7" fill="#D39A00"><animateMotion dur="3.4s" begin="2.2s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#hp2"/></animateMotion></circle>
+    <text x="470" y="160" text-anchor="middle" class="lb" font-size="20">The nerves: protocols</text><text x="470" y="182" text-anchor="middle" class="dim" font-size="13">rules for packing, addressing and checking every message</text>
+    <rect x="690" y="40" width="270" height="100" rx="6" fill="var(--panel)" stroke="var(--line)"/>
+    <rect x="712" y="88" width="120" height="14" rx="3" fill="var(--pipe)"/><circle cx="726" cy="95" r="5" fill="var(--panel)"/><circle cx="818" cy="95" r="5" fill="var(--panel)"/>
+    <rect x="740" y="66" width="18" height="18" fill="#D39A00"/><rect x="782" y="66" width="18" height="18" fill="#D39A00"/>
+    <rect x="850" y="58" width="34" height="46" rx="2" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="858" cy="68" r="3" fill="var(--ok)"/>
+    <text x="900" y="76" class="lb" font-size="18">Local PLCs</text><text x="900" y="96" class="dim" font-size="12">factory LAN</text>
+    <rect x="690" y="210" width="270" height="100" rx="6" fill="var(--panel)" stroke="var(--line)"/>
+    <path d="M722,300 L736,226 L750,300 M726,280 H746 M730,256 H742 M716,236 H756" stroke="var(--ink)" stroke-width="2" fill="none"/>
+    <rect x="770" y="252" width="30" height="40" fill="none" stroke="var(--ink)" stroke-width="2"/><rect x="812" y="244" width="28" height="48" rx="2" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="820" cy="254" r="3" fill="var(--ok)"/>
+    <text x="900" y="246" class="lb" font-size="18" text-anchor="middle">Remote</text><text x="900" y="266" class="lb" font-size="18" text-anchor="middle">RTUs</text><text x="900" y="286" class="dim" font-size="12" text-anchor="middle">WAN</text>
+  </svg></div><div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <figcaption><span><i style="background:var(--sel)"></i>Commands to the field</span><span><i style="background:#D39A00"></i>Data back to the control room</span></figcaption></figure>
+  <p class="lead">If SCADA is the brain of a plant, the communication network is its nervous system, and <b>protocols</b> are the rules the nerves follow. This chapter explains why protocols exist, how data is packed and checked, the OSI and TCP/IP models, Ethernet, and the protocols you will meet in industry: <b>Modbus, IEC 60870-5, DNP3 and IEC 61850</b>.</p>
+  <div class="ticker">
+    <div><div class="k">SCADA protocols in use</div><div class="v">~200</div></div>
+    <div><div class="k">OSI layers</div><div class="v">7</div></div>
+    <div><div class="k">TCP/IP layers</div><div class="v">4</div></div>
+    <div><div class="k">Modbus / DNP3 born</div><div class="v">1979 / 1990</div></div>
+  </div>
+</header>
+
+<!-- 2.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">2.1</span>Speaking the same language</h2>
+  <div class="prose">
+    <p>For two devices to communicate, they must <b>speak the same language (protocol)</b> and follow the same rules for <b>starting, conducting and ending</b> the conversation. SCADA protocols grew out of the need to send data and control commands, locally and over long distances, in <b>deterministic time</b>.</p>
+    <p class="bm">Protokol: bahasa dan peraturan yang dipersetujui oleh dua peranti untuk berkomunikasi.</p>
+  </div>
+  <div class="babel">
+    <div class="panel kn">
+      <h3 style="margin-top:0">The Tower of Babel problem</h3>
+      <p style="font-size:15px" class="muted">In the early days every brand had its own language, so every pair of brands needed a translator. Slide to add brands to your plant.</p>
+      <div class="seg" role="group" aria-label="Protocol type" id="knSeg"><button aria-pressed="true" data-m="prop">Each brand its own protocol</button><button aria-pressed="false" data-m="open">One open protocol</button></div>
+      <svg viewBox="0 0 300 260" id="knSvg" role="img" aria-label="Devices and the links they need"></svg>
+      <label style="font-size:15px">Brands in the plant: <b id="knN">4</b><input type="range" id="knR" min="2" max="12" value="4"></label>
+      <div class="row" style="justify-content:space-between;margin-top:6px"><span>Translators needed</span><span class="big" id="knOut">6</span></div>
+      <p id="knTxt" style="font-size:15px;margin:6px 0 0"></p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">What is deterministic time?</h3>
+      <p style="font-size:16px">The ability to <b>predict how long a transaction will take</b> when all relevant factors are known. A protection relay or an alarm cannot "maybe" arrive in time.</p>
+      <div class="row"><button class="btn primary" id="detGo">Send 10 messages on each network</button></div>
+      <div class="bars" id="detBars"></div>
+      <p class="fb" id="detTxt"></p>
+      <div class="note" style="margin-bottom:0"><b>Think of a train and a taxi in KL traffic.</b> The LRT leaves every 3 minutes and takes exactly 14 minutes: you can plan around it. A taxi might take 10 minutes or 50. SCADA needs the train.</div>
+    </div>
+  </div>
+  <div class="ask"><b>Classroom check</b> Why do you think early manufacturers made their protocols proprietary instead of open? Discuss for 60 seconds.
+    <details><summary>One answer</summary>Customers who bought one brand had to keep buying that brand (vendor lock-in). It also let manufacturers tune the protocol tightly to their own hardware.</details></div>
+</section>
+
+<!-- 2.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">2.2</span>A typical SCADA network</h2>
+  <div class="prose"><p>A SCADA system links a control centre to plants and remote stations through a mix of media: <b>radio, cellular, LAN and WAN</b>. Select a link type on the network screen to see how it is used.</p></div>
+  <div class="hmi" id="netHmi">
+    <div class="hmi-title"><b>System: Communication network</b><span class="meta">Engineer | <span class="clk"></span></span></div>
+    <div class="hmi-nav" role="group" aria-label="Link types">
+      <button aria-pressed="true" data-m="">All links</button><button aria-pressed="false" data-m="radio">Radio</button><button aria-pressed="false" data-m="cell">Cellular / cloud</button><button aria-pressed="false" data-m="lan">LAN</button><button aria-pressed="false" data-m="wan">WAN</button>
+    </div>
+    <div class="hmi-body"><div class="scroll-x wide"><svg viewBox="0 0 1000 450" class="netsvg" id="netSvg" role="img" aria-label="Network screen: control centre, two plants and four remote stations linked by radio, cellular, LAN and WAN">
+      <defs>
+        <path id="nC1" d="M262,80 C360,80 400,92 452,92"/><path id="nC2" d="M592,82 C680,82 700,52 760,52"/><path id="nC3" d="M592,100 C680,100 700,132 760,132"/>
+        <path id="nR1" d="M262,140 C380,170 470,232 512,262"/><path id="nR2" d="M528,256 C620,256 680,272 760,272"/><path id="nR3" d="M528,262 C620,300 680,352 760,352"/>
+        <path id="nL1" d="M150,162 V300"/><path id="nW1" d="M262,150 C330,200 390,262 400,330"/>
+      </defs>
+      <g class="ln" data-m="cell"><use href="#nC1" stroke="#7FE3FF" stroke-width="2.5" fill="none"/><use href="#nC2" stroke="#7FE3FF" stroke-width="2.5" fill="none"/><use href="#nC3" stroke="#7FE3FF" stroke-width="2.5" fill="none"/>
+        <circle r="5" fill="#F0C04A"><animateMotion dur="2.6s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nC2"/></animateMotion></circle><circle r="5" fill="#5AA8FF"><animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite"><mpath href="#nC3"/></animateMotion></circle><circle r="5" fill="#F0C04A"><animateMotion dur="2s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nC1"/></animateMotion></circle></g>
+      <g class="ln" data-m="radio"><use href="#nR1" stroke="#C79BFF" stroke-width="2.5" stroke-dasharray="7 6" fill="none"/><use href="#nR2" stroke="#C79BFF" stroke-width="2.5" stroke-dasharray="7 6" fill="none"/><use href="#nR3" stroke="#C79BFF" stroke-width="2.5" stroke-dasharray="7 6" fill="none"/>
+        <circle r="5" fill="#F0C04A"><animateMotion dur="3s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nR2"/></animateMotion></circle><circle r="5" fill="#5AA8FF"><animateMotion dur="3s" begin="1s" repeatCount="indefinite"><mpath href="#nR3"/></animateMotion></circle><circle r="5" fill="#F0C04A"><animateMotion dur="2.4s" begin=".5s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nR1"/></animateMotion></circle>
+        <path d="M512,300 L520,240 L528,300 M514,282 H526 M516,262 H524" stroke="#D6DEE4" stroke-width="2" fill="none"/><path d="M534,246 q8,8 0,16 M540,240 q14,14 0,28 M506,246 q-8,8 0,16" stroke="#C79BFF" stroke-width="1.6" fill="none" class="blink"/>
+        <text x="520" y="322" text-anchor="middle" class="dim" font-size="12">Radio mast</text></g>
+      <g class="ln" data-m="lan"><use href="#nL1" stroke="#3FB950" stroke-width="4" fill="none"/><circle r="5" fill="#F0C04A"><animateMotion dur="1.4s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nL1"/></animateMotion></circle><text x="160" y="240" class="dim" font-size="12">Ethernet / fibre</text></g>
+      <g class="ln" data-m="wan"><use href="#nW1" stroke="#5AA8FF" stroke-width="4" fill="none"/><circle r="5" fill="#F0C04A"><animateMotion dur="2.2s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#nW1"/></animateMotion></circle><text x="330" y="232" class="dim" font-size="12">Leased line / fibre</text></g>
+      <path d="M470,112 q-30,0 -26,-24 q4,-22 34,-18 q12,-24 46,-18 q28,-12 54,8 q34,-2 36,24 q24,8 8,28 q-8,8 -26,6 Z" fill="#172028" stroke="#7FE3FF"/><text x="522" y="96" text-anchor="middle" font-size="14" class="lb">Cellular cloud</text>
+      <rect x="40" y="40" width="222" height="122" rx="4" fill="#172028" stroke="#34424D"/><text x="52" y="62" class="lb" font-size="16">Control centre</text>
+      <rect x="54" y="74" width="60" height="38" fill="#000" stroke="#34424D"/><rect x="122" y="74" width="60" height="38" fill="#000" stroke="#34424D"/><rect x="190" y="74" width="60" height="38" fill="#000" stroke="#34424D"/><path d="M60,104 L74,92 L86,98 L106,84 M128,102 H170 M196,100 L210,88 L224,96 L244,86" stroke="#3FB950" stroke-width="1.6" fill="none"/>
+      <text x="52" y="140" class="dim" font-size="12">SCADA servers, HMI</text>
+      <rect x="40" y="300" width="230" height="120" rx="4" fill="#172028" stroke="#34424D"/><text x="52" y="322" class="lb" font-size="16">Plant #1</text><text x="52" y="340" class="dim" font-size="12">PLCs on a local area network</text>
+      <rect x="58" y="352" width="60" height="44" rx="2" fill="#0F1A21" stroke="#34424D"/><rect x="128" y="352" width="60" height="44" rx="2" fill="#0F1A21" stroke="#34424D"/><rect x="198" y="352" width="60" height="44" rx="2" fill="#0F1A21" stroke="#34424D"/><circle cx="68" cy="362" r="4" fill="#3FB950"/><circle cx="138" cy="362" r="4" fill="#3FB950"/><circle cx="208" cy="362" r="4" fill="#3FB950"/><path d="M58,406 H258" stroke="#3FB950" stroke-width="2"/>
+      <rect x="320" y="330" width="170" height="90" rx="4" fill="#172028" stroke="#34424D"/><text x="332" y="352" class="lb" font-size="16">Plant #2</text><text x="332" y="370" class="dim" font-size="12">Another site, far away</text><rect x="338" y="380" width="54" height="30" fill="#0F1A21" stroke="#34424D"/><rect x="402" y="380" width="54" height="30" fill="#0F1A21" stroke="#34424D"/><circle cx="348" cy="390" r="4" fill="#3FB950"/><circle cx="412" cy="390" r="4" fill="#3FB950"/>
+      <g id="rtus"></g>
+    </svg></div><div class="pan-hint">↔ Swipe sideways to see the whole screen</div>
+      <div class="hmi-legend"><span><i style="background:#C79BFF"></i>Radio</span><span><i style="background:#7FE3FF"></i>Cellular</span><span><i style="background:#3FB950"></i>LAN</span><span><i style="background:#5AA8FF"></i>WAN</span><span><i style="background:#F0C04A"></i>Data packet</span></div></div>
+    <div class="hmi-foot"><span class="alm" id="netInfo"></span></div>
+  </div>
+  <div class="twocol" style="margin-top:16px">
+    <div class="panel"><h3>PLC: the local worker</h3><ul><li>Used inside a <b>local area</b>, such as a factory floor.</li><li>Connected to other PLCs and HMIs by a <b>local area network (LAN)</b>.</li></ul></div>
+    <div class="panel"><h3>RTU: the remote reporter</h3><ul><li>Used at <b>remote locations</b>: substations, pump stations, pipelines.</li><li>Connected by a <b>wide area network (WAN)</b>, and pre-programmed to report the status of all field inputs and outputs to the SCADA master.</li></ul></div>
+  </div>
+</section>
+
+<!-- 2.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">2.3</span>Vendor protocols and open standards</h2>
+  <div class="prose"><p>To reach deterministic time in refineries and power utilities, PLC manufacturers developed <b>their own protocols and bus structures</b>. Today there are about <b>200 real-time protocols</b>, proprietary and open. A big part of designing a SCADA system is matching protocols and communication settings between devices.</p></div>
+  <div class="twocol">
+    <div class="panel scroll-x"><table class="tbl" id="vendTbl"><thead><tr><th>Manufacturer</th><th>Protocols</th></tr></thead><tbody>
+      <tr data-v="ab"><td>Allen-Bradley (Rockwell)</td><td>DeviceNet, ControlNet, DF1, Data Highway+ (DH+), Data Highway 485</td></tr>
+      <tr data-v="si"><td>Siemens</td><td>Profibus, Sinaut</td></tr>
+      <tr data-v="mo"><td>Modicon (now Schneider)</td><td>Modbus, Modbus Plus, Modbus TCP/IP</td></tr>
+      <tr data-v="op"><td>Open standards</td><td>DNP3 (IEEE 1815), IEC 60870-5, IEC 61850</td></tr>
+      <tr><td class="muted">Others</td><td class="muted">GE Fanuc, Mitsubishi, Omron, Toshiba, Westinghouse…</td></tr>
+    </tbody></table></div>
+    <div class="panel game">
+      <b style="font-family:var(--cond);font-size:20px">Who speaks this protocol?</b>
+      <div class="q1" id="vQ"></div>
+      <div class="chips" id="vChips"></div>
+      <div class="fb" id="vFb" aria-live="polite"></div>
+      <div class="row"><span class="muted" id="vScore" style="font-size:14px"></span><button class="btn" id="vNext">Next protocol</button></div>
+    </div>
+  </div>
+  <div class="ask"><b>Think-pair-share</b> What are the financial risks for a factory that builds its whole system on one closed, proprietary protocol?
+    <details><summary>Points to discuss</summary>You must buy every spare part and expansion from one supplier, at their price. If the supplier stops making the product, you may have to replace the whole system. Engineers trained on other brands cannot help.</details></div>
+</section>
+
+<!-- 2.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">2.4</span>The protocol envelope</h2>
+  <div class="prose">
+    <p>A raw value like <b>12.5</b> means nothing on its own: 12.5 what? From which sensor? For which device? When a network is involved, the protocol adds <b>source and destination addresses, a timestamp, control information and error checking</b> around the raw data, following strict rules so the receiver can decode it.</p>
+    <p>Build the envelope one layer at a time, then send it.</p>
+  </div>
+  <div class="panel">
+    <div class="steprow" id="envSteps"></div>
+    <div class="frame" id="envFrame" aria-live="polite"></div>
+    <p id="envTxt" style="font-size:16px;margin:4px 0 10px"></p>
+    <div class="wire"><svg viewBox="0 0 800 90" id="envWire" role="img" aria-label="Sensor A sending the message to Pump 4 over a cable">
+      <rect x="10" y="20" width="110" height="50" rx="4" fill="var(--panel2)" stroke="var(--line)"/><text x="65" y="54" text-anchor="middle" class="lb" font-size="26" style="fill:var(--ink);font-family:var(--cond);font-weight:600">Sensor A</text>
+      <rect x="680" y="20" width="110" height="50" rx="4" fill="var(--panel2)" stroke="var(--line)"/><text x="735" y="54" text-anchor="middle" font-size="26" style="fill:var(--ink);font-family:var(--cond);font-weight:600">Pump 4</text>
+      <path d="M120,45 H680" stroke="var(--pipe)" stroke-width="3"/><path id="noiseZ" d="M380,45 l8,-14 l8,28 l8,-28 l8,28 l8,-14" stroke="var(--alarm)" stroke-width="2.5" fill="none" opacity="0"/>
+      <rect id="envPk" x="120" y="33" width="44" height="24" rx="3" fill="var(--sel)" opacity="0"/>
+    </svg></div>
+    <div class="row"><button class="btn primary" id="envSend">Send it</button><label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="envNoise"> Electrical noise on the cable</label></div>
+    <p class="fb" id="envRes" aria-live="polite"></p>
+  </div>
+  <div class="note"><b>Think of posting a parcel.</b> You cannot drop a box in the post with no address. The protocol writes the "To" and "From" addresses on the box, stamps the time, and seals it with a check that shows if anything was damaged on the way.</div>
+  <div class="ask"><b>Classroom check</b> A system reads "12.5" but misses the addresses and units. What can happen? A) Nothing B) The system ignores it C) Catastrophic failure
+    <details><summary>Answer</summary><b>C.</b> The receiver might act on a value meant for another device, or in the wrong units. In a SCADA system with online control, the lecture notes warn that the result "can be disastrous".</details></div>
+</section>
+
+<!-- 2.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">2.5</span>The OSI seven-layer model</h2>
+  <div class="prose"><p>The <b>Open System Interconnection (OSI)</b> reference model was issued by the International Organization for Standardization (ISO) in 1984 and revised in 1994. It splits communication into <b>seven layers</b>, each with one clear job, so equipment from different vendors can work together. The sender packs the data going <b>down</b> the layers; the receiver unpacks it going <b>up</b>.</p></div>
+  <div class="osi">
+    <div class="layers" id="osiList" role="group" aria-label="OSI layers"></div>
+    <div class="panel" id="osiOut" aria-live="polite"></div>
+  </div>
+  <p class="muted" style="font-size:15px;margin-top:10px">Memory trick, from layer 7 down: <b>A</b>ll <b>P</b>eople <b>S</b>eem <b>T</b>o <b>N</b>eed <b>D</b>ata <b>P</b>rocessing.</p>
+  <h3>Watch a message travel</h3>
+  <div class="panel">
+    <div class="row"><button class="btn" id="encBack">◀ Back</button><button class="btn primary" id="encNext">Next step ▶</button><button class="btn" id="encPlay">▶ Play all</button><button class="btn" id="encReset">Reset</button></div>
+    <p id="encTxt" style="margin:10px 0 0;font-size:16px;min-height:48px" aria-live="polite"></p>
+    <div class="pkt" id="encPkt"></div>
+    <div class="enc"><div><b style="font-family:var(--cond)">Sender</b><div class="stk" id="stkS"></div></div><div class="mid"><svg viewBox="0 0 60 40" aria-hidden="true"><path d="M0,30 H60" stroke="var(--pipe)" stroke-width="3"/><circle id="wireDot" cx="0" cy="30" r="6" fill="#6C4AB6" opacity="0"/></svg></div><div><b style="font-family:var(--cond)">Receiver</b><div class="stk" id="stkR"></div></div></div>
+  </div>
+  <div class="ask"><b>Classroom check</b> In the postal analogy, which OSI layer is the delivery truck driving down the highway?
+    <details><summary>Answer</summary>Layer 1, Physical: the actual movement of bits (the truck on the road), as electrical pulses, light or radio.</details></div>
+</section>
+
+<!-- 2.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">2.6</span>TCP/IP: the model the Internet uses</h2>
+  <div class="prose"><p><b>Transmission Control Protocol/Internet Protocol (TCP/IP)</b> was developed at the same time as OSI. It is the model of the Internet, the biggest WAN in the world, and many SCADA protocols now run on it. TCP/IP has <b>four layers</b>: host-to-network (network access), Internet, transport and application. Tap a TCP/IP layer to see which OSI layers it covers.</p></div>
+  <div class="panel">
+    <div class="map" id="map"></div>
+    <div id="mapOut" class="out" style="margin-top:10px" aria-live="polite"></div>
+  </div>
+  <div class="threecol" style="margin-top:16px">
+    <div class="panel"><h3>SCADA: the app</h3><p style="margin:0;font-size:16px">The software that creates, reads and shows the messages, like WhatsApp on your phone.</p></div>
+    <div class="panel"><h3>TCP/IP: the road</h3><p style="margin:0;font-size:16px">The real four-layer network (Internet, Wi-Fi, Ethernet) that moves the packets from source to destination.</p></div>
+    <div class="panel"><h3>OSI: the law</h3><p style="margin:0;font-size:16px">The reference model that says how traffic must behave. Engineers use it to describe and troubleshoot networks.</p></div>
+  </div>
+  <div class="panel game" style="margin-top:16px">
+    <b style="font-family:var(--cond);font-size:20px">Troubleshooting: which layer is broken?</b>
+    <p id="tsQ" style="margin:6px 0"></p>
+    <div class="chips" id="tsChips"></div>
+    <div class="fb" id="tsFb" aria-live="polite"></div>
+    <button class="btn" id="tsNext">Next fault</button>
+  </div>
+</section>
+
+<!-- 2.7 -->
+<section class="topic" id="s7">
+  <h2><span class="n">2.7</span>Ethernet</h2>
+  <div class="prose"><p><b>Ethernet</b> is the network technology that connects devices inside a building. It uses only the <b>physical and data link layers</b> of the OSI model, and is defined by <b>IEEE 802.3</b>, which also lists the cable types, such as the RJ45 twisted-pair cable. Tap the timeline.</p></div>
+  <div class="tl" id="tl" role="group" aria-label="Ethernet timeline"></div>
+  <div class="panel out" id="tlOut" aria-live="polite"></div>
+  <h3>Sharing one cable: CSMA/CD</h3>
+  <div class="prose"><p>Early Ethernet put every device on one shared cable. The rule was <b>carrier sense, multiple access with collision detection</b>: listen before you talk; if two devices talk at once, both stop, send a jam signal, wait a <b>random</b> time, and try again. Try it, then compare with a modern switch.</p></div>
+  <div class="hmi" id="csHmi">
+    <div class="hmi-title"><b>Ethernet segment monitor</b><span class="meta" id="csMode">Shared bus (hub)</span></div>
+    <div class="hmi-nav" role="group" aria-label="Network type"><button aria-pressed="true" data-m="bus">Shared bus (hub)</button><button aria-pressed="false" data-m="sw">Switch</button></div>
+    <div class="hmi-body"><div class="scroll-x wide"><svg viewBox="0 0 900 230" id="csSvg" role="img" aria-label="Four devices A, B, C and D on an Ethernet network"></svg></div><div class="pan-hint">↔ Swipe sideways to see all devices</div></div>
+    <div class="ctl"><button class="hbtn" data-s="A">A sends</button><button class="hbtn" data-s="D">D sends</button><button class="hbtn red" data-s="AD">A and D send together</button></div>
+    <ul class="hlog" id="csLog" aria-live="polite"></ul>
+  </div>
+  <div class="twocol" style="margin-top:16px">
+    <div class="panel"><h3>Ethernet (LAN): the factory roads</h3><p style="margin:0;font-size:16px">Connects devices inside one building or plant, using IEEE 802.3 cables and switches.</p></div>
+    <div class="panel"><h3>TCP/IP Internet (WAN): the highways</h3><p style="margin:0;font-size:16px">Connects facilities spread across a state or the world. Ethernet carries data to the edge of the building; TCP/IP routes it across the world.</p></div>
+  </div>
+  <div class="ask"><b>Classroom check</b> A remote weather station is 160 km from the control centre. Which network does it need? A) LAN B) WAN
+    <details><summary>Answer</summary><b>B, WAN.</b> A LAN covers one building or site. Long distances need a wide area network: radio, cellular, leased line or the Internet.</details></div>
+  <p class="bm">Internet lawan Ethernet: Ethernet ialah jalan dalam kilang; Internet ialah lebuh raya antara bandar.</p>
+</section>
+
+<!-- 2.8 -->
+<section class="topic" id="s8">
+  <h2><span class="n">2.8</span>Modbus</h2>
+  <div class="prose">
+    <p><b>Modbus</b> was developed in <b>1979 by Modicon</b>. It is free, open, and the most common protocol in SCADA and industrial control networks, used between master stations and RTUs. Modbus is an <b>application layer</b> protocol based on a <b>master/slave</b> architecture: one master controls all data transmission, and slaves only answer when asked to read or write data.</p>
+  </div>
+  <div class="note"><b>Think of a strict teacher taking a roll call.</b> The teacher (master) asks each student (slave) in turn, "Sensor 1, status?". No student may speak until called, even if something urgent happens.</div>
+  <div class="hmi" id="mbHmi">
+    <div class="hmi-title"><b>Modbus master: polling cycle</b><span class="meta">Master | <span class="clk"></span></span></div>
+    <div class="hmi-body"><div class="scroll-x wide"><svg viewBox="0 0 900 300" id="mbSvg" role="img" aria-label="A Modbus master polling slaves one at a time"></svg></div><div class="pan-hint">↔ Swipe sideways to see all slaves</div></div>
+    <div class="ctl"><button class="hbtn red" id="mbEmg">Emergency at the last slave!</button><label>Slaves <input type="range" id="mbN" min="2" max="8" value="5"> <b id="mbNv">5</b></label><span id="mbCyc"></span></div>
+    <div class="hmi-foot"><span class="alm" id="mbBanner">Polling…</span></div>
+  </div>
+  <div class="ask"><b>Think-pair-share</b> What is the main drawback of master/slave polling if an emergency happens at sensor #50 while the master is polling sensor #2?
+    <details><summary>Answer</summary>The master will not know until it reaches sensor #50 in its cycle. The worst-case delay grows with the number of slaves. Try it above: add slaves and press Emergency.</details></div>
+  <h3>Build a real Modbus RTU message</h3>
+  <div class="prose"><p>Every Modbus RTU request is a short frame: <b>slave address</b>, <b>function code</b>, <b>data</b>, and a two-byte <b>CRC</b> error check. Change the fields and watch the bytes, and the CRC, update. These are the real bytes a SCADA master would send down an RS-485 cable.</p></div>
+  <div class="panel fbuild">
+    <div>
+      <label>Slave address (1 to 247)<input type="number" id="mbA" min="1" max="247" value="1"></label>
+      <label>Function<select id="mbF">
+        <option value="1">01 Read coils (outputs ON/OFF)</option><option value="2">02 Read discrete inputs</option><option value="3" selected>03 Read holding registers</option><option value="4">04 Read input registers</option><option value="5">05 Write single coil</option><option value="6">06 Write single register</option></select></label>
+      <label>Starting address<input type="number" id="mbS" min="0" max="65535" value="0"></label>
+      <label id="mbQl">Quantity<input type="number" id="mbQ" min="1" max="125" value="10"></label>
+    </div>
+    <div>
+      <div class="bytes" id="mbBytes" aria-live="polite"></div>
+      <p id="mbTxt" style="font-size:16px"></p>
+      <p class="muted" style="font-size:14px;margin:0">Modbus <b>ASCII</b> sends the same message as readable text characters. <b>Modbus TCP</b> drops the CRC (TCP checks errors) and adds a small header, and uses TCP port 502.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2.9 -->
+<section class="topic" id="s9">
+  <h2><span class="n">2.9</span>IEC 60870-5</h2>
+  <div class="prose"><p><b>IEC 60870-5-101</b> is a standard for power system monitoring, control and the associated communications for <b>telecontrol, teleprotection</b> and telecommunications in electric power systems. It is a family of related standards. Tap each card.</p></div>
+  <div class="cards" id="iecCards"></div>
+</section>
+
+<!-- 2.10 -->
+<section class="topic" id="s10">
+  <h2><span class="n">2.10</span>DNP3: Distributed Network Protocol</h2>
+  <div class="prose">
+    <p><b>DNP3</b> was created by <b>Westronic, Inc. (now GE Harris) in 1990</b>. It is an open, intelligent, robust and efficient modern SCADA protocol, heavily used by electric and water utilities, and standardised as <b>IEEE 1815</b>.</p>
+    <p>The big change: DNP3 outstations do not just wait to be asked. They <b>report by exception</b>: they send only what has changed, with an <b>accurate timestamp</b>, and can even send an alarm unsolicited.</p>
+  </div>
+  <div class="note"><b>Think of a proactive student.</b> Instead of waiting for the roll call, she raises her hand: "Excuse me, my temperature spiked 2 minutes ago, at 10:04:12."</div>
+  <div class="hmi" id="dnHmi">
+    <div class="hmi-title"><b>Network traffic: Modbus vs DNP3</b><span class="meta">Simulated time <span id="dnClock">10:04:00</span></span></div>
+    <div class="hmi-body"><div class="scroll-x wide"><svg viewBox="0 0 900 300" id="dnSvg" role="img" aria-label="Two links side by side: a Modbus link that polls constantly, and a DNP3 link that reports only changes"></svg></div><div class="pan-hint">↔ Swipe sideways to see the whole screen</div></div>
+    <div class="ctl"><button class="hbtn red" id="dnEvt">Pressure drop at the RTU!</button><button class="hbtn" id="dnReset">Reset counters</button></div>
+    <ul class="hlog" id="dnLog" aria-live="polite"></ul>
+  </div>
+  <h3>Face-off: Modbus vs DNP3</h3>
+  <div class="panel scroll-x"><table class="cmp"><thead><tr><th></th><th>Modbus (1979)</th><th>DNP3 (1990)</th></tr></thead><tbody>
+    <tr><td>Architecture</td><td>Continuous polling (master/slave)</td><td>Event-driven reporting (report by exception)</td></tr>
+    <tr><td>Data</td><td>Current value only</td><td>Values with historical timestamps</td></tr>
+    <tr><td>Error handling</td><td>Basic (CRC)</td><td>Advanced: confirmations and re-transmission</td></tr>
+    <tr><td>Security</td><td class="no" style="color:var(--alarm)">✗ Very limited native security</td><td style="color:var(--ok)">✓ Secure Authentication (IEEE 1815)</td></tr>
+    <tr><td>Best for</td><td>Simple, cheap, widely understood systems</td><td>Utilities and critical grids over slow or long links</td></tr>
+  </tbody></table></div>
+  <div class="panel scen">
+    <b style="font-family:var(--cond);font-size:20px">Which protocol would you choose?</b>
+    <div class="q1" id="scQ"></div>
+    <div class="row"><button class="btn" data-p="m">Modbus</button><button class="btn" data-p="d">DNP3</button></div>
+    <div class="fb" id="scFb" aria-live="polite"></div>
+    <button class="btn" id="scNext" style="margin-top:6px">Next scenario</button>
+  </div>
+</section>
+
+<!-- 2.11 -->
+<section class="topic" id="s11">
+  <h2><span class="n">2.11</span>IEC 61850 and GOOSE</h2>
+  <div class="prose">
+    <p>IEC 61850 started as "Communication networks and systems in substations": communication at substation level between relays, substation control and switchgear, so that devices from <b>different vendors interoperate</b>. It is a universal solution for a fully digital power utility automation system. The first edition has <b>14 parts</b> (IEC 61850-x-y, 2002 to 2005).</p>
+    <p class="bm">Banyak peranti boleh dihubungkan jika menggunakan protokol ini, termasuklah pengecas EV yang masih dalam pembangunan.</p>
+  </div>
+  <h3>Rewiring the substation</h3>
+  <div class="seg" role="group" aria-label="Substation wiring" id="wSeg"><button aria-pressed="true" data-m="old">Before: hardwired copper</button><button aria-pressed="false" data-m="new">After: IEC 61850 Ethernet</button></div>
+  <figure class="diagram wide"><div class="scroll-x"><svg viewBox="0 0 900 300" id="wSvg" role="img" aria-label="Substation devices wired together"></svg></div><div class="pan-hint">↔ Swipe sideways</div><figcaption id="wCap"></figcaption></figure>
+  <h3>Three levels, two buses</h3>
+  <div class="twocol">
+    <div class="lvls" id="lvls" role="group" aria-label="IEC 61850 levels"></div>
+    <div class="panel out" id="lvlOut" aria-live="polite"></div>
+  </div>
+  <h3>One data model, three ways to talk</h3>
+  <div class="prose"><p>IEC 61850 describes every device as standard <b>objects</b> that all vendors understand. Those objects are then sent in three ways, depending on how fast they must arrive.</p></div>
+  <div class="threecol">
+    <div class="panel"><h3>Client-server (MMS)</h3><p style="margin:0;font-size:16px">Reports, settings and control from the station computer. Runs over <b>TCP/IP</b>. Reliable but not the fastest.</p></div>
+    <div class="panel"><h3>GOOSE</h3><p style="margin:0;font-size:16px"><b>Generic Object Oriented Substation Event.</b> Fast, peer-to-peer trip and interlock messages, sent <b>straight onto Ethernet</b> with priority tagging.</p></div>
+    <div class="panel"><h3>Sampled Values</h3><p style="margin:0;font-size:16px">Digitised current and voltage waveforms from merging units at the switchgear, thousands of samples per second, also straight onto Ethernet.</p></div>
+  </div>
+  <h3>GOOSE skips the coach</h3>
+  <div class="prose"><p>With GOOSE, devices talk <b>directly to each other</b> without going through the SCADA master. A protection relay can tell a circuit breaker to trip within a few milliseconds. Press <b>Fault!</b> and watch both paths in slow motion.</p></div>
+  <div class="hmi" id="gsHmi">
+    <div class="hmi-title"><b>Feeder protection: trip path comparison</b><span class="meta">Slow motion ×10</span></div>
+    <div class="hmi-body"><div class="scroll-x wide"><svg viewBox="0 0 900 300" id="gsSvg" role="img" aria-label="Two trip paths: relay to SCADA master to breaker, and relay to breaker directly by GOOSE"></svg></div><div class="pan-hint">↔ Swipe sideways</div></div>
+    <div class="ctl"><button class="hbtn red" id="gsGo">Fault!</button><span>Fault energy while waiting for the breaker:</span></div>
+    <div style="display:grid;grid-template-columns:150px 1fr 80px;gap:8px;align-items:center;padding:4px 10px 10px;color:#D6DEE4">
+      <span>Via SCADA master</span><div class="meter"><i id="gsM1"></i></div><b id="gsT1" style="text-align:right">0 ms</b>
+      <span>GOOSE, peer-to-peer</span><div class="meter"><i id="gsM2"></i></div><b id="gsT2" style="text-align:right">0 ms</b>
+    </div>
+  </div>
+  <div class="note"><b>Think of a football match.</b> The old way, the quarterback throws to the coach on the sideline, who then throws to the receiver. With GOOSE, the quarterback throws straight to the receiver. In a fault, half a second of waiting can mean a fire or an explosion.</div>
+  <h3>The three objectives of IEC 61850</h3>
+  <div class="cards" id="objCards"></div>
+  <div class="ask"><b>Quick poll</b> True or false: IEC 61850 was designed to work over old, slow serial cables.
+    <details><summary>Answer</summary><b>False.</b> IEC 61850 is Ethernet-native. It replaces bundles of copper wires with a high-speed digital LAN.</details></div>
+</section>
+
+<!-- 2.12 -->
+<section class="topic" id="s12">
+  <h2><span class="n">2.12</span>Choosing a protocol</h2>
+  <div class="prose"><p>In practice, the physical <b>interface</b> narrows the choice. Older devices talk over <b>serial</b> cables (RS-232, RS-485, RS-422); newer ones over a <b>LAN (Ethernet)</b>. Pick an interface to see the protocols that run on it, and what each is typically used for.</p></div>
+  <div class="seg" role="group" aria-label="Interface" id="ifSeg"><button aria-pressed="true" data-i="ser">Serial (RS-232 / RS-485 / RS-422)</button><button aria-pressed="false" data-i="lan">LAN (Ethernet)</button></div>
+  <div class="panel scroll-x" style="margin-top:10px"><table class="tbl" id="ifTbl"><thead><tr><th>Protocol</th><th>Typical use</th></tr></thead><tbody></tbody></table></div>
+  <h3>The road so far</h3>
+  <figure class="diagram wide"><div class="scroll-x"><svg viewBox="0 0 900 260" id="roadSvg" role="img" aria-label="The roadmap of SCADA communication: past serial links, present Ethernet and TCP/IP, future smart grids"></svg></div><div class="pan-hint">↔ Swipe sideways</div><figcaption id="roadCap">Tap a signpost.</figcaption></figure>
+  <div class="ask"><b>Final reflection</b> What do you think is the next "vehicle" on this data highway? Artificial intelligence? Electric vehicles talking to the grid? Something else?</div>
+</section>
+
+<!-- 2.13 -->
+<section class="topic" id="s13">
+  <h2><span class="n">2.13</span>Check your understanding</h2>
+  <div class="prose"><p>Fifteen questions. You get feedback straight away.</p></div>
+  <div id="quiz" class="prose"></div>
+  <div class="score"><span>Score: <b id="qScore">0 / 15</b> <span class="muted" id="qBest"></span></span><button class="btn" id="qReset">Start again</button></div>
+</section>
+
+<!-- 2.14 -->
+<section class="topic" id="s14">
+  <h2><span class="n">2.14</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Monitoring System Integration, Chapter 2: Communication Protocols. Content from the lecture notes of Mohamad Shukor bin Abdul Rahim, with extra material on frames, CSMA/CD and Modbus RTU added for learning. All diagrams are drawn for this page. Simulations are simplified for learning: timings are illustrative, but the Modbus RTU bytes and CRC are computed exactly as the protocol defines.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+const hex=n=>n.toString(16).toUpperCase().padStart(2,'0');
+const NS='http://www.w3.org/2000/svg';
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];
+const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set(store.get('ch2-seen')||[]);
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;
+    nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('ch2-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+/* Clocks on HMI title bars */
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
+/* Run sims only when on screen */
+const vis=new Set();const vio=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target.id):vis.delete(e.target.id)));
+['mbHmi','dnHmi'].forEach(id=>vio.observe(document.getElementById(id)));
+
+/* ===== 2.1 translators ===== */
+let knMode='prop';
+function knDraw(){const n=+$('#knR').value;$('#knN').textContent=n;const cx=150,cy=128,R=96;const P=[...Array(n)].map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+R*Math.cos(a),cy+R*Math.sin(a)]});
+  let s='';const prop=knMode==='prop';
+  if(prop){for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)s+=`<line x1="${P[i][0]}" y1="${P[i][1]}" x2="${P[j][0]}" y2="${P[j][1]}" stroke="var(--alarm)" stroke-width="1.4" opacity=".7"/>`}
+  else{s+=`<circle cx="${cx}" cy="${cy}" r="26" fill="var(--sel)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="12" style="fill:var(--sel-ink);font-weight:600">OPEN</text>`;P.forEach(p=>s+=`<line x1="${p[0]}" y1="${p[1]}" x2="${cx}" y2="${cy}" stroke="var(--ok)" stroke-width="2.2"/>`)}
+  P.forEach((p,i)=>s+=`<rect x="${p[0]-15}" y="${p[1]-12}" width="30" height="24" rx="3" fill="var(--panel)" stroke="var(--pipe)"/><text x="${p[0]}" y="${p[1]+5}" text-anchor="middle" font-size="12" style="fill:var(--ink);font-weight:600">${String.fromCharCode(65+i)}</text>`);
+  $('#knSvg').innerHTML=s;const t=prop?n*(n-1)/2:0;$('#knOut').textContent=t;
+  $('#knTxt').innerHTML=prop?`With ${n} brands, every pair needs its own translator: n(n−1)/2 = <b>${t}</b>. Add one more brand and you need ${n} more.`:`With one <b>open protocol</b>, every brand speaks the same language: <b>no translators</b>, and adding a brand costs nothing extra.`}
+$('#knR').oninput=knDraw;const kns=$$('#knSeg button');kns.forEach(b=>b.onclick=()=>{press(kns,b);knMode=b.dataset.m;knDraw()});knDraw();
+$('#detBars').innerHTML=['Deterministic','Not deterministic'].map((l,k)=>`<div class="r"><span>${l}</span><div class="t"><i class="${k?'n':'d'}" id="db${k}"></i></div><span class="v" id="dv${k}">–</span></div>`).join('');
+$('#detGo').onclick=async()=>{const b=$('#detGo');b.disabled=true;let mx=[0,0];
+  for(let i=0;i<10;i++){const d=[20,Math.round(5+Math.random()*Math.random()*190)];
+    d.forEach((v,k)=>{mx[k]=Math.max(mx[k],v);$('#db'+k).style.width=Math.min(100,v/2)+'%';$('#dv'+k).textContent=v+' ms'});await sleep(reduce?0:350)}
+  $('#detTxt').innerHTML=`Worst case: deterministic <b>${mx[0]} ms</b> every time; the other network <b>${mx[1]} ms</b>. You can design a safety system around the first, not the second.`;b.disabled=false};
+
+/* ===== 2.2 network ===== */
+const RT=[[760,24,'RTU 1','Pipeline valve'],[760,104,'RTU 2','Reservoir'],[760,244,'RTU 3','Pump station'],[760,324,'RTU 4','Substation']];
+$('#rtus').innerHTML=RT.map(r=>`<rect x="${r[0]}" y="${r[1]}" width="200" height="56" rx="4" fill="#172028" stroke="#34424D"/><text x="${r[0]+12}" y="${r[1]+24}" class="lb" font-size="15">Remote station: ${r[2]}</text><text x="${r[0]+12}" y="${r[1]+43}" class="dim" font-size="12">${r[3]}</text><circle cx="${r[0]+186}" cy="${r[1]+14}" r="5" fill="#3FB950"/>`).join('');
+const NET={'':'All links healthy. Select a link type above to learn about it.',
+ radio:'RADIO: licensed bands (in Malaysia from MCMC; in the US the FCC) or unlicensed bands, typically 200 to 900 MHz for SCADA. Point-to-point or point-to-multipoint. Good where there is no cable.',
+ cell:'CELLULAR / CLOUD: 4G or 5G modems at the RTUs use the telco network. Quick to install, coverage needed, data costs money, and security must be planned.',
+ lan:'LAN: inside one plant. PLCs, HMIs and servers on Ethernet or fibre, fast and private.',
+ wan:'WAN: between distant sites, over fibre or a leased line from a telco. Slower and costlier than a LAN, but covers long distances.'};
+const nb=$$('#netHmi .hmi-nav button');
+function netSel(m){press(nb,nb.find(b=>b.dataset.m===m));const s=$('#netSvg');if(m)s.dataset.sel=m;else delete s.dataset.sel;$$('#netSvg .ln').forEach(g=>g.classList.toggle('on',g.dataset.m===m));$('#netInfo').textContent=NET[m]}
+nb.forEach(b=>b.onclick=()=>netSel(b.dataset.m));netSel('');
+
+/* ===== 2.3 vendor game ===== */
+const VOPT=['Allen-Bradley','Siemens','Modicon','Open standard'];
+const VG=[['DF1','Allen-Bradley','ab','DF1 is Allen-Bradley\'s serial protocol.'],['Data Highway+ (DH+)','Allen-Bradley','ab','DH+ is an Allen-Bradley network.'],['ControlNet','Allen-Bradley','ab','ControlNet came from Allen-Bradley (now managed by ODVA).'],['DeviceNet','Allen-Bradley','ab','DeviceNet came from Allen-Bradley (now managed by ODVA).'],['Profibus','Siemens','si','Profibus was developed by Siemens and partners in Germany.'],['Sinaut','Siemens','si','Sinaut is Siemens\' telecontrol system.'],['Modbus','Modicon','mo','Modicon created Modbus in 1979; it is now free and open.'],['Modbus Plus','Modicon','mo','Modbus Plus is Modicon\'s high-speed network.'],['Modbus TCP/IP','Modicon','mo','Modbus over Ethernet, also from the Modicon family.'],['DNP3','Open standard','op','DNP3 is open and standardised as IEEE 1815.'],['IEC 61850','Open standard','op','IEC 61850 is an international open standard.'],['IEC 60870-5-104','Open standard','op','IEC 60870-5 is an international open standard.']];
+let vi=-1,vOk=0,vN=0;
+function vNext(){let n;do n=Math.floor(Math.random()*VG.length);while(n===vi);vi=n;$('#vQ').textContent=VG[vi][0];$('#vFb').textContent='';$('#vFb').className='fb';$$('#vendTbl tr').forEach(t=>t.classList.remove('hi'));let done=false;
+  $('#vChips').innerHTML=VOPT.map(o=>`<button class="chip">${o}</button>`).join('');
+  $$('#vChips .chip').forEach(c=>c.onclick=()=>{if(done)return;done=true;const ok=c.textContent===VG[vi][1];vN++;if(ok)vOk++;c.classList.add(ok?'right':'wrong');if(!ok)$$('#vChips .chip').find(x=>x.textContent===VG[vi][1]).classList.add('right');
+    $('#vFb').className='fb '+(ok?'good':'bad');$('#vFb').textContent=(ok?'Correct. ':'Not quite. ')+VG[vi][3];$('#vScore').textContent=`${vOk} of ${vN} correct`;const tr=$(`#vendTbl tr[data-v="${VG[vi][2]}"]`);if(tr)tr.classList.add('hi')})}
+$('#vNext').onclick=vNext;vNext();
+
+/* ===== 2.4 envelope ===== */
+const ENV=[['Raw data','Just the reading: 12.5. Useless on its own.'],['+ Addresses','Destination (Pump 4 = 04) and source (Sensor A = 0A).'],['+ Timestamp','When it was measured: 08:04:12.'],['+ Error check','A checksum calculated from all the other bytes.']];
+let envStep=0;
+const envBytes=()=>{const B=[0x04,0x0A,0x00,0x7D,0x08,0x04,0x0C];const sum=B.reduce((a,b)=>a+b,0)&0xFF;return {B,sum}};
+function envDraw(flip){const {B,sum}=envBytes();const f=[];
+  if(envStep>=1)f.push(`<div class="fld dst"><b>To</b><code>${hex(B[0])}</code><small>Pump 4</small></div>`,`<div class="fld src"><b>From</b><code>${hex(B[1])}</code><small>Sensor A</small></div>`);
+  f.push(`<div class="fld dat${flip?' flip':''}"><b>Data</b><code>${flip?hex(flip[0])+' '+hex(flip[1]):hex(B[2])+' '+hex(B[3])}</code><small>${flip?((flip[0]*256+flip[1])/10).toFixed(1):'12.5'} °C</small></div>`);
+  if(envStep>=2)f.push(`<div class="fld tim"><b>Time</b><code>${hex(B[4])} ${hex(B[5])} ${hex(B[6])}</code><small>08:04:12</small></div>`);
+  if(envStep>=3)f.push(`<div class="fld chk"><b>Check</b><code>${hex(sum)}</code><small>sum of bytes</small></div>`);
+  $('#envFrame').innerHTML=f.join('');$('#envTxt').textContent=ENV[envStep][1];
+  $('#envSteps').innerHTML=ENV.map((e,i)=>`<button class="chip" aria-pressed="${i===envStep}" data-i="${i}">${i+1}. ${e[0]}</button>`).join('');
+  $$('#envSteps .chip').forEach(b=>b.onclick=()=>{envStep=+b.dataset.i;$('#envRes').textContent='';envDraw()})}
+envDraw();
+$('#envNoise').onchange=e=>$('#noiseZ').setAttribute('opacity',e.target.checked?1:0);
+$('#envSend').onclick=async()=>{const btn=$('#envSend');btn.disabled=true;const pk=$('#envPk');pk.setAttribute('opacity',1);const res=$('#envRes');res.textContent='';res.className='fb';
+  await tween(1400,k=>pk.setAttribute('x',120+k*516));pk.setAttribute('opacity',0);pk.setAttribute('x',120);
+  const {B,sum}=envBytes();let flip=null;
+  if($('#envNoise').checked){const bit=1<<Math.floor(Math.random()*8);flip=[B[2],B[3]^bit];if(Math.random()<.5)flip=[B[2]^bit,B[3]]}
+  envDraw(flip);
+  if(envStep===0){res.className='fb bad';res.textContent=flip?`Pump 4 received "${((flip[0]*256+flip[1])/10).toFixed(1)}" and has no idea it is wrong, or who sent it. With no addresses, every device on the line receives it.`:'Every device on the cable received "12.5". Who is it for? From whom? In what units? Nobody knows.';}
+  else if(envStep<3){res.className='fb '+(flip?'bad':'good');res.textContent=flip?`Pump 4 accepted ${((flip[0]*256+flip[1])/10).toFixed(1)} °C. The noise changed the value, and with no error check, nobody noticed!`:'Delivered to Pump 4, but nothing proves the data was not damaged on the way. Add the error check.'}
+  else{const got=flip?[B[0],B[1],flip[0],flip[1],B[4],B[5],B[6]]:B;const calc=got.reduce((a,b)=>a+b,0)&0xFF;
+    if(calc===sum){res.className='fb good';res.textContent=`Accepted. Pump 4 recalculated the check (${hex(calc)} = ${hex(sum)}): 12.5 °C from Sensor A at 08:04:12.`}
+    else{res.className='fb bad';res.textContent=`Rejected! Pump 4 calculated ${hex(calc)} but the envelope says ${hex(sum)}. The data was damaged, so it is thrown away and the sender is asked to send it again.`}}
+  btn.disabled=false};
+
+/* ===== 2.5 OSI ===== */
+const OSI=[
+ [7,'Application','Gives network services to the programs you use. Your SCADA software talks to the network here.','HTTP, FTP, SMTP, Modbus, DNP3 application','Writing the letter','Data'],
+ [6,'Presentation','Formats, encrypts and compresses data, so both sides read it the same way.','ASCII, JPEG, SSL/TLS encryption','Writing it in a language the reader understands, sealing the envelope','Data'],
+ [5,'Session','Opens, manages and closes the conversation between two devices.','NetBIOS, RPC, sockets','Agreeing to keep writing to each other','Data'],
+ [4,'Transport','End-to-end delivery: splits data into segments, checks they all arrive, and resends lost ones.','TCP, UDP','The post office counter: tracking number and delivery promise','Segments'],
+ [3,'Network','Logical (IP) addresses and choosing the route between networks.','IP, ICMP, OSPF','Writing the postcode and street address','Packets'],
+ [2,'Data link','Moves frames between neighbouring devices using physical (MAC) addresses, and detects errors on the link.','Ethernet MAC, PPP, HDLC','Loading the parcel on the right truck','Frames'],
+ [1,'Physical','Sends raw bits as electrical, light or radio signals.','RS-232, RS-485, RJ45, 100BASE-T, fibre','The truck driving down the highway','Bits']];
+$('#osiList').innerHTML=OSI.map((l,i)=>`<button aria-pressed="${i===0}" data-i="${i}"><b class="L${l[0]}">${l[0]}</b><span>${l[1]}</span><small>${l[5]}</small></button>`).join('');
+const ob=$$('#osiList button');
+function osiShow(i){const l=OSI[i];press(ob,ob[i]);$('#osiOut').innerHTML=`<h3 style="margin:0">Layer ${l[0]}: ${l[1]}</h3><p style="margin:8px 0">${l[2]}</p><p style="margin:0 0 6px"><b>Examples:</b> ${l[3]}</p><p style="margin:0 0 6px"><b>Postal analogy:</b> ${l[4]}</p><p style="margin:0"><b>Unit of data:</b> ${l[5]}</p>`}
+ob.forEach(b=>b.onclick=()=>osiShow(+b.dataset.i));osiShow(0);
+$('#stkS').innerHTML=OSI.map(l=>`<div data-l="${l[0]}">${l[0]} ${l[1]}</div>`).join('');$('#stkR').innerHTML=$('#stkS').innerHTML;
+let enc=0;const ENCN=16;
+function encDraw(){const S=$$('#stkS div'),R=$$('#stkR div');S.concat(R).forEach(d=>{d.className='';d.style.background=''});
+  let lay=null,side=null,txt='';
+  if(enc<=6){side=S;lay=7-enc}else if(enc===7){txt='The bits travel along the cable (or radio, or fibre) to the receiver.'}else if(enc<=14){side=R;lay=enc-7}
+  if(side){const d=side[7-lay];d.className='on';d.style.background={7:'#C0392B',6:'#D35400',5:'#B7950B',4:'#2E8B57',3:'#1F7A8C',2:'#2F6FB5',1:'#6C4AB6'}[lay]}
+  if(enc===0)txt='Sender, layer 7: your SCADA software creates the data, for example "Open valve 3".';
+  else if(enc<=5)txt=`Sender, layer ${7-enc} (${OSI[enc][1]}) adds its own header, H${7-enc}, in front: ${OSI[enc][2].charAt(0).toLowerCase()+OSI[enc][2].slice(1)}`;
+  else if(enc===6)txt='Sender, layer 1 (Physical) turns the whole frame into bits: voltage pulses on the wire.';
+  else if(enc===8)txt='Receiver, layer 1 picks up the bits and rebuilds the frame.';
+  else if(enc<=13)txt=`Receiver, layer ${enc-7} (${OSI[7-(enc-7)][1]}) reads and removes header H${enc-7}${enc===9?' and trailer T2':''}, then passes the rest up.`;
+  else if(enc===14)txt='Receiver, layer 7: the receiving SCADA software gets exactly the data that was sent: "Open valve 3".';
+  else txt='Delivered. Each layer only talked to its partner layer on the other side.';
+  $('#encTxt').textContent=txt;
+  const dot=$('#wireDot');dot.setAttribute('opacity',enc===7?1:0);if(enc===7)tween(900,k=>dot.setAttribute('cx',k*60));
+  $('#encBack').disabled=enc===0;$('#encNext').disabled=enc>=ENCN-1}
+/* Simpler, explicit header list per step */
+function encHeaders(){if(enc===6||enc===7||enc===8)return 'bits';if(enc<=5)return {low:7-enc,tr:false};if(enc<=14){const low=enc-7+1;return {low,tr:false}}return {low:8}}
+function encDraw2(){encDraw();const h=encHeaders();let html;
+  if(h==='bits')html='<span class="bits">01101001 01110101 01100010 01100101 …</span>';
+  else if(h.low>=7)html='<span class="dat">DATA</span>';
+  else{const L=[];for(let x=h.low;x<=6;x++)L.push(x);html=L.map(x=>`<span class="L${x}">H${x}</span>`).join('')+'<span class="dat">DATA</span>'+(h.low<=2?'<span class="L2">T2</span>':'')}
+  $('#encPkt').innerHTML=html}
+$('#encNext').onclick=()=>{if(enc<ENCN-1){enc++;encDraw2()}};$('#encBack').onclick=()=>{if(enc>0){enc--;encDraw2()}};
+$('#encReset').onclick=()=>{enc=0;encDraw2()};
+$('#encPlay').onclick=async()=>{const b=$('#encPlay');b.disabled=true;enc=0;encDraw2();for(let i=1;i<ENCN;i++){await sleep(reduce?50:1300);enc=i;encDraw2()}b.disabled=false};
+encDraw2();
+
+/* ===== 2.6 TCP/IP mapping ===== */
+const TCP=[['Application',[7,6,5],'Data','Everything the user program needs: HTTP, FTP, DNS, and SCADA protocols like Modbus TCP and DNP3.'],['Transport',[4],'Segments','TCP (reliable, with acknowledgements) or UDP (fast, no guarantee). Port numbers say which program gets the data: Modbus TCP uses port 502.'],['Internet',[3],'Packets','IP addresses and routing across networks. This is what lets a packet cross the world.'],['Network access (host-to-network)',[2,1],'Frames and bits','The local link and the physical cable or radio: Ethernet, Wi-Fi, fibre.']];
+function mapDraw(sel){let L='<div class="mcol"><div class="h">OSI</div>'+OSI.map(l=>`<div data-o="${l[0]}" class="${sel!=null&&TCP[sel][1].includes(l[0])?'lit':''}" style="min-height:40px">${l[0]}. ${l[1]}</div>`).join('')+'</div>';
+  let M='<div class="pdu"><div style="border:0;font-family:var(--cond);font-weight:600;font-size:14px;min-height:26px">Unit</div>'+[['Data',3],['Segments',1],['Packets',1],['Frames / bits',2]].map(p=>`<div style="min-height:${p[1]*44-4}px">${p[0]}</div>`).join('')+'</div>';
+  let R='<div class="mcol"><div class="h">TCP/IP</div>'+TCP.map((t,i)=>`<button data-t="${i}" class="${sel===i?'lit':''}" style="min-height:${t[1].length*44-4}px">${t[0]}</button>`).join('')+'</div>';
+  $('#map').innerHTML=L+M+R;$$('#map [data-t]').forEach(b=>b.onclick=()=>mapDraw(+b.dataset.t));
+  $('#mapOut').innerHTML=sel==null?'<span class="muted">Tap a TCP/IP layer.</span>':`<b>${TCP[sel][0]}</b> covers OSI layer${TCP[sel][1].length>1?'s':''} ${TCP[sel][1].join(', ')}. ${TCP[sel][3]}`}
+mapDraw(null);
+const TS=[['The cable to the RTU was cut by a backhoe. No lights on the network port.','Physical / network access','Physical damage: no signal, no bits. Layer 1.'],['The RTU was given the wrong IP address, so packets cannot reach it.','Internet (network)','IP addressing and routing is the Internet layer (OSI layer 3).'],['A new firewall blocks TCP port 502, so Modbus TCP connections are refused.','Transport','Ports belong to the transport layer (TCP).'],['The network is fine and the RTU replies, but the SCADA tag points to the wrong Modbus register, so the screen shows nonsense.','Application','The data arrives but the SCADA software asks for the wrong thing: application layer.'],['A pipe bursts but the SCADA screen does not change. You ping the RTU and it answers instantly.','Application','Ping proves the road (TCP/IP) works, so look at the app: tag configuration, polling, or the RTU logic.']];
+const TOPT=['Physical / network access','Internet (network)','Transport','Application'];let ti=-1;
+function tsNext(){let n;do n=Math.floor(Math.random()*TS.length);while(n===ti);ti=n;$('#tsQ').textContent=TS[ti][0];$('#tsFb').textContent='';$('#tsFb').className='fb';let done=false;
+  $('#tsChips').innerHTML=TOPT.map(o=>`<button class="chip">${o}</button>`).join('');
+  $$('#tsChips .chip').forEach(c=>c.onclick=()=>{if(done)return;done=true;const ok=c.textContent===TS[ti][1];c.classList.add(ok?'right':'wrong');if(!ok)$$('#tsChips .chip').find(x=>x.textContent===TS[ti][1]).classList.add('right');$('#tsFb').className='fb '+(ok?'good':'bad');$('#tsFb').textContent=(ok?'Correct. ':'Not quite. ')+TS[ti][2]})}
+$('#tsNext').onclick=tsNext;tsNext();
+
+/* ===== 2.7 Ethernet ===== */
+const TL=[['1971','ALOHAnet','A radio network that linked the islands of Hawaii, from the University of Hawaii. Its idea of sharing one channel and retrying after a collision led to Ethernet.'],['1973','Ethernet invented','Bob Metcalfe and colleagues at Xerox PARC built the first Ethernet, on one shared coaxial cable.'],['1980','The "Blue Book"','The Ethernet consortium (DEC, Intel and Xerox) published the Ethernet specification, nicknamed the Blue Book.'],['1983','IEEE 802.3','IEEE released the 802.3 standard: Ethernet on a LAN using CSMA/CD for medium access control.'],['Today','Switched Ethernet','Twisted-pair RJ45 and fibre, 100 Mb/s to 10 Gb/s and beyond. Switches give every device its own full-duplex link, so collisions no longer happen. Industrial Ethernet runs whole plants.']];
+$('#tl').innerHTML=TL.map((t,i)=>`<button aria-pressed="${i===3}" data-i="${i}"><b>${t[0]}</b><span>${t[1]}</span></button>`).join('');
+const tlb=$$('#tl button');const tlShow=i=>{press(tlb,tlb[i]);$('#tlOut').innerHTML=`<b>${TL[i][0]}: ${TL[i][1]}.</b> ${TL[i][2]}`};tlb.forEach(b=>b.onclick=()=>tlShow(+b.dataset.i));tlShow(3);
+let csMode='bus',csBusy=false;const NX={A:110,B:330,C:570,D:790};
+function csDraw(){let s='';
+  if(csMode==='bus'){s+=`<path d="M60,150 H840" stroke="#5AA8FF" stroke-width="6"/><text x="450" y="185" text-anchor="middle" class="dim" font-size="13">One shared cable: only one device may talk at a time</text>`;for(const k in NX)s+=`<path d="M${NX[k]},96 V150" stroke="#5AA8FF" stroke-width="3"/>`}
+  else{s+=`<rect x="390" y="150" width="120" height="44" rx="4" fill="#172028" stroke="#3FB950"/><text x="450" y="177" text-anchor="middle" class="lb" font-size="15">Switch</text>`;for(const k in NX)s+=`<path d="M${NX[k]},96 C${NX[k]},150 ${450},120 450,150" stroke="#3FB950" stroke-width="3" fill="none"/>`}
+  for(const k in NX)s+=`<rect x="${NX[k]-45}" y="40" width="90" height="56" rx="4" fill="#172028" stroke="#34424D" id="nd${k}"/><text x="${NX[k]}" y="74" text-anchor="middle" class="lb" font-size="18">${k}</text>`;
+  s+='<g id="csFx"></g>';$('#csSvg').innerHTML=s}
+function csLog(t,c){const li=document.createElement('li');li.className=c||'';li.textContent=t;$('#csLog').appendChild(li);$('#csLog').scrollTop=1e6}
+function sig(x0,x1,col){const fx=$('#csFx');const l=document.createElementNS(NS,'path');l.setAttribute('stroke',col);l.setAttribute('stroke-width','10');l.setAttribute('stroke-linecap','round');l.setAttribute('opacity','.85');fx.appendChild(l);return {l,set(a,b){l.setAttribute('d',`M${a},150 H${b}`)}}}
+async function sendBus(from,ms){const x=NX[from];const s=sig(x,x,'#F0C04A');await tween(ms||900,k=>s.set(Math.max(60,x-k*780),Math.min(840,x+k*780)));await sleep(250);s.l.remove()}
+async function swSend(from,col){const fx=$('#csFx');const c=document.createElementNS(NS,'circle');c.setAttribute('r','8');c.setAttribute('fill',col);fx.appendChild(c);const x=NX[from];
+  await tween(700,k=>{c.setAttribute('cx',x+(450-x)*k);c.setAttribute('cy',96+54*k)});await tween(500,k=>{c.setAttribute('cx',450);c.setAttribute('cy',150)});c.remove()}
+async function cs(which){if(csBusy)return;csBusy=true;$$('#csHmi .ctl button').forEach(b=>b.disabled=true);$('#csLog').innerHTML='';
+  if(csMode==='sw'){if(which==='AD'){csLog('A and D both send at the same moment.','i');await Promise.all([swSend('A','#F0C04A'),swSend('D','#C79BFF')]);csLog('Each has its own full-duplex link to the switch: no collision. The switch forwards both frames.','k')}
+    else{csLog(`${which} sends. The switch forwards the frame only to the device it is addressed to.`,'i');await swSend(which,'#F0C04A');csLog('Delivered.','k')}}
+  else if(which!=='AD'){csLog(`${which} listens: the cable is quiet (carrier sense).`,'i');await sleep(400);csLog(`${which} transmits. Every device on the bus hears the frame.`,'i');await sendBus(which);csLog('Frame delivered. Cable quiet again.','k')}
+  else{let k=0,att=1;csLog('A and D both listen: quiet. Both transmit at the same moment!','i');
+    for(;;){const sa=sig(NX.A,NX.A,'#F0C04A'),sd=sig(NX.D,NX.D,'#C79BFF');const mid=(NX.A+NX.D)/2,half=(NX.D-NX.A)/2;
+      await tween(800,t=>{sa.set(Math.max(60,NX.A-t*half),NX.A+t*half);sd.set(NX.D-t*half,Math.min(840,NX.D+t*half))});
+      const boom=document.createElementNS(NS,'circle');boom.setAttribute('cx',mid);boom.setAttribute('cy',150);boom.setAttribute('r','10');boom.setAttribute('fill','#E5484D');$('#csFx').appendChild(boom);
+      await tween(500,t=>boom.setAttribute('r',10+t*40));csLog(`COLLISION (attempt ${att})! Both detect it, stop, and send a jam signal.`,'a');await sleep(300);sa.l.remove();sd.l.remove();boom.remove();
+      k++;const max=(1<<k)-1;const ra=Math.floor(Math.random()*(max+1)),rd=Math.floor(Math.random()*(max+1));
+      csLog(`Random back-off: A waits ${ra} slot${ra===1?'':'s'}, D waits ${rd} slot${rd===1?'':'s'} (each picks 0 to ${max}).`,'i');await sleep(700);
+      if(ra!==rd){const first=ra<rd?'A':'D',second=first==='A'?'D':'A';csLog(`${first} finishes waiting first, hears silence, and transmits.`,'i');
+        const p1=sendBus(first,900);await sleep(300);csLog(`${second} finishes waiting, hears the cable busy (carrier sense), and waits.`,'i');await p1;csLog(`${first}'s frame delivered. Now ${second} transmits.`,'i');await sendBus(second,900);csLog('Both frames delivered.','k');break}
+      att++;csLog('Same random number: they collide again!','a');if(att>4){csLog('(Stopping the demo here.)','i');break}}}
+  csBusy=false;$$('#csHmi .ctl button').forEach(b=>b.disabled=false)}
+$$('#csHmi .ctl button').forEach(b=>b.onclick=()=>cs(b.dataset.s));
+const csb=$$('#csHmi .hmi-nav button');csb.forEach(b=>b.onclick=()=>{if(csBusy)return;press(csb,b);csMode=b.dataset.m;$('#csMode').textContent=b.textContent;$('#csLog').innerHTML='';csDraw()});csDraw();
+
+/* ===== 2.8 Modbus polling ===== */
+let mbN=5,mbPoll=0,mbEmg=-1,mbEmgT=0,mbSeen=false;const POLL=700;
+function mbDraw(){const W=900;let s=`<rect x="30" y="100" width="150" height="100" rx="4" fill="#172028" stroke="#34424D"/><text x="105" y="135" text-anchor="middle" class="lb" font-size="17">Master</text><text x="105" y="155" text-anchor="middle" class="dim" font-size="12">SCADA</text><rect x="62" y="166" width="86" height="22" fill="#000" stroke="#34424D"/><text x="105" y="182" text-anchor="middle" font-size="12" id="mbAsk" style="fill:#7FE3FF">idle</text>`;
+  const gap=Math.min(110,560/mbN);for(let i=0;i<mbN;i++){const x=260+i*((W-300)/mbN)+((W-300)/mbN-90)/2;const em=i===mbEmg;
+    s+=`<g id="sl${i}"><rect x="${x}" y="190" width="90" height="70" rx="4" fill="${em?'#3A0D10':'#172028'}" stroke="${em?'#E5484D':'#34424D'}" stroke-width="${em?2:1}" ${em?'class="blink"':''}/><text x="${x+45}" y="214" text-anchor="middle" class="lb" font-size="15">Slave ${i+1}</text><text x="${x+45}" y="236" text-anchor="middle" font-size="12" style="fill:${em?'#FF8A84':'#8A99A6'}">${em?'HIGH TEMP!':'OK'}</text><text x="${x+45}" y="252" text-anchor="middle" font-size="11" class="dim" id="sv${i}"></text></g>`}
+  s+=`<path d="M180,150 H860" stroke="#34424D" stroke-width="2" stroke-dasharray="4 4"/><g id="mbFx"></g>`;$('#mbSvg').innerHTML=s}
+function slX(i){const W=900;return 260+i*((W-300)/mbN)+((W-300)/mbN-90)/2+45}
+async function mbLoop(){for(;;){if(!vis.has('mbHmi')){await sleep(300);continue}
+  const i=mbPoll%mbN;$('#mbAsk').textContent=`Slave ${i+1}, status?`;const fx=$('#mbFx');const x=slX(i);
+  const a=document.createElementNS(NS,'path');a.setAttribute('stroke','#5AA8FF');a.setAttribute('stroke-width','3');a.setAttribute('fill','none');fx.appendChild(a);
+  await tween(POLL*.45,k=>a.setAttribute('d',`M180,150 H${180+(x-180)*k}${k>.98?` V190`:''}`));a.remove();
+  const em=i===mbEmg;const sv=$('#sv'+i);if(sv)sv.textContent=em?'reply: ALARM':'reply: '+(20+Math.round(Math.random()*15))+' °C';
+  const r=document.createElementNS(NS,'path');r.setAttribute('stroke',em?'#E5484D':'#F0C04A');r.setAttribute('stroke-width','3');r.setAttribute('fill','none');fx.appendChild(r);
+  await tween(POLL*.45,k=>r.setAttribute('d',`M${x},190 V160 H${x-(x-180)*k}`));r.remove();
+  if(em&&!mbSeen){mbSeen=true;const dt=((performance.now()-mbEmgT)/1000).toFixed(1);$('#mbBanner').className='alm on';$('#mbBanner').textContent=`ALARM Slave ${i+1}: HIGH TEMP. The master only found out ${dt} s after it happened, when it was Slave ${i+1}'s turn.`}
+  else if(!mbSeen&&mbEmg>=0){$('#mbBanner').textContent=`Slave ${mbEmg+1} has an emergency, but must wait its turn… ${((performance.now()-mbEmgT)/1000).toFixed(1)} s`}
+  mbPoll++;await sleep(POLL*.1)}}
+function mbCyc(){$('#mbCyc').textContent=`One full cycle ≈ ${(mbN*POLL/1000).toFixed(1)} s (worst-case wait)`}
+$('#mbN').oninput=e=>{mbN=+e.target.value;$('#mbNv').textContent=mbN;mbEmg=-1;mbSeen=false;mbPoll=0;$('#mbBanner').className='alm';$('#mbBanner').textContent='Polling…';mbDraw();mbCyc()};
+$('#mbEmg').onclick=()=>{mbEmg=mbN-1;mbSeen=false;mbEmgT=performance.now();mbPoll=mbPoll-(mbPoll%mbN)+mbN;$('#mbBanner').className='alm';mbDraw()};
+mbDraw();mbCyc();mbLoop();
+/* Modbus RTU frame builder */
+function crc16(bytes){let c=0xFFFF;for(const b of bytes){c^=b;for(let i=0;i<8;i++)c=(c&1)?(c>>1)^0xA001:c>>1}return c}
+const FN={1:'Read coils',2:'Read discrete inputs',3:'Read holding registers',4:'Read input registers',5:'Write single coil',6:'Write single register'};
+function mbBuild(){const clamp=(v,a,b)=>Math.max(a,Math.min(b,Math.round(+v||0)));
+  const a=clamp($('#mbA').value,1,247),f=+$('#mbF').value,s=clamp($('#mbS').value,0,65535);let q;
+  const ql=$('#mbQl');
+  if(f===5){ql.firstChild.textContent='Coil value (1 = ON, 0 = OFF)';$('#mbQ').min=0;$('#mbQ').max=1;q=clamp($('#mbQ').value,0,1)?0xFF00:0x0000}
+  else if(f===6){ql.firstChild.textContent='Value to write (0 to 65535)';$('#mbQ').min=0;$('#mbQ').max=65535;q=clamp($('#mbQ').value,0,65535)}
+  else{ql.firstChild.textContent=`Quantity (1 to ${f<=2?2000:125})`;$('#mbQ').min=1;$('#mbQ').max=f<=2?2000:125;q=clamp($('#mbQ').value,1,f<=2?2000:125)}
+  const B=[a,f,s>>8,s&255,q>>8,q&255];const c=crc16(B);const all=[...B,c&255,c>>8];
+  const lab=['Slave addr','Function','Start hi','Start lo',f>=5?'Value hi':'Qty hi',f>=5?'Value lo':'Qty lo','CRC lo','CRC hi'];const cls=['a','f','d','d','d','d','c','c'];
+  $('#mbBytes').innerHTML=all.map((b,i)=>`<div class="byte ${cls[i]}"><code>${hex(b)}</code><small>${lab[i]}</small></div>`).join('');
+  const what=f===5?`switch coil ${s} ${q?'ON':'OFF'}`:f===6?`write the value ${q} into holding register ${s}`:`send back ${q} ${f<=2?'bit':'register'}${q>1?'s':''}, starting at address ${s}`;
+  $('#mbTxt').innerHTML=`In words: "Slave <b>${a}</b>, function <b>${hex(f)} (${FN[f]})</b>: please ${what}." The last two bytes are the CRC-16, calculated from the first six. If even one bit changes on the way, the slave's CRC will not match and it ignores the message.`}
+['mbA','mbF','mbS','mbQ'].forEach(id=>$('#'+id).addEventListener('input',mbBuild));$('#mbF').onchange=()=>{const f=+$('#mbF').value;$('#mbQ').value=f===5?1:f===6?500:10;mbBuild()};mbBuild();
+
+/* ===== 2.9 IEC 60870-5 cards ===== */
+const IEC=[['IEC 60870-5-101','Telecontrol over serial','A standard for power system monitoring, control and telecontrol between a control centre and RTUs, over serial links. "101" for short.'],['IEC 60870-5-103','Protection equipment','Connects protection relays to the substation control system, so the control system can read relay events and settings.'],['IEC 60870-5-104','101 over TCP/IP','The same messages as 101, carried over Ethernet and TCP/IP networks (TCP port 2404). Used where utilities moved from serial to IP networks.']];
+$('#iecCards').innerHTML=IEC.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>${c[1]}</span><span style="margin-top:8px">Tap to flip</span></div><div class="b">${c[2]}</div></div></button>`).join('');
+$$('#iecCards .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+
+/* ===== 2.10 DNP3 traffic race ===== */
+let dnT=0,dnMb=0,dnDn=0,dnEvt=null,dnMbSeen=false;
+function dnDraw(){let s='';[['Modbus: polling every 2 s',40],['DNP3: report by exception',170]].forEach(([t,y],k)=>{
+  s+=`<text x="20" y="${y+16}" class="lb" font-size="16">${t}</text><rect x="20" y="${y+28}" width="120" height="60" rx="4" fill="#172028" stroke="#34424D"/><text x="80" y="${y+63}" text-anchor="middle" class="lb" font-size="15">Master</text>
+  <rect x="720" y="${y+28}" width="120" height="60" rx="4" fill="#172028" stroke="#34424D" id="dnR${k}"/><text x="780" y="${y+55}" text-anchor="middle" class="lb" font-size="15">RTU</text><text x="780" y="${y+75}" text-anchor="middle" font-size="12" class="dim" id="dnRv${k}">Pressure OK</text>
+  <path d="M140,${y+58} H720" stroke="#34424D" stroke-width="2"/><g id="dnFx${k}"></g>
+  <text x="430" y="${y+112}" text-anchor="middle" font-size="13" class="dim" id="dnC${k}">Messages: 0</text>`});$('#dnSvg').innerHTML=s}
+function dnPkt(k,dir,col,label){const fx=$('#dnFx'+k);const g=document.createElementNS(NS,'g');const r=document.createElementNS(NS,'rect');r.setAttribute('width','70');r.setAttribute('height','20');r.setAttribute('rx','3');r.setAttribute('fill',col);const t=document.createElementNS(NS,'text');t.setAttribute('font-size','11');t.setAttribute('text-anchor','middle');t.setAttribute('style','fill:#0D1317;font-weight:600');t.textContent=label;g.appendChild(r);g.appendChild(t);fx.appendChild(g);
+  const y=(k?170:40)+48;return tween(900,p=>{const x=dir>0?150+p*490:640-p*490;r.setAttribute('x',x);r.setAttribute('y',y);t.setAttribute('x',x+35);t.setAttribute('y',y+14)}).then(()=>g.remove())}
+function dnLog(t,c){const li=document.createElement('li');li.className=c||'';li.textContent=t;$('#dnLog').appendChild(li);$('#dnLog').scrollTop=1e6}
+const clk=t=>{const s=4*60+t;return `10:${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`};
+function dnCount(){$('#dnC0').textContent=`Messages: ${dnMb}`;$('#dnC1').textContent=`Messages: ${dnDn}`}
+(async function dnLoop(){dnDraw();for(;;){if(!vis.has('dnHmi')){await sleep(300);continue}
+  dnT++;$('#dnClock').textContent=clk(dnT);
+  if(dnT%2===0){dnMb++;dnCount();await dnPkt(0,1,'#5AA8FF','Status?');dnMb++;dnCount();const alarm=dnEvt!==null&&!dnMbSeen;
+    if(alarm){dnMbSeen=true;dnLog(`Modbus master: RTU now reads LOW PRESSURE. When did it happen? Somewhere between ${clk(dnEvt-1)} and ${clk(dnT)}; Modbus has no event timestamp.`,'a')}
+    await dnPkt(0,-1,alarm?'#E5484D':'#F0C04A',alarm?'LOW!':'No change')}
+  else await sleep(900);
+  if(dnT%30===0){dnDn+=2;dnCount();dnLog(`DNP3: periodic integrity poll at ${clk(dnT)} (a full check, every few minutes in real systems).`,'i')}}})();
+$('#dnEvt').onclick=async()=>{if(dnEvt!==null&&!dnMbSeen)return;dnEvt=dnT;dnMbSeen=false;const ms=Math.floor(Math.random()*900);
+  ['#dnRv0','#dnRv1'].forEach(s=>{$(s).textContent='LOW PRESSURE';$(s).style.fill='#FF8A84'});
+  dnLog(`Pressure drops at the RTU at ${clk(dnT)}.${String(ms).padStart(3,'0')}.`,'a');dnDn++;dnCount();
+  await dnPkt(1,-1,'#E5484D','EVENT');dnLog(`DNP3 RTU reports immediately, unsolicited: "Pressure LOW at ${clk(dnEvt)}.${String(ms).padStart(3,'0')}". Exact time, no waiting.`,'k');dnDn++;dnCount();await dnPkt(1,1,'#3FB950','Confirm');
+  setTimeout(()=>['#dnRv0','#dnRv1'].forEach(s=>{$(s).textContent='Pressure OK';$(s).style.fill=''}),6000)};
+$('#dnReset').onclick=()=>{dnMb=0;dnDn=0;dnCount();$('#dnLog').innerHTML=''};
+const SC=[['A simple water tank monitor that only needs to show the current water level.','m','Modbus: simple, cheap and universally understood. You only need the current value.'],['A power grid operator must know the exact millisecond each breaker tripped during a blackout.','d','DNP3: events carry accurate timestamps, so the sequence of events can be rebuilt.'],['50 remote RTUs on a slow radio link, where values rarely change.','d','DNP3: report by exception sends only changes, saving the slow link from endless "no change" replies.'],['A power meter wired by RS-485 to a PLC in the same panel.','m','Modbus RTU: the classic choice for meters and simple devices.'],['A water utility needs to be sure that a "close valve" command really came from its control centre.','d','DNP3 with Secure Authentication (IEEE 1815). Modbus has very little native security.']];
+let si=-1;function scNext(){let n;do n=Math.floor(Math.random()*SC.length);while(n===si);si=n;$('#scQ').textContent=SC[si][0];$('#scFb').textContent='';$('#scFb').className='fb'}
+$$('.scen [data-p]').forEach(b=>b.onclick=()=>{const ok=b.dataset.p===SC[si][1];$('#scFb').className='fb '+(ok?'good':'bad');$('#scFb').textContent=(ok?'Good choice. ':'Think again. ')+SC[si][2]});
+$('#scNext').onclick=scNext;scNext();
+
+/* ===== 2.11 IEC 61850 ===== */
+const IEDS=[[90,60,'Relay','Vendor A'],[300,40,'Bay control','Vendor B'],[520,60,'Relay','Vendor C'],[740,40,'Meter','Vendor D'],[160,200,'Merging unit','Vendor E'],[420,210,'Breaker IED','Vendor F'],[680,200,'Relay','Vendor G']];
+function wDraw(m){let s='';const old=m==='old';
+  if(old){let seed=7;const rnd=()=>{seed=(seed*9301+49297)%233280;return seed/233280};for(let i=0;i<IEDS.length;i++)for(let j=i+1;j<IEDS.length;j++)for(let k=0;k<3;k++){const a=IEDS[i],b=IEDS[j];const ax=a[0]+40+rnd()*20-10,ay=a[1]+30,bx=b[0]+40+rnd()*20-10,by=b[1]+30;s+=`<path d="M${ax},${ay} C${ax+(rnd()-.5)*300},${ay+(rnd()-.5)*200} ${bx+(rnd()-.5)*300},${by+(rnd()-.5)*200} ${bx},${by}" stroke="#C26A2B" stroke-width="1.6" fill="none" opacity=".75"/>`}}
+  else{s+=`<rect x="380" y="128" width="140" height="36" rx="4" fill="var(--sel)"/><text x="450" y="151" text-anchor="middle" font-size="14" style="fill:var(--sel-ink);font-weight:600">Ethernet switch</text>`;IEDS.forEach(d=>s+=`<path d="M${d[0]+40},${d[1]+30} C${d[0]+40},146 ${450},146 450,146" stroke="#2F6FB5" stroke-width="3" fill="none"/><circle r="4" fill="#F0C04A"><animateMotion dur="${1.5+Math.random()}s" repeatCount="indefinite" path="M${d[0]+40},${d[1]+30} C${d[0]+40},146 450,146 450,146"/></circle>`)}
+  IEDS.forEach(d=>s+=`<rect x="${d[0]}" y="${d[1]}" width="80" height="60" rx="4" fill="var(--panel)" stroke="var(--pipe)"/><text x="${d[0]+40}" y="${d[1]+26}" text-anchor="middle" font-size="12" class="lb">${d[2]}</text><text x="${d[0]+40}" y="${d[1]+44}" text-anchor="middle" font-size="11" class="dim">${d[3]}</text>`);
+  $('#wSvg').innerHTML=s;$('#wCap').textContent=old?'Before: every signal between devices needs its own copper wires. Hundreds of wires, big metal cabinets, complex hardwired schemes, and every vendor wired differently.':'After: every device plugs into one Ethernet network and speaks IEC 61850. Devices from competing brands understand each other, and adding a signal is a software change, not a new wire.'}
+const ws=$$('#wSeg button');ws.forEach(b=>b.onclick=()=>{press(ws,b);wDraw(b.dataset.m)});wDraw('old');
+const LV=[['Station level','HMI, engineering workstation, gateway to the control centre','The operator\'s computers in the substation building. They supervise everything and pass data to the remote SCADA control centre. Connected to the bay level by the station bus.'],['Station bus','Ethernet between station and bay level','Carries client-server (MMS) reports and commands, and GOOSE messages between bays: fast I/O data exchange for protection and control.'],['Bay (unit) level','Protection relays and bay controllers','Each bay (one feeder or transformer) has its own protection relay and controller. They make the fast decisions, such as tripping a breaker.'],['Process bus','Ethernet between bay and process level','Carries Sampled Values (digitised current and voltage) up from the switchgear, and trip commands down. Replaces long copper cables from CTs and VTs.'],['Process level','Merging units, modern CT/VT, switchgear','The high-voltage equipment in the switchyard. Merging units digitise the measurements right there.']];
+$('#lvls').innerHTML=LV.map((l,i)=>`<button aria-pressed="${i===0}" data-i="${i}"><b>${l[0]}</b><span>${l[1]}</span></button>`).join('');
+const lvb=$$('#lvls button');const lvShow=i=>{press(lvb,lvb[i]);$('#lvlOut').innerHTML=`<h3 style="margin:0 0 6px">${LV[i][0]}</h3><p style="margin:0">${LV[i][2]}</p>`};lvb.forEach(b=>b.onclick=()=>lvShow(+b.dataset.i));lvShow(0);
+function gsDraw(){let s='';[['Via SCADA master (legacy)',30],['GOOSE: peer-to-peer',170]].forEach(([t,y],k)=>{
+  s+=`<text x="20" y="${y+14}" class="lb" font-size="15">${t}</text>
+  <rect x="40" y="${y+30}" width="110" height="56" rx="4" fill="#172028" stroke="#34424D"/><text x="95" y="${y+56}" text-anchor="middle" class="lb" font-size="14">Relay</text><text x="95" y="${y+74}" text-anchor="middle" font-size="11" class="dim">sees the fault</text>
+  ${k?'':`<rect x="395" y="${y+30}" width="110" height="56" rx="4" fill="#172028" stroke="#34424D"/><text x="450" y="${y+62}" text-anchor="middle" class="lb" font-size="14">SCADA master</text>`}
+  <rect x="750" y="${y+30}" width="110" height="56" rx="4" fill="#172028" stroke="#34424D" id="gsB${k}"/><text x="805" y="${y+56}" text-anchor="middle" class="lb" font-size="14">Breaker</text><text x="805" y="${y+74}" text-anchor="middle" font-size="11" class="dim" id="gsBt${k}">closed</text>
+  <path d="M150,${y+58} H750" stroke="#34424D" stroke-width="2"/><circle id="gsP${k}" r="8" fill="#E5484D" cx="150" cy="${y+58}" opacity="0"/>`});$('#gsSvg').innerHTML=s}
+gsDraw();let gsRun=false;
+$('#gsGo').onclick=async()=>{if(gsRun)return;gsRun=true;gsDraw();const S=10;/* slow motion */
+  const lane=async(k,total,via)=>{const p=$('#gsP'+k),m=$('#gsM'+(k+1)),t=$('#gsT'+(k+1));p.setAttribute('opacity',1);const y=+p.getAttribute('cy');const t0=performance.now();
+    const step=()=>{const e=Math.min(total,(performance.now()-t0)/S);t.textContent=Math.round(e)+' ms';m.style.width=Math.min(100,e/5)+'%'};
+    if(via){await tween(total*S*.45,q=>{p.setAttribute('cx',150+300*q);step()});await tween(total*S*.1,()=>step());await tween(total*S*.45,q=>{p.setAttribute('cx',450+300*q);step()})}
+    else await tween(Math.max(total*S,400),q=>{p.setAttribute('cx',150+600*q);step()});
+    t.textContent=total+' ms';m.style.width=Math.min(100,total/5)+'%';p.setAttribute('opacity',0);$('#gsBt'+k).textContent='TRIPPED';$('#gsBt'+k).style.fill='#3FB950';$('#gsB'+k).setAttribute('stroke','#3FB950')};
+  $('#gsM1').style.width='0';$('#gsM2').style.width='0';await Promise.all([lane(0,500,true),lane(1,4,false)]);gsRun=false};
+const OBJ=[['Interoperability','Different brands, one language','IEDs (intelligent electronic devices) from one or several manufacturers can exchange information and use it for their own functions.'],['Free configuration','Any architecture','The standard supports different philosophies: functions can be centralised (RTU-like) or spread across devices (substation control system).'],['Long-term stability','Future-proof','It must keep up with progress in communication technology and with changing system requirements, without redesigning the substation.']];
+$('#objCards').innerHTML=OBJ.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>${c[1]}</span><span style="margin-top:8px">Tap to flip</span></div><div class="b">${c[2]}</div></div></button>`).join('');
+$$('#objCards .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+
+/* ===== 2.12 interfaces + roadmap ===== */
+const IF={ser:[['IEC 60870-5-103','Protection relays'],['IEC 60870-5-101','Telecontrol (SCADA to RTU)'],['DNP3','Protection, monitoring and metering'],['Modbus RTU','Metering and simple devices']],lan:[['IEC 60870-5-104','Telecontrol over TCP/IP'],['DNP3 over TCP/IP','Utility SCADA over IP networks'],['Modbus over Ethernet (Modbus TCP)','Industries and factories'],['IEC 61850','Substation automation, including GOOSE']]};
+const ifb=$$('#ifSeg button');const ifShow=k=>{press(ifb,ifb.find(b=>b.dataset.i===k));$('#ifTbl tbody').innerHTML=IF[k].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')};ifb.forEach(b=>b.onclick=()=>ifShow(b.dataset.i));ifShow('ser');
+(function road(){const RD=[[120,'Past','Serial links','Slow, narrow roads that carry basic polling: RS-232 and RS-485 cables, early Modbus. Like a single-lane dirt road.'],[450,'Present','Ethernet & TCP/IP','Fast, multi-lane highways for mass data and WAN routing: DNP3 over IP, Modbus TCP, IEC 60870-5-104.'],[780,'Future','Smart grids','Intelligent expressways with real-time peer-to-peer traffic: IEC 61850, GOOSE and the Internet of Things, linking solar farms, batteries and EV chargers.']];
+  let s=`<path id="rdP" d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="#8B7355" stroke-width="26" fill="none" opacity=".35"/><path d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="var(--pipe)" stroke-width="20" fill="none" opacity=".6"/><path d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="var(--panel)" stroke-width="2" fill="none" stroke-dasharray="14 12" class="flowline"/>
+   <g><rect x="-14" y="-8" width="28" height="16" rx="4" fill="var(--sel)"/><animateMotion dur="9s" repeatCount="indefinite" rotate="auto"><mpath href="#rdP"/></animateMotion></g>`;
+  RD.forEach((r,i)=>{const y=[200,140,80][i];s+=`<g class="sign" data-i="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="${r[1]}: ${r[2]}"><path d="M${r[0]},${y-16} V${y-70}" stroke="var(--ink2)" stroke-width="3"/><rect x="${r[0]-70}" y="${y-118}" width="140" height="50" rx="4" fill="${['#8B5A2B','#2E7A39','#1B5AA6'][i]}"/><text x="${r[0]}" y="${y-98}" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">${r[1]}</text><text x="${r[0]}" y="${y-80}" text-anchor="middle" font-size="13" style="fill:#fff">${r[2]}</text></g>`});
+  $('#roadSvg').innerHTML=s;$$('#roadSvg .sign').forEach(g=>{const f=()=>{const r=RD[g.dataset.i];$('#roadCap').innerHTML=`<span><b>${r[1]}: ${r[2]}.</b> ${r[3]}</span>`};g.onclick=f;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}})})();
+
+/* Class game: name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch2-pool')||names.slice(), picked=store.get('ch2-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch2-pool',pool);store.set('ch2-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():box.requestFullscreen()};
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
+
+/* ===== Quiz ===== */
+const Q=[
+ ['What does "deterministic time" mean for a SCADA protocol?',['The fastest possible speed','The time of day stamped on each message','Being able to predict how long a transaction takes','Sending data only at fixed times of day'],2,'Deterministic = predictable. You know the worst-case time when all factors are known.'],
+ ['A plant has 6 brands, each with its own proprietary protocol. How many pairwise translators are needed?',['6','12','15','36'],2,'n(n−1)/2 = 6×5/2 = 15. One open protocol needs none.'],
+ ['Which pair is correct?',['Siemens: DF1','Allen-Bradley: Profibus','Modicon: Modbus','Siemens: Data Highway+'],2,'Modicon created Modbus in 1979. DF1 and DH+ are Allen-Bradley; Profibus is Siemens.'],
+ ['Besides the raw data, what does a protocol add to a message sent over a network?',['Only a password','Source and destination addresses, timestamp, control and error-checking information','A copy of the whole program','Nothing: protocols send raw data only'],1,'The protocol "envelope" lets the receiver know who it is from, who it is for, when, and whether it was damaged.'],
+ ['Which OSI layer turns frames into electrical, light or radio signals?',['Layer 7, Application','Layer 4, Transport','Layer 2, Data link','Layer 1, Physical'],3,'The Physical layer moves raw bits: the truck on the highway.'],
+ ['Which OSI layer handles IP addresses and routing?',['Layer 3, Network','Layer 2, Data link','Layer 5, Session','Layer 6, Presentation'],0,'The Network layer: writing the postcode and choosing the route.'],
+ ['How many layers does the TCP/IP model have?',['3','4','5','7'],1,'Four: network access (host-to-network), Internet, transport, application.'],
+ ['Which OSI layers does Ethernet use?',['Application and presentation','Transport and network','Physical and data link','All seven'],2,'Ethernet (IEEE 802.3) covers only the physical and data link layers.'],
+ ['In CSMA/CD, what happens after two devices collide?',['They both keep sending','Both stop, send a jam signal, and wait a random time before retrying','The one with the lowest address wins immediately','The hub stores both frames'],1,'Random back-off makes it unlikely they retry at the same moment again.'],
+ ['In Modbus, when does a slave send data?',['Whenever its value changes','Every second, automatically','Only when the master asks it','Only at power-up'],2,'Master/slave: slaves only speak when spoken to, like a roll call.'],
+ ['What is the main drawback of Modbus polling in an emergency?',['It uses too much electricity','The master may not learn about the emergency until it reaches that slave in its cycle','Slaves cannot send numbers','It cannot work over RS-485'],1,'The worst-case delay is about one full polling cycle, which grows with the number of slaves.'],
+ ['In the Modbus RTU frame 01 03 00 00 00 0A C5 CD, what are the last two bytes?',['The slave address','The data values','The CRC error check','The function code'],2,'C5 CD is the CRC-16 calculated from the first six bytes.'],
+ ['Which protocol is better for finding the exact millisecond a power outage happened?',['Modbus','DNP3'],1,'DNP3 reports events with accurate timestamps.'],
+ ['What does GOOSE allow in an IEC 61850 substation?',['Devices to talk peer-to-peer within milliseconds, without the SCADA master','Slower but cheaper serial communication','Only the SCADA master to send commands','Reading Modbus registers'],0,'Generic Object Oriented Substation Event: fast relay-to-breaker messages straight over Ethernet.'],
+ ['Which of these runs on a serial RS-485 interface?',['IEC 61850','IEC 60870-5-104','Modbus RTU','Modbus TCP'],2,'Modbus RTU is serial. 104, Modbus TCP and IEC 61850 run on Ethernet LANs.']];
+const quiz=$('#quiz');let score=0,answered=0;
+function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="exp"></div></div>`).join('');
+  $$('.q').forEach(el=>el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const q=Q[el.dataset.i];const j=+b.dataset.j;const ok=j===q[2];
+    el.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q[2])x.classList.add('right')});if(!ok)b.classList.add('wrong');
+    el.classList.add('done');el.querySelector('.exp').textContent=(ok?'Correct. ':'Not quite. ')+q[3];answered++;if(ok)score++;updScore()}));updScore()}
+function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('ch2-best')||0;
+  if(answered===Q.length&&score>best){best=score;store.set('ch2-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
+$('#qReset').onclick=buildQuiz;buildQuiz();
+})();
+</script>
+</body>
+</html>

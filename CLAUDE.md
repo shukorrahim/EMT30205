@@ -23,6 +23,10 @@ Every page is one self-contained HTML file: all CSS and JS inline, no build step
 - Images: the lecturer's own slide images, freely licensed Wikimedia Commons photos with
   credits, or SVG diagrams. No watermarked or textbook-scanned images.
 - Each page ends with a quiz with instant feedback.
+- Every chapter ends with a last section "Class game: who answers?" after the quiz: the
+  student-name roulette wheel (copy section, CSS and script from chapter1.html). Names are
+  shared across chapters in localStorage key `class-names` and are never written into the
+  page (the site is public). Each chapter keeps its own `chN-pool` / `chN-picked` keys.
 - Every page except the homepage links back to `index.html` in three places: "← Course homepage"
   at the top of the hero (`.hero .back`), in the desktop side menu (`.side .home`), and as the
   first item of the phone/tablet section menu (`<li class="home-m">⌂ Home</li>` in `#navlist`).
