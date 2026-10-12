@@ -1170,7 +1170,7 @@ button,a,input,label,[role=button]{touch-action:manipulation}
       <div class="row">
         <button class="btn" id="wReset">Put everyone back</button>
         <button class="btn" id="wEdit">Edit names</button>
-        <button class="btn" id="wFull">Full screen</button>
+        <button class="btn" id="wFull">Full screen ♪</button><button class="btn" id="wMusic" aria-pressed="false">♪ Music off</button>
       </div>
       <div class="panel" id="wEditor" hidden style="margin-top:12px">
         <label for="wNames" style="font-weight:600">Student names, one per line</label>
@@ -1560,6 +1560,34 @@ $('#qReset').onclick=buildQuiz;buildQuiz();
 /* 1.14 Name wheel: names live only in this browser (localStorage), never in the page */
 (function(){
   const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  /* Game-show music made live with Web Audio: no audio files, no copyright */
+  const Snd=(()=>{let ac,master,mus,timer,on=false,step=0,next=0,noise;
+    const mf=m=>440*Math.pow(2,(m-69)/12),S=60/128/4;
+    const CH=[[48,60,64,67],[43,59,62,67],[45,60,64,69],[41,60,65,69]];
+    function init(){if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();master=ac.createGain();master.gain.value=.3;master.connect(ac.destination);
+        mus=ac.createGain();mus.gain.value=.8;mus.connect(master);noise=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+      if(ac.state==='suspended')ac.resume();return true}
+    function tone(type,f,t,dur,v,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.03)}
+    function kick(t,dest){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(dest);o.start(t);o.stop(t+.3)}
+    function hiss(t,dur,v,freq,type,dest){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;f.type=type;f.frequency.value=freq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.02)}
+    function beat(i,t){const s=i%16,ch=CH[Math.floor(i/16)%4];
+      if(s%4===0)kick(t,mus);
+      if(s===4||s===12){hiss(t,.16,.5,1600,'bandpass',mus);tone('triangle',190,t,.08,.2,mus)}
+      hiss(t,.04,s%2?.12:.22,7000,'highpass',mus);
+      if(s%2===0)tone('square',mf(ch[0]+(s%4===2?12:0)),t,S*1.7,.07,mus);
+      tone('triangle',mf([ch[1],ch[2],ch[3],ch[2]+12][s%4]+12),t,S*.9,.11,mus);
+      if(s===0)[ch[1],ch[2],ch[3]].forEach(m=>tone('sawtooth',mf(m),t,S*14,.018,mus))}
+    function sched(){while(next<ac.currentTime+.12){beat(step,next);next+=S;step++}}
+    return {get on(){return on},
+      start(){if(on||!init())return;on=true;step=0;next=ac.currentTime+.06;timer=setInterval(sched,25)},
+      stop(){on=false;clearInterval(timer);if(mus){mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setValueAtTime(.8,ac.currentTime)}},
+      duck(d){if(!ac)return;mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setTargetAtTime(d?.15:.8,ac.currentTime,.15)},
+      ticks(dur){if(!init())return;const t0=ac.currentTime;let e=0;while(e<dur-.25){const p=e/dur;tone('square',1700,t0+e,.025,.16,master);hiss(t0+e,.02,.15,5000,'highpass',master);e+=.045+.42*p*p*p}},
+      fanfare(){if(!init())return;const t=ac.currentTime+.04;[60,64,67,72].forEach((m,i)=>tone('square',mf(m+12),t+i*.09,.16,.1,master));
+        [60,64,67,72,76].forEach(m=>{tone('triangle',mf(m),t+.4,1.4,.12,master);tone('sawtooth',mf(m),t+.4,1.1,.025,master)});kick(t+.4,master);hiss(t+.4,1.2,.25,6000,'highpass',master)}}})();
+  const mBtn=()=>{const b=$('#wMusic');b.setAttribute('aria-pressed',Snd.on);b.textContent=Snd.on?'♪ Music on':'♪ Music off'};
+  $('#wMusic').onclick=()=>{Snd.on?Snd.stop():Snd.start();mBtn()};
+  addEventListener('pagehide',()=>Snd.stop());
   const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
   const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
   let names=store.get('class-names')||DEF, pool=store.get('ch1-pool')||names.slice(), picked=store.get('ch1-picked')||[];
@@ -1584,8 +1612,8 @@ $('#qReset').onclick=buildQuiz;buildQuiz();
     const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
     rot+=360*(reduce?1:6)+((want-cur+360)%360);
     cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
-    show('…','Spinning…');
-    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');picked.push(name);
+    show('…','Spinning…');if(Snd.on){Snd.duck(1);Snd.ticks(reduce?0.4:5.5)}
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');if(Snd.on){Snd.fanfare();setTimeout(()=>Snd.duck(0),1800)}picked.push(name);
       if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
       spinning=false;save();count()},reduce?400:5600)};
   $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
@@ -1594,7 +1622,8 @@ $('#qReset').onclick=buildQuiz;buildQuiz();
   $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
     if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
   const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
-  $('#wFull').onclick=()=>{document.fullscreenElement?document.exitFullscreen():box.requestFullscreen()};
+  $('#wFull').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen()}else{box.requestFullscreen();Snd.start();mBtn()}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&Snd.on){Snd.stop();mBtn()}});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
   draw();count();
 })();
