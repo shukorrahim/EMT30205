@@ -294,6 +294,15 @@ input[type=range]{width:100%;accent-color:var(--sel)}
 .winner.go{animation:win .7s ease-out}
 @keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 #wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Key idea, teaching tips, jargon buster */
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.tip{border:1px dashed var(--pipe);border-radius:4px;padding:8px 14px;margin:14px 0;background:var(--panel);max-width:760px}
+.tip summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tip p{margin:8px 0 0;font-size:16px}
+.jargon{margin-top:26px}
+.jargon .flip{height:150px}
+.jargon .flip .f b{font-size:24px}
 /* Quiz */
 .q{margin-bottom:22px}
 .q p{font-weight:600;margin-bottom:8px}
@@ -384,6 +393,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <div><div class="k">TCP/IP layers</div><div class="v">4</div></div>
     <div><div class="k">Modbus / DNP3 born</div><div class="v">1979 / 1990</div></div>
   </div>
+  <div class="jargon"><h3 style="font-size:26px;margin:0 0 4px">Jargon buster</h3><p class="muted" style="margin:0;font-size:15px">Networking words in everyday language. Tap a card to flip it.</p><div class="cards" id="jargon"></div></div>
 </header>
 
 <!-- 2.1 -->
@@ -393,6 +403,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <p>For two devices to communicate, they must <b>speak the same language (protocol)</b> and follow the same rules for <b>starting, conducting and ending</b> the conversation. SCADA protocols grew out of the need to send data and control commands, locally and over long distances, in <b>deterministic time</b>.</p>
     <p class="bm">Protokol: bahasa dan peraturan yang dipersetujui oleh dua peranti untuk berkomunikasi.</p>
   </div>
+  <div class="key"><b>In one sentence</b>A protocol is the agreed language and manners two devices use to talk, so every message is understood and arrives on time.</div>
+  <div class="note"><b>Analogy: a phone call.</b> You say "Hello", take turns to speak, and say "Bye" at the end. If one person speaks only Malay and the other only Japanese, the phone line works perfectly, but nothing is understood. Connecting a cable is not enough: both devices must speak the same protocol.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "A cable is only the road. The protocol is the language spoken on that road."</p><p><b>Ask:</b> "Have you ever bought a charger that did not fit your phone? Why don't all brands use the same plug?" Use their answers to lead into proprietary protocols.</p></details>
   <div class="babel">
     <div class="panel kn">
       <h3 style="margin-top:0">The Tower of Babel problem</h3>
@@ -420,6 +433,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s2">
   <h2><span class="n">2.2</span>A typical SCADA network</h2>
   <div class="prose"><p>A SCADA system links a control centre to plants and remote stations through a mix of media: <b>radio, cellular, LAN and WAN</b>. Select a link type on the network screen to see how it is used.</p></div>
+  <div class="key"><b>In one sentence</b>SCADA data travels on different "roads": a LAN inside a plant, a WAN between sites, and radio or cellular where no cable can reach.</div>
+  <div class="note"><b>Analogy: how a company sends things.</b> Inside the office, staff use the internal mail tray (LAN). Between branches in different cities, a courier van drives the highway (WAN). For field staff in places no van can reach, the office phones them or uses a walkie-talkie (cellular and radio).</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Choose the road by distance, cost, and how remote the site is."</p><p><b>Ask:</b> "A pump station sits in the middle of an oil palm estate with no cable. How would you connect it to the control room?" (Radio or cellular.)</p></details>
   <div class="hmi" id="netHmi">
     <div class="hmi-title"><b>System: Communication network</b><span class="meta">Engineer | <span class="clk"></span></span></div>
     <div class="hmi-nav" role="group" aria-label="Link types">
@@ -461,6 +477,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s3">
   <h2><span class="n">2.3</span>Vendor protocols and open standards</h2>
   <div class="prose"><p>To reach deterministic time in refineries and power utilities, PLC manufacturers developed <b>their own protocols and bus structures</b>. Today there are about <b>200 real-time protocols</b>, proprietary and open. A big part of designing a SCADA system is matching protocols and communication settings between devices.</p></div>
+  <div class="key"><b>In one sentence</b>Every PLC maker used to invent its own language; open standards let any brand talk to any brand.</div>
+  <div class="note"><b>Analogy: phone chargers.</b> Years ago every phone brand had its own charger, so you carried a bag of cables and could never borrow a friend's. Today most phones use USB-C: one cable for all. Proprietary protocols are the old chargers; open standards are USB-C.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Buying a closed system is like buying a phone that only works with one shop's charger, at that shop's price."</p><p><b>Ask:</b> "Who has had to buy an expensive original charger because a cheap one would not work? That is vendor lock-in."</p></details>
   <div class="twocol">
     <div class="panel scroll-x"><table class="tbl" id="vendTbl"><thead><tr><th>Manufacturer</th><th>Protocols</th></tr></thead><tbody>
       <tr data-v="ab"><td>Allen-Bradley (Rockwell)</td><td>DeviceNet, ControlNet, DF1, Data Highway+ (DH+), Data Highway 485</td></tr>
@@ -488,6 +507,8 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <p>A raw value like <b>12.5</b> means nothing on its own: 12.5 what? From which sensor? For which device? When a network is involved, the protocol adds <b>source and destination addresses, a timestamp, control information and error checking</b> around the raw data, following strict rules so the receiver can decode it.</p>
     <p>Build the envelope one layer at a time, then send it.</p>
   </div>
+  <div class="key"><b>In one sentence</b>Raw data is wrapped with addresses, a time and an error check, like a parcel, so it reaches the right device and the receiver can tell if it was damaged.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Do:</b> write only "12.5" on the board and ask what it means. Then add "From: Sensor A", "To: Pump 4", "°C", "08:04:12" one at a time. Students see how each piece removes confusion.</p><p><b>Ask:</b> "What could happen if Pump 4 obeyed a message that was meant for Pump 2?"</p></details>
   <div class="panel">
     <div class="steprow" id="envSteps"></div>
     <div class="frame" id="envFrame" aria-live="polite"></div>
@@ -510,6 +531,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s5">
   <h2><span class="n">2.5</span>The OSI seven-layer model</h2>
   <div class="prose"><p>The <b>Open System Interconnection (OSI)</b> reference model was issued by the International Organization for Standardization (ISO) in 1984 and revised in 1994. It splits communication into <b>seven layers</b>, each with one clear job, so equipment from different vendors can work together. The sender packs the data going <b>down</b> the layers; the receiver unpacks it going <b>up</b>.</p></div>
+  <div class="key"><b>In one sentence</b>OSI splits the job of sending data into 7 small jobs, one per layer, like the steps of sending a letter by post.</div>
+  <div class="note"><b>Analogy: posting a letter.</b> You write the letter (7), write it in a language the reader understands (6), agree to keep writing to each other (5), choose registered post with tracking (4), write the address and postcode (3), the sorting centre loads it on the right van (2), and the van drives down the road (1). The receiver does the same steps in reverse, from the van back up to reading the letter.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Each layer only cares about its own job, like each worker in a post office. The van driver never reads your letter."</p><p><b>Ask:</b> "If the van breaks down (layer 1), does the person who wrote the letter (layer 7) need to rewrite it?" (No: only the delivery is fixed. That is why layers make faults easier to find.)</p></details>
   <div class="osi">
     <div class="layers" id="osiList" role="group" aria-label="OSI layers"></div>
     <div class="panel" id="osiOut" aria-live="polite"></div>
@@ -530,6 +554,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s6">
   <h2><span class="n">2.6</span>TCP/IP: the model the Internet uses</h2>
   <div class="prose"><p><b>Transmission Control Protocol/Internet Protocol (TCP/IP)</b> was developed at the same time as OSI. It is the model of the Internet, the biggest WAN in the world, and many SCADA protocols now run on it. TCP/IP has <b>four layers</b>: host-to-network (network access), Internet, transport and application. Tap a TCP/IP layer to see which OSI layers it covers.</p></div>
+  <div class="key"><b>In one sentence</b>TCP/IP is the real-world version of OSI that runs the Internet, with 4 layers instead of 7.</div>
+  <div class="note"><b>Analogy: OSI is the textbook, TCP/IP is real life.</b> OSI is like the driving theory book with every rule explained in detail. TCP/IP is how people actually drive every day: the same ideas, grouped into fewer steps. And a <b>ping</b> test is like calling a friend to check the line: if they answer, the road works, so the problem must be somewhere else.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "When something fails, check from the bottom up: is the cable connected, does ping answer, is the port open, is the app asking for the right thing?"</p><p><b>Do:</b> play the troubleshooting game below together, and let students shout the layer before you reveal it.</p></details>
   <div class="panel">
     <div class="map" id="map"></div>
     <div id="mapOut" class="out" style="margin-top:10px" aria-live="polite"></div>
@@ -552,6 +579,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s7">
   <h2><span class="n">2.7</span>Ethernet</h2>
   <div class="prose"><p><b>Ethernet</b> is the network technology that connects devices inside a building. It uses only the <b>physical and data link layers</b> of the OSI model, and is defined by <b>IEEE 802.3</b>, which also lists the cable types, such as the RJ45 twisted-pair cable. Tap the timeline.</p></div>
+  <div class="key"><b>In one sentence</b>Ethernet is the most common cable network inside buildings; modern switches let every device talk at the same time without clashing.</div>
+  <div class="note"><b>Analogy: a mamak table conversation.</b> Old shared Ethernet is like friends at one table: listen first, and talk only when it is quiet. If two people start at the same moment, both stop, wait a random moment, and try again. A switch is like giving every person their own phone line: nobody has to wait.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Do:</b> ask two students to start reading a sentence aloud at the same time. Both stop, each rolls a die (or picks 1 to 3), and the lower number speaks first. That is CSMA/CD with random back-off.</p><p><b>Ask:</b> "Why must the waiting time be random and not fixed?" (If both always waited 2 seconds, they would clash again.)</p></details>
   <div class="tl" id="tl" role="group" aria-label="Ethernet timeline"></div>
   <div class="panel out" id="tlOut" aria-live="polite"></div>
   <h3>Sharing one cable: CSMA/CD</h3>
@@ -578,6 +608,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="prose">
     <p><b>Modbus</b> was developed in <b>1979 by Modicon</b>. It is free, open, and the most common protocol in SCADA and industrial control networks, used between master stations and RTUs. Modbus is an <b>application layer</b> protocol based on a <b>master/slave</b> architecture: one master controls all data transmission, and slaves only answer when asked to read or write data.</p>
   </div>
+  <div class="key"><b>In one sentence</b>In Modbus, one master asks each device in turn, and devices only answer when asked.</div>
+  <div class="note"><b>Another analogy: a nurse doing ward rounds.</b> The nurse checks bed 1, then bed 2, then bed 3, in order. A patient in bed 20 who suddenly needs help must wait until the nurse reaches bed 20. The more beds, the longer the wait.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Do:</b> play roll call with 6 students. Give the last student an "EMERGENCY" card, but they may only speak when you call their name. Time how long it takes you to get to them.</p><p><b>Ask:</b> "What if there were 50 students?" Then show the same thing on the polling screen below.</p></details>
   <div class="note"><b>Think of a strict teacher taking a roll call.</b> The teacher (master) asks each student (slave) in turn, "Sensor 1, status?". No student may speak until called, even if something urgent happens.</div>
   <div class="hmi" id="mbHmi">
     <div class="hmi-title"><b>Modbus master: polling cycle</b><span class="meta">Master | <span class="clk"></span></span></div>
@@ -609,6 +642,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s9">
   <h2><span class="n">2.9</span>IEC 60870-5</h2>
   <div class="prose"><p><b>IEC 60870-5-101</b> is a standard for power system monitoring, control and the associated communications for <b>telecontrol, teleprotection</b> and telecommunications in electric power systems. It is a family of related standards. Tap each card.</p></div>
+  <div class="key"><b>In one sentence</b>IEC 60870-5 is a family of power-utility protocols: 101 for serial cables, 104 for TCP/IP networks, and 103 for protection relays.</div>
+  <div class="note"><b>Analogy: the same story by letter or by email.</b> 101 and 104 carry the same messages. 101 sends them like a letter through the post (a serial cable); 104 sends them like an email (over TCP/IP). Only the delivery changes, not the words.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Remember the numbers: 101 = serial, 104 = network, 103 = protection."</p><p><b>Do:</b> let students flip the cards and say the use of each number before they flip.</p></details>
   <div class="cards" id="iecCards"></div>
 </section>
 
@@ -619,6 +655,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <p><b>DNP3</b> was created by <b>Westronic, Inc. (now GE Harris) in 1990</b>. It is an open, intelligent, robust and efficient modern SCADA protocol, heavily used by electric and water utilities, and standardised as <b>IEEE 1815</b>.</p>
     <p>The big change: DNP3 outstations do not just wait to be asked. They <b>report by exception</b>: they send only what has changed, with an <b>accurate timestamp</b>, and can even send an alarm unsolicited.</p>
   </div>
+  <div class="key"><b>In one sentence</b>DNP3 devices speak up only when something changes and stamp the exact time, so there is less chatter and a better record of what happened.</div>
+  <div class="note"><b>Another analogy: WhatsApp notifications.</b> Modbus is like opening your mailbox every hour to check for letters, even when there are none. DNP3 is like WhatsApp: your phone pings only when a message arrives, and it shows the exact time it was sent.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Polling asks 'any news?' again and again. Report by exception says 'I'll tell you when there is news'."</p><p><b>Ask:</b> "After a blackout, investigators must know which breaker tripped first. Which protocol helps them, and why?" (DNP3: exact timestamps.)</p></details>
   <div class="note"><b>Think of a proactive student.</b> Instead of waiting for the roll call, she raises her hand: "Excuse me, my temperature spiked 2 minutes ago, at 10:04:12."</div>
   <div class="hmi" id="dnHmi">
     <div class="hmi-title"><b>Network traffic: Modbus vs DNP3</b><span class="meta">Simulated time <span id="dnClock">10:04:00</span></span></div>
@@ -650,6 +689,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <p>IEC 61850 started as "Communication networks and systems in substations": communication at substation level between relays, substation control and switchgear, so that devices from <b>different vendors interoperate</b>. It is a universal solution for a fully digital power utility automation system. The first edition has <b>14 parts</b> (IEC 61850-x-y, 2002 to 2005).</p>
     <p class="bm">Banyak peranti boleh dihubungkan jika menggunakan protokol ini, termasuklah pengecas EV yang masih dalam pembangunan.</p>
   </div>
+  <div class="key"><b>In one sentence</b>IEC 61850 lets substation devices from any brand share one Ethernet network, and GOOSE lets them warn each other within milliseconds.</div>
+  <div class="note"><b>Another analogy: a fire alarm.</b> When someone sees a fire, they shout "Fire!" so everyone hears it at once. They do not walk to the manager's office, report it, and wait for the manager to make an announcement. GOOSE is the shout; the old way through the SCADA master is the trip to the manager's office.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Say:</b> "Before IEC 61850, every signal needed its own wire. Now, one network carries them all, and every brand understands the same objects."</p><p><b>Ask:</b> "Why must a trip message skip the SCADA master?" Then press Fault! in the race below and compare the two times.</p></details>
   <h3>Rewiring the substation</h3>
   <div class="seg" role="group" aria-label="Substation wiring" id="wSeg"><button aria-pressed="true" data-m="old">Before: hardwired copper</button><button aria-pressed="false" data-m="new">After: IEC 61850 Ethernet</button></div>
   <figure class="diagram wide"><div class="scroll-x"><svg viewBox="0 0 900 300" id="wSvg" role="img" aria-label="Substation devices wired together"></svg></div><div class="pan-hint">↔ Swipe sideways</div><figcaption id="wCap"></figcaption></figure>
@@ -687,6 +729,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s12">
   <h2><span class="n">2.12</span>Choosing a protocol</h2>
   <div class="prose"><p>In practice, the physical <b>interface</b> narrows the choice. Older devices talk over <b>serial</b> cables (RS-232, RS-485, RS-422); newer ones over a <b>LAN (Ethernet)</b>. Pick an interface to see the protocols that run on it, and what each is typically used for.</p></div>
+  <div class="key"><b>In one sentence</b>Choose the protocol that your device's connection supports (serial or Ethernet) and that fits the job.</div>
+  <div class="note"><b>Analogy: choosing transport.</b> A motorcycle (serial link) is simple and cheap for short, light trips. A lorry on the highway (Ethernet and TCP/IP) carries a lot over long distances. An express train on its own track (IEC 61850 GOOSE) is the fastest, for jobs that cannot wait.</div>
+  <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Do:</b> give groups a device each (power meter, protection relay, remote RTU on radio, factory PLC) and ask them to pick the interface and protocol, then explain why.</p></details>
   <div class="seg" role="group" aria-label="Interface" id="ifSeg"><button aria-pressed="true" data-i="ser">Serial (RS-232 / RS-485 / RS-422)</button><button aria-pressed="false" data-i="lan">LAN (Ethernet)</button></div>
   <div class="panel scroll-x" style="margin-top:10px"><table class="tbl" id="ifTbl"><thead><tr><th>Protocol</th><th>Typical use</th></tr></thead><tbody></tbody></table></div>
   <h3>The road so far</h3>
@@ -982,6 +1027,11 @@ function mbBuild(){const clamp=(v,a,b)=>Math.max(a,Math.min(b,Math.round(+v||0))
 const IEC=[['IEC 60870-5-101','Telecontrol over serial','A standard for power system monitoring, control and telecontrol between a control centre and RTUs, over serial links. "101" for short.'],['IEC 60870-5-103','Protection equipment','Connects protection relays to the substation control system, so the control system can read relay events and settings.'],['IEC 60870-5-104','101 over TCP/IP','The same messages as 101, carried over Ethernet and TCP/IP networks (TCP port 2404). Used where utilities moved from serial to IP networks.']];
 $('#iecCards').innerHTML=IEC.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>${c[1]}</span><span style="margin-top:8px">Tap to flip</span></div><div class="b">${c[2]}</div></div></button>`).join('');
 $$('#iecCards .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+
+/* ===== Jargon buster ===== */
+const JG=[['Protocol','The language and manners of a conversation','Rules both sides agree on: how to start, take turns, check understanding and finish.'],['Packet / frame','A parcel','Your data, boxed up with labels, ready to travel.'],['Address','A house address','Tells the network which device the parcel is for, and who sent it.'],['Header','The shipping label','Extra information stuck on the front of the data: addresses, type, length.'],['Error check (CRC)','Counting items against the delivery note','The receiver recalculates it. If the numbers differ, something was damaged on the way.'],['Timestamp','The postmark on an envelope','Shows exactly when the message was made.'],['Bus','A group chat','One shared line: everyone connected sees every message.'],['Switch','The mail sorting room','Delivers each message only to the device it is addressed to.'],['Gateway','An interpreter','Translates between two different protocols so their devices can understand each other.'],['Bandwidth','Number of lanes on a highway','How much data can travel at the same time.'],['Latency','Travel time','How long one message takes to arrive.'],['Polling','Asking "any news?" again and again','The master keeps asking each device for its data, even when nothing changed.'],['Report by exception','A WhatsApp notification','The device only speaks when something changes.'],['Deterministic','An LRT timetable','You can predict exactly how long it will take, every time.'],['Authentication','Checking an IC before entry','Proves the message really came from who it says it came from.']];
+$('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
+$$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
 
 /* ===== 2.10 DNP3 traffic race ===== */
 let dnT=0,dnMb=0,dnDn=0,dnEvt=null,dnMbSeen=false;
