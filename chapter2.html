@@ -304,6 +304,16 @@ input[type=range]{width:100%;accent-color:var(--sel)}
 .op-stage.hl-link .op-tag{opacity:1}
 #opCap{font-size:16px;color:var(--ink);margin-top:10px;max-width:780px;min-height:52px}
 .warnbox{border-left:4px solid var(--warn);border-radius:0 4px 4px 0}
+/* 2.11 protocol comparison table */
+.pcmp{width:100%;border-collapse:collapse;font-size:16px;min-width:600px}
+.pcmp th,.pcmp td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;line-height:1.35}
+.pcmp td:first-child{font-weight:600;color:var(--ink2);width:150px;background:var(--panel2)}
+.pcmp th{background:var(--panel2);position:sticky;top:0}
+.pcmp th button{font-family:var(--cond);font-size:19px;font-weight:600;background:none;border:0;padding:2px 0;cursor:pointer;color:var(--ink);text-align:left;border-bottom:2px dashed var(--pipe)}
+.pcmp td.good{color:var(--ok)}.pcmp td.bad{color:var(--alarm)}
+.pcmp .hl{background:var(--sel-soft)}
+.pcmp th.hl button{color:var(--sel);border-bottom-color:var(--sel)}
+@media (pointer:coarse){.pcmp th button{min-height:40px}}
 /* Bridge box before 2.8 */
 .bridge{background:var(--sel-soft);border:1px solid var(--sel);border-radius:6px;padding:16px 18px;margin:30px 0 0;font-size:17px}
 .bridge p{margin:0 0 8px;max-width:760px}
@@ -883,10 +893,24 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="key"><b>In one sentence</b>Choose the protocol that your device's connection supports (serial or Ethernet) and that fits the job.</div>
   <div class="note"><b>Analogy: choosing transport.</b> A motorcycle (serial link) is simple and cheap for short, light trips. A lorry on the highway (Ethernet and TCP/IP) carries a lot over long distances. An express train on its own track (IEC 61850 GOOSE) is the fastest, for jobs that cannot wait.</div>
   <details class="tip"><summary>🎓 Teaching tip: how to explain this</summary><p><b>Do:</b> give groups a device each (power meter, protection relay, remote RTU on radio, factory PLC) and ask them to pick the interface and protocol, then explain why.</p></details>
+  <h3>All the protocols side by side</h3>
+  <div class="prose"><p style="margin:0 0 8px">Tap a protocol's name to highlight its column. <b>Ethernet</b> and <b>TCP/IP</b> are not in this table because they are <b>roads</b>, not languages: every protocol here travels on one of them.</p></div>
+  <div class="panel scroll-x" style="padding:0"><table class="pcmp" id="pcmp">
+    <thead><tr><th></th><th data-c="1"><button>Modbus</button></th><th data-c="2"><button>DNP3</button></th><th data-c="3"><button>IEC 60870-5</button></th><th data-c="4"><button>IEC 61850</button></th></tr></thead>
+    <tbody>
+      <tr><td>Like…</td><td>A teacher taking roll call</td><td>A student who raises a hand</td><td>The power companies' own language</td><td>Shouting "Fire!" (GOOSE)</td></tr>
+      <tr><td>Who speaks first?</td><td>Only the master</td><td>The device, when something changes</td><td>Mostly the control centre</td><td>Devices talk to each other</td></tr>
+      <tr><td>Road</td><td>Serial or Ethernet</td><td>Serial or TCP/IP</td><td>Serial or TCP/IP</td><td>Ethernet only</td></tr>
+      <tr><td>Time stamps</td><td class="bad">✗ No</td><td class="good">✓ Yes</td><td class="good">✓ Yes</td><td class="good">✓ Yes</td></tr>
+      <tr><td>In an emergency</td><td class="bad">Slow</td><td class="good">Fast</td><td class="good">Fast</td><td class="good">Fastest</td></tr>
+      <tr><td>Used for</td><td>Meters and PLCs</td><td>Power and water utilities</td><td>Power grid control</td><td>Substations</td></tr>
+    </tbody></table></div>
+  <div class="pan-hint">↔ Swipe sideways to see all four protocols</div>
+  <h3>Which protocols run on which cable?</h3>
   <div class="seg" role="group" aria-label="Interface" id="ifSeg"><button aria-pressed="true" data-i="ser">Serial (RS-232 / RS-485 / RS-422)</button><button aria-pressed="false" data-i="lan">LAN (Ethernet)</button></div>
   <div class="panel scroll-x" style="margin-top:10px"><table class="tbl" id="ifTbl"><thead><tr><th>Protocol</th><th>Typical use</th></tr></thead><tbody></tbody></table></div>
   <h3>The road so far</h3>
-  <figure class="diagram wide"><div class="scroll-x"><svg viewBox="0 0 900 260" id="roadSvg" role="img" aria-label="The roadmap of SCADA communication: past serial links, present Ethernet and TCP/IP, future smart grids"></svg></div><div class="pan-hint">↔ Swipe sideways</div><figcaption id="roadCap">Tap a signpost.</figcaption></figure>
+  <figure class="diagram wide"><div class="scroll-x"><svg viewBox="0 0 900 300" id="roadSvg" role="img" aria-label="The roadmap of SCADA communication: past serial links, present Ethernet and TCP/IP, future smart grids"></svg></div><div class="pan-hint">↔ Swipe sideways</div><figcaption id="roadCap">Tap a signpost.</figcaption></figure>
   <div class="ask"><b>Final reflection</b> What do you think is the next "vehicle" on this data highway? Artificial intelligence? Electric vehicles talking to the grid? Something else?</div>
 </section>
 
@@ -1249,6 +1273,12 @@ mbDraw();mbCyc();mbLoop();
   stat(0);
 })();
 
+/* ===== 2.11 comparison table: tap a header to highlight its column ===== */
+(function(){let cur=0;
+  $$('#pcmp th[data-c] button').forEach(b=>b.onclick=()=>{const c=+b.closest('th').dataset.c;cur=cur===c?0:c;
+    $$('#pcmp tr').forEach(tr=>[...tr.children].forEach((cell,i)=>cell.classList.toggle('hl',cur!==0&&i===cur)))});
+})();
+
 /* ===== Jargon buster ===== */
 const JG=[['Protocol','The language and manners of a conversation','Rules both sides agree on: how to start, take turns, check understanding and finish.'],['Packet / frame','A parcel','Your data, boxed up with labels, ready to travel.'],['Address','A house address','Tells the network which device the parcel is for, and who sent it.'],['Header','The shipping label','Extra information stuck on the front of the data: addresses, type, length.'],['Error check (CRC)','Counting items against the delivery note','The receiver recalculates it. If the numbers differ, something was damaged on the way.'],['Timestamp','The postmark on an envelope','Shows exactly when the message was made.'],['Bus','A group chat','One shared line: everyone connected sees every message.'],['Switch','The mail sorting room','Delivers each message only to the device it is addressed to.'],['Gateway','An interpreter','Translates between two different protocols so their devices can understand each other.'],['Bandwidth','Number of lanes on a highway','How much data can travel at the same time.'],['Latency','Travel time','How long one message takes to arrive.'],['Polling','Asking "any news?" again and again','The master keeps asking each device for its data, even when nothing changed.'],['Report by exception','A WhatsApp notification','The device only speaks when something changes.'],['Deterministic','An LRT timetable','You can predict exactly how long it will take, every time.'],['Authentication','Checking an IC before entry','Proves the message really came from who it says it came from.']];
 $('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
@@ -1319,9 +1349,9 @@ $$('#objCards .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAt
 const IF={ser:[['IEC 60870-5-101 / 103','Telecontrol and protection relays, used by power utilities'],['DNP3','Protection, monitoring and metering'],['Modbus RTU','Metering and simple devices']],lan:[['IEC 60870-5-104','The same utility telecontrol, over TCP/IP'],['DNP3 over TCP/IP','Utility SCADA over IP networks'],['Modbus over Ethernet (Modbus TCP)','Industries and factories'],['IEC 61850','Substation automation, including GOOSE']]};
 const ifb=$$('#ifSeg button');const ifShow=k=>{press(ifb,ifb.find(b=>b.dataset.i===k));$('#ifTbl tbody').innerHTML=IF[k].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')};ifb.forEach(b=>b.onclick=()=>ifShow(b.dataset.i));ifShow('ser');
 (function road(){const RD=[[120,'Past','Serial links','Slow, narrow roads that carry basic polling: RS-232 and RS-485 cables, early Modbus. Like a single-lane dirt road.'],[450,'Present','Ethernet & TCP/IP','Fast, multi-lane highways for mass data and WAN routing: DNP3 over IP, Modbus TCP.'],[780,'Future','Smart grids','Intelligent expressways with real-time peer-to-peer traffic: IEC 61850, GOOSE and the Internet of Things, linking solar farms, batteries and EV chargers.']];
-  let s=`<path id="rdP" d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="#8B7355" stroke-width="26" fill="none" opacity=".35"/><path d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="var(--pipe)" stroke-width="20" fill="none" opacity=".6"/><path d="M30,200 C200,200 260,140 450,140 S700,80 880,80" stroke="var(--panel)" stroke-width="2" fill="none" stroke-dasharray="14 12" class="flowline"/>
+  let s=`<path id="rdP" d="M30,260 C200,260 260,200 450,200 S700,140 880,140" stroke="#8B7355" stroke-width="26" fill="none" opacity=".35"/><path d="M30,260 C200,260 260,200 450,200 S700,140 880,140" stroke="var(--pipe)" stroke-width="20" fill="none" opacity=".6"/><path d="M30,260 C200,260 260,200 450,200 S700,140 880,140" stroke="var(--panel)" stroke-width="2" fill="none" stroke-dasharray="14 12" class="flowline"/>
    <g><rect x="-14" y="-8" width="28" height="16" rx="4" fill="var(--sel)"/><animateMotion dur="9s" repeatCount="indefinite" rotate="auto"><mpath href="#rdP"/></animateMotion></g>`;
-  RD.forEach((r,i)=>{const y=[200,140,80][i];s+=`<g class="sign" data-i="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="${r[1]}: ${r[2]}"><path d="M${r[0]},${y-16} V${y-70}" stroke="var(--ink2)" stroke-width="3"/><rect x="${r[0]-70}" y="${y-118}" width="140" height="50" rx="4" fill="${['#8B5A2B','#2E7A39','#1B5AA6'][i]}"/><text x="${r[0]}" y="${y-98}" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">${r[1]}</text><text x="${r[0]}" y="${y-80}" text-anchor="middle" font-size="13" style="fill:#fff">${r[2]}</text></g>`});
+  RD.forEach((r,i)=>{const y=[260,200,140][i];s+=`<g class="sign" data-i="${i}" style="cursor:pointer" tabindex="0" role="button" aria-label="${r[1]}: ${r[2]}"><path d="M${r[0]},${y-16} V${y-70}" stroke="var(--ink2)" stroke-width="3"/><rect x="${r[0]-70}" y="${y-118}" width="140" height="50" rx="4" fill="${['#8B5A2B','#2E7A39','#1B5AA6'][i]}"/><text x="${r[0]}" y="${y-98}" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">${r[1]}</text><text x="${r[0]}" y="${y-80}" text-anchor="middle" font-size="13" style="fill:#fff">${r[2]}</text></g>`});
   $('#roadSvg').innerHTML=s;$$('#roadSvg .sign').forEach(g=>{const f=()=>{const r=RD[g.dataset.i];$('#roadCap').innerHTML=`<span><b>${r[1]}: ${r[2]}.</b> ${r[3]}</span>`};g.onclick=f;g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}})})();
 
 /* Class game: name wheel: names live only in this browser (localStorage), never in the page */
