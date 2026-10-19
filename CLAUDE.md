@@ -13,6 +13,21 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
 Every page is one self-contained HTML file: all CSS and JS inline, no build step.
 `chapter1.html` is the style reference for every new page.
 
+## Course plan (8 chapters) and topic owners
+Each topic is taught in full in ONE chapter only. Other chapters give a one-line recap and link to it.
+The lecturer's source files use the old numbers in brackets (there is no old chapter 5).
+
+| Ch | Title | Owns | Links back to |
+|---|---|---|---|
+| 1 | Introduction to SCADA | control philosophy, SCADA parts, RTU vs PLC, alarms, what an HMI is (1.10) | – |
+| 2 | Communication Protocols | protocol idea, envelope, OSI, TCP/IP, Ethernet/CSMA-CD, Modbus, IEC 60870-5, DNP3, IEC 61850/GOOSE | serial details → Ch 3 |
+| 3 | Serial Communication | RS-232/422/485, differential signalling, half/full duplex, converters, nodes, wired topologies (bus, ring, star, tree), PLC networking | OSI and "what is a protocol" → Ch 2 |
+| 4 | Human Machine Interface | HMI design rules (schematic, colour, layout, values, consistency), HMI components, CX-Designer tutorials | "what is an HMI" → Ch 1.10 |
+| 5 | IoT Fundamentals (old 6) | what IoT is, history, the "thing" (connect/compute/communicate), architecture, communication models, data, security/issues | IP basics → Ch 2 |
+| 6 | IoT Protocols and Zigbee (old 7) | the single wireless comparison table, MQTT/CoAP, Zigbee in depth (802.15.4, device types, mesh, self-healing) | star topology → Ch 3 |
+| 7 | IoT in Monitoring Systems (old 8) | ESP32/Pi/Arduino, gateways, cloud platforms, monitoring examples, SCADA vs IIoT | IoT definition/architecture → Ch 5; protocol table → Ch 6 |
+| 8 | Design PLC and SCADA Systems (old 9) | the design process (11 steps), FAT/SAT, documentation, one worked project | control philosophy → Ch 1; I/O list → Lab 1; comms → Ch 2/3; HMI screens → Ch 4 |
+
 ## Style rules
 - Industrial look: grey HMI-style page, Barlow / Barlow Condensed fonts, colour used mainly
   for status and alarms. Light and dark mode via the same CSS tokens and `scada-theme` key.

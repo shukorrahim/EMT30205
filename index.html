@@ -177,7 +177,7 @@ button,a,[role=button]{touch-action:manipulation}
       </div>
       <div class="ov">
         <div class="ov-tiles">
-          <div class="ov-tile"><div class="k" id="tkK1">Chapters online</div><div class="v" id="tk1">0<u>/ 9</u></div></div>
+          <div class="ov-tile"><div class="k" id="tkK1">Chapters online</div><div class="v" id="tk1">0<u>/ 8</u></div></div>
           <div class="ov-tile"><div class="k">Sections visited</div><div class="v" id="tk2">0<u>%</u></div></div>
           <div class="ov-tile"><div class="k" id="tkK3">Best quiz score</div><div class="v" id="tk3">–</div></div>
         </div>
@@ -239,13 +239,12 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const CH=[
  {n:1,title:'Introduction to SCADA',desc:'Control philosophies, what SCADA is, system architecture, RTU vs PLC, data flow, alarms, the HMI, and SCADA in TNB.',href:'chapter1.html',sections:14,quiz:12,seenKey:'scada-seen',bestKey:'scada-best'},
  {n:2,title:'Communication Protocols',desc:'Why protocols exist, the protocol envelope, OSI and TCP/IP, Ethernet, Modbus, IEC 60870-5, DNP3 and IEC 61850, with simulations.',href:'chapter2.html',sections:14,quiz:15,seenKey:'ch2-seen',bestKey:'ch2-best'},
- {n:3,title:'',desc:'',href:''},
- {n:4,title:'',desc:'',href:''},
- {n:5,title:'',desc:'',href:''},
- {n:6,title:'',desc:'',href:''},
- {n:7,title:'',desc:'',href:''},
- {n:8,title:'',desc:'',href:''},
- {n:9,title:'',desc:'',href:''}
+ {n:3,title:'Serial Communication',desc:'RS-232, RS-422 and RS-485, differential signalling, half and full duplex, converters, network topologies and PLC networking.',href:''},
+ {n:4,title:'Human Machine Interface',desc:'Designing good HMI screens: schematic, colour, layout, process values and navigation, plus HMI components and CX-Designer tutorials.',href:''},
+ {n:5,title:'IoT Fundamentals',desc:'What the Internet of Things is, its history, the parts of a connected "thing", IoT architecture, data, and security issues.',href:''},
+ {n:6,title:'IoT Protocols and Zigbee',desc:'Comparing wireless technologies (Wi-Fi, Bluetooth, Zigbee, LoRa, cellular), MQTT and CoAP, and Zigbee in depth: devices, mesh and self-healing.',href:''},
+ {n:7,title:'IoT in Monitoring Systems',desc:'Building IoT monitoring with ESP32, gateways and cloud platforms, real monitoring examples, and how IoT compares with SCADA.',href:''},
+ {n:8,title:'Design PLC and SCADA Systems',desc:'The step-by-step design process, from understanding the process to testing (FAT and SAT), with a worked project.',href:''}
 ];
 const LABS=[
  {n:1,title:'OMRON CPM1A and CX-Programmer',desc:'Memory areas, I/O addressing, and a CX-Programmer simulator: draw the ladder, download it to a virtual CPM1A and test it on the training kit.',href:'lab1.html',sections:9,quiz:12,seenKey:'lab1-seen',bestKey:'lab1-best'}
