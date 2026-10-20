@@ -293,7 +293,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="brand"><b>Lab 2: Ladder Diagram and Mnemonic Code</b><span>Monitoring System Integration</span></div>
   <a class="home" href="index.html">&larr; Course homepage</a>
   <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
-  <div class="progress"><span id="progTxt">0 of 8 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+  <div class="progress"><span id="progTxt">0 of 7 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
 </nav>
 
 <main>
@@ -467,14 +467,6 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   </div>
 </section>
 
-<!-- L2.8 -->
-<section class="topic" id="s8">
-  <h2><span class="n">L2.8</span>Check your understanding</h2>
-  <div class="prose"><p>Twelve questions. You get feedback straight away.</p></div>
-  <div id="quiz" class="prose"></div>
-  <div class="score"><span>Score: <b id="qScore">0 / 12</b> <span class="muted" id="qBest"></span></span><button class="btn" id="qReset">Start again</button></div>
-</section>
-
 <footer>
   Monitoring System Integration, Laboratory 2: Ladder Diagram and Mnemonic Code. Content from the lab module of Mohamad Shukor bin Abdul Rahim. Ladders, the CX-Programmer editor and the kit on this page are simplified drawings for learning; they follow OMRON CPM1A mnemonic rules. OMRON and CX-Programmer are trademarks of OMRON Corporation.
 </footer>
@@ -503,7 +495,7 @@ tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset
 const secs=[...$$('section.topic')];const nav=$('#navlist');
 secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
   nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
-let seen=new Set(store.get('lab2-seen')||[]);
+let seen=new Set((store.get('lab2-seen')||[]).filter(id=>document.getElementById(id)));store.set('lab2-seen',[...seen]);
 function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
   $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
 renderProg();
@@ -710,28 +702,6 @@ function g2New(){let n;do n=Math.floor(Math.random()*PR.length);while(n===g2i);g
     $('#g2Fb').className='fb '+(ok?'good':'bad');$('#g2Fb').textContent=ok?'Correct!':'Not quite: the green one matches. Look for where each LD starts a new block.'})}
 $('#g2Next').onclick=g2New;g2New();
 
-/* ===== Quiz ===== */
-const Q=[
- ['Which instruction starts every logic line?',['OUT','LD','AND','END'],1,'LD (load) starts a line, and also starts each new block.'],
- ['Two contacts in series are joined with…',['OR','AND','NOT','OUT'],1,'AND: both contacts must be ON, like two switches in a row.'],
- ['Two contacts in parallel are joined with…',['AND','OR','END','LD NOT'],1,'OR: either contact can pass power.'],
- ['What does LD NOT 00001 create at the start of a line?',['A normally open contact','A normally closed (NC) contact','An output coil','An internal relay'],1,'NOT inverts the input, so the contact passes power while 00001 is OFF.'],
- ['With OUT NOT 01001, when is output 01001 ON?',['When its condition is true','When its condition is false','Always','Never'],1,'OUT NOT gives the opposite result: a "normally on" output.'],
- ['What must be the last instruction in every program?',['OUT','LD','END(01)','AND LD'],2,'END marks the end of the program; the PLC then scans again from the top.'],
- ['In the self-holding circuit, what keeps the motor running after START is released?',['The STOP contact','The MOTOR contact in parallel with START','The END instruction','An internal timer'],1,'The motor\'s own contact takes over from START: it holds itself ON.'],
- ['How do you stop a self-holding motor?',['Release START','Press STOP: the NC STOP contact opens','Press START again','Remove the END instruction'],1,'Opening the NC STOP contact cuts the power, and the holding contact drops out.'],
- ['Which address range is used for internal relays (work bits)?',['00000 to 00011','01000 to 01007','20000 to 23115','DM 6144 to 6599'],2,'Work bits 20000 to 23115 are memory only, with no real wire.'],
- ['LD 00004, OR 00005, LD 00002, OR 00003, … Which instruction joins the two parallel blocks in series?',['OR LD','AND LD','AND','END'],1,'AND LD joins two blocks in series.'],
- ['Which instruction joins two series blocks in parallel?',['AND LD','OR LD','OR NOT','OUT NOT'],1,'OR LD joins two blocks in parallel.'],
- ['In CX-Programmer, where can you type LD, AND and OUT instead of drawing the ladder?',['The mnemonic view','The memory window','The I/O table','The Settings dialog'],0,'View ▸ Mnemonics: type the code and CX-Programmer draws the ladder for you.']];
-const quiz=$('#quiz');let score=0,answered=0;
-function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="exp"></div></div>`).join('');
-  $$('.q').forEach(el=>el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const q=Q[el.dataset.i];const j=+b.dataset.j;const ok=j===q[2];
-    el.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q[2])x.classList.add('right')});if(!ok)b.classList.add('wrong');
-    el.classList.add('done');el.querySelector('.exp').textContent=(ok?'Correct. ':'Not quite. ')+q[3];answered++;if(ok)score++;updScore()}));updScore()}
-function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('lab2-best')||0;
-  if(answered===Q.length&&score>best){best=score;store.set('lab2-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
-$('#qReset').onclick=buildQuiz;buildQuiz();
 })();
 </script>
 </body>
