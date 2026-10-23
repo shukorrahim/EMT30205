@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>Serial Communication | Monitoring System Integration</title>
+<meta name="description" content="Chapter 3 of EMT30205: serial communication, RS-232, RS-422 and RS-485, differential signalling, duplex, converters, network topologies and PLC networking, with interactive animations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side .home-m{display:none}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.ticker{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.lead{max-width:700px;font-size:19px;margin-top:24px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;row-gap:6px}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.ask{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:16px 0;font-size:16px}
+.ask b{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--warn)}
+.ask details{margin-top:6px}.ask summary{cursor:pointer;color:var(--sel);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.threecol{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.threecol{grid-template-columns:repeat(3,1fr)}}
+.twocol ul,.threecol ul{padding-left:20px;margin:0}
+.twocol h3,.threecol h3{margin-top:0;font-size:21px}
+.out{min-height:60px}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.danger{border-color:var(--alarm);color:var(--alarm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+input[type=range]{width:100%;accent-color:var(--sel)}
+
+/* Light diagrams */
+.diagram{margin:14px 0}
+.diagram svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.diagram svg text{fill:var(--ink);font-family:var(--body)}
+.diagram svg .lb{font-family:var(--cond);font-weight:600}
+.diagram svg .dim{fill:var(--ink2)}
+.diagram figcaption{font-size:14px;color:var(--ink2);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.diagram figcaption i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.wide svg{min-width:720px}.pan-hint{display:block}.hmi .pan-hint{color:#8A99A6;background:#172028}}
+
+/* HMI screens (same as Chapter 1) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--kv132:#5AA8FF;--kv33:#F0C04A;--cls:#E5484D;--opn:#3FB950;--val:#7FE3FF;
+  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);margin-top:12px;font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
+.hmi-nav button,.hmi-nav span{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
+.hmi-body{position:relative;min-width:0}
+.hmi svg{display:block;width:100%;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi svg .dim{fill:var(--hd)}
+.hmi svg .lb{font-family:var(--cond);font-weight:600}
+.vbox rect{fill:#000;stroke:var(--hl)}
+.vbox text{font-variant-numeric:tabular-nums;font-weight:600;fill:var(--val)!important}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
+.hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
+.hmi-foot .alm.okk{background:#1F5130;color:#fff}
+@keyframes hblink{50%{background:#7E1A1D}}
+.hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
+.hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
+.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer}
+.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}.hbtn.red{background:#9E2A2E;border-color:#C23A3F;color:#fff}
+.hbtn[disabled]{opacity:.4;cursor:not-allowed}
+.hmi .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--hp);border-top:1px solid var(--hl);color:var(--hd)}
+.hmi .ctl label{display:inline-flex;gap:6px;align-items:center}
+.hmi .ctl input[type=range]{width:120px}
+.hlog{list-style:none;margin:0;padding:6px 10px;font:12px/1.5 Consolas,"Courier New",monospace;max-height:120px;overflow-y:auto;border-top:1px solid var(--hl)}
+.hlog li.a{color:#FF8A84}.hlog li.k{color:#7FE3A0}.hlog li.i{color:var(--val)}
+.flowline{stroke-dasharray:10 8;animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.blink{animation:blinkf 1s steps(2) infinite}
+@keyframes blinkf{50%{opacity:.2}}
+.hmi .ln{transition:opacity .3s}
+.netsvg[data-sel] .ln:not(.on){opacity:.12}
+
+/* Flip cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:170px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:26px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+
+/* Class game: name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Key idea, teaching tips, jargon buster */
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.tip{border:1px dashed var(--pipe);border-radius:4px;padding:8px 14px;margin:14px 0;background:var(--panel);max-width:760px}
+.tip summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tip p{margin:8px 0 0;font-size:16px}
+.jargon{margin-top:26px}
+.jargon .flip{height:150px}
+.jargon .flip .f b{font-size:24px}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* ===== Chapter 3 ===== */
+.diagram svg .wire{stroke:var(--pipe);stroke-width:3;fill:none}
+.diagram svg .box{fill:var(--panel);stroke:var(--pipe);stroke-width:2}
+.diagram svg .thin{stroke:var(--pipe);stroke-width:1.5;fill:none}
+.diagram.flat svg{background:var(--panel2)}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.ctrl label{display:inline-flex;gap:6px;align-items:center;font-size:15px}
+.ctrl input[type=text]{width:64px;font:600 24px var(--cond);text-align:center;padding:2px 4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.say{min-height:52px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px;margin-top:10px}
+.say b{font-weight:600}
+/* Serial frame strip */
+.frame{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.frame span{min-width:46px;text-align:center;border:2px solid var(--sel);border-radius:3px;padding:2px 2px 3px;font:700 20px/1.1 var(--cond);background:var(--panel);transition:background .2s}
+.frame span small{display:block;font:500 11px var(--body);color:var(--ink2)}
+.frame span.st{border-color:var(--warn)}.frame span.sp{border-color:var(--ok)}
+.frame span.on{background:var(--sel);color:var(--sel-ink)}.frame span.on small{color:var(--sel-ink)}
+.frame span.ok{background:var(--sel-soft)}
+/* Analogy box */
+.ana{border-left:4px solid var(--ok);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:14px 0;font-size:16px;max-width:780px}
+.ana>b:first-child{display:block;font-family:var(--cond);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ok)}
+/* Stat strip */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:14px 0}
+.stat div{background:var(--panel);padding:8px 12px}
+.stat .k{font-size:13px;color:var(--ink2)}.stat .v{font-family:var(--cond);font-size:26px;font-weight:600;line-height:1.15}
+/* Why-serial cards */
+.why{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.why{grid-template-columns:repeat(3,1fr)}}
+.why .panel{display:flex;gap:12px;align-items:flex-start}
+.why svg{flex:0 0 52px;width:52px;height:52px}
+.why b{font-family:var(--cond);font-size:20px;font-weight:600;display:block}
+.why p{margin:0;font-size:15px}
+/* Signal vs language */
+.sl{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media (min-width:700px){.sl{grid-template-columns:1fr 1fr}}
+.sl>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:16px}
+.sl>div.me{border:2px solid var(--sel)}
+.sl b.t{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+/* Nodes */
+.nd3 rect{fill:var(--panel);stroke:var(--pipe);stroke-width:2;transition:fill .2s,stroke .2s}
+.nd3.heard rect{stroke:var(--warn);stroke-width:3}
+.nd3.me rect{fill:var(--ok);stroke:var(--ok)}.nd3.me text{fill:#fff!important}
+.quiz1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.quiz1 .item{font-family:var(--cond);font-size:24px;font-weight:600;min-width:240px}
+/* DB9 */
+.db9 .pin{cursor:pointer}
+.db9 .pin circle{fill:#C9CED3;stroke:#6B7680;stroke-width:2}
+.db9 .pin.key circle{fill:#F0C04A;stroke:#7A6420}
+.db9 .pin.on circle{fill:var(--sel);stroke:var(--sel)}
+.db9 .pin text{font-weight:600}
+.pinfo{min-height:96px}
+.pinfo b.big{font-family:var(--cond);font-size:30px;font-weight:700;display:block;line-height:1.1}
+.pinlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* Comparison table */
+.cmp3{width:100%;border-collapse:collapse;font-size:16px;background:var(--panel);min-width:560px}
+.cmp3 th,.cmp3 td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.cmp3 thead th{background:var(--panel2);font-family:var(--cond);font-size:20px;cursor:pointer}
+.cmp3 tbody th{font-weight:600;color:var(--ink2);font-size:15px;width:24%}
+.cmp3 .hl{background:var(--sel-soft)}
+.cmp3 thead th.hl{background:var(--sel);color:var(--sel-ink)}
+/* Topologies */
+.topo svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.topo .ed{stroke:var(--pipe);stroke-width:4;fill:none;stroke-linecap:round}
+.topo .ed.bb{stroke:#D35400;stroke-width:6}
+.topo .ed.brk{stroke:var(--alarm);stroke-dasharray:4 10;opacity:.8}
+.topo .hitl{stroke:transparent;stroke-width:24;cursor:pointer}
+.topo .nd{cursor:pointer}
+.topo .nd rect{fill:var(--panel);stroke:var(--sel);stroke-width:2.5;transition:fill .25s,stroke .25s}
+.topo .nd.hub rect{fill:var(--sel-soft)}
+.topo .nd text{fill:var(--ink);font-size:13px;font-weight:600;font-family:var(--body);pointer-events:none}
+.topo .nd.down rect{stroke:var(--alarm);fill:var(--panel2)}
+.topo .nd.down text{fill:var(--ink2)}
+.topo .nd.brk rect{stroke:var(--alarm);fill:var(--alarm)}.topo .nd.brk text{fill:#fff}
+.topo .nd .x{stroke:#fff;stroke-width:3}
+.topo .nd.ping rect{fill:var(--ok);stroke:var(--ok)}.topo .nd.ping text{fill:#fff}
+.topo .master rect{stroke-width:4}
+.topo text.cut{font-size:20px}
+.tinfo{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+@media (min-width:760px){.tinfo{grid-template-columns:repeat(3,1fr)}}
+.tinfo>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:15px}
+.tinfo b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.tinfo .g b{color:var(--ok)}.tinfo .w b{color:var(--alarm)}
+.tstat{font-family:var(--cond);font-size:22px;font-weight:600;margin-top:10px}
+.tstat.bad{color:var(--alarm)}.tstat.good{color:var(--ok)}
+/* Big picture */
+.big4{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media (min-width:760px){.big4{grid-template-columns:repeat(4,1fr)}}
+.big4 a{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--sel);border-radius:4px;padding:10px 12px;font-size:15px}
+.big4 a:hover{border-color:var(--sel)}
+.big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
+.big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
+
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){
+  .panel{padding:14px}main{padding:0 14px 60px}
+  .seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+  .frame span{min-width:38px;font-size:18px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip{min-height:44px}
+  .hbtn,.hmi-nav button{min-height:36px;padding-left:14px;padding-right:14px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .side a{padding:10px 12px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .flip .b{transform:none;display:none}.flip.on .b{display:flex}.flip.on .in{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Chapter sections">
+  <div class="brand"><b>Serial Communication</b><span>Monitoring System Integration, Chapter 3</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 13 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">Monitoring System Integration, Chapter 3</div>
+  <h1>Serial Communication<small>The wires that carry SCADA data, one bit at a time</small></h1>
+  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
+  <div class="hmi" id="heroHmi">
+    <div class="hmi-title"><b>PLANT OVERVIEW · SERIAL LINK</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
+    <div class="hmi-body scroll-x wide">
+      <svg viewBox="0 0 1000 250" role="img" aria-label="A sensor wired to a PLC, and the PLC linked to a SCADA computer by a serial cable carrying bits one after another">
+        <defs><clipPath id="heroClip"><rect x="584" y="90" width="232" height="60"/></clipPath></defs>
+        <rect x="30" y="72" width="150" height="104" rx="6" fill="#172028" stroke="#34424D" stroke-width="2"/>
+        <circle cx="105" cy="112" r="24" fill="none" stroke="#7FE3FF" stroke-width="3"/><path d="M105,112 L118,99" stroke="#7FE3FF" stroke-width="3"/>
+        <text x="105" y="160" text-anchor="middle" class="lb" font-size="17">SENSOR</text>
+        <path d="M180,124 H420" stroke="#5A6A75" stroke-width="3"/><text x="300" y="112" text-anchor="middle" class="dim" font-size="13">field wiring</text>
+        <rect x="420" y="62" width="160" height="124" rx="6" fill="#172028" stroke="#34424D" stroke-width="2"/>
+        <rect x="440" y="80" width="120" height="58" rx="3" fill="#0D1317" stroke="#34424D"/>
+        <g fill="#3FB950"><circle cx="456" cy="96" r="4"/><circle cx="472" cy="96" r="4"/><circle cx="488" cy="96" r="4" class="blink"/></g>
+        <text x="500" y="168" text-anchor="middle" class="lb" font-size="17">PLC</text>
+        <path d="M580,124 H820" stroke="#F0C04A" stroke-width="4"/>
+        <text x="700" y="80" text-anchor="middle" class="lb" font-size="15" style="fill:#F0C04A">SERIAL CABLE</text>
+        <text x="700" y="172" text-anchor="middle" class="dim" font-size="13">RS-232 / RS-422 / RS-485</text>
+        <g clip-path="url(#heroClip)" id="heroBits"></g>
+        <rect x="820" y="62" width="150" height="100" rx="6" fill="#172028" stroke="#34424D" stroke-width="2"/>
+        <rect x="836" y="76" width="118" height="62" rx="2" fill="#0D1317" stroke="#34424D"/>
+        <path d="M846,124 L866,104 L884,116 L906,92 L940,100" stroke="#7FE3FF" stroke-width="2.5" fill="none"/>
+        <rect x="880" y="162" width="30" height="12" fill="#34424D"/><rect x="860" y="174" width="70" height="6" rx="2" fill="#34424D"/>
+        <text x="895" y="204" text-anchor="middle" class="lb" font-size="17">SCADA PC</text>
+        <text x="500" y="236" text-anchor="middle" class="dim" font-size="13">The letter "A" travelling as bits: <tspan style="fill:#F0C04A">start</tspan> · <tspan style="fill:#7FE3FF">8 data bits</tspan> · <tspan style="fill:#3FB950">stop</tspan>, one after another</text>
+      </svg>
+    </div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  </div>
+  <div class="sl">
+    <div class="me"><b class="t">The signal: this chapter</b>RS-232, RS-422 and RS-485 decide <b>how the bits travel</b>: the wires, the voltages, the distance and the speed.</div>
+    <div><b class="t">The language: Chapter 2</b>Modbus, DNP3 and IEC 61850 decide <b>what the bits mean</b>. See <a href="chapter2.html#s1">Chapter 2</a>.</div>
+  </div>
+  <div class="ana"><b>Analogy: two people on walkie-talkies</b>The radio signal is the serial link (for example RS-485). The language they speak, English or Malay, is the protocol (for example Modbus). Without the signal the voice cannot travel; without the language the message has no meaning.</div>
+  <div class="ticker">
+    <div><div class="k">RS-232 reach</div><div class="v">~15 m</div></div>
+    <div><div class="k">RS-485 reach</div><div class="v">1200 m</div></div>
+    <div><div class="k">RS-485 devices on one pair</div><div class="v">32</div></div>
+    <div><div class="k">Top speed (RS-422/485)</div><div class="v">10 Mbps</div></div>
+  </div>
+  <div class="jargon"><h3 style="font-size:26px;margin:0 0 4px">Jargon buster</h3><p class="muted" style="margin:0;font-size:15px">Serial words in everyday language. Tap a card to flip it.</p><div class="cards" id="jargon"></div></div>
+</header>
+
+<!-- 3.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">3.1</span>One bit at a time</h2>
+  <div class="key"><b>Key idea</b>Serial communication sends data one bit after another along a single wire. Parallel sends many bits at once, but needs many wires.</div>
+  <div class="prose"><p>Computers store every letter and number as 8 bits (0s and 1s). To send it down a cable we have two choices: queue the bits up on one wire (serial), or give each bit its own wire (parallel). Type a letter and press Send.</p></div>
+  <div class="ctrl">
+    <label>Letter <input type="text" id="serCh" value="A" maxlength="1" aria-label="Letter to send" autocomplete="off"></label>
+    <div class="seg" role="group" aria-label="Sending method" id="serMode"><button aria-pressed="true" data-m="s">Serial (1 wire)</button><button aria-pressed="false" data-m="p">Parallel (8 wires)</button></div>
+    <button class="btn primary" id="serGo">Send ▶</button>
+  </div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 300" id="serSvg" role="img" aria-label="Bits travelling from a sender to a receiver">
+      <defs><clipPath id="serClip"><rect x="150" y="0" width="600" height="300"/></clipPath></defs>
+      <rect x="20" y="50" width="130" height="200" rx="6" class="box"/><text x="85" y="80" text-anchor="middle" class="lb" font-size="17">SENDER</text>
+      <text x="85" y="160" text-anchor="middle" font-size="54" class="lb" id="serTx">A</text>
+      <rect x="750" y="50" width="130" height="200" rx="6" class="box"/><text x="815" y="80" text-anchor="middle" class="lb" font-size="17">RECEIVER</text>
+      <text x="815" y="160" text-anchor="middle" font-size="54" class="lb" id="serRx">?</text>
+      <g id="serReg"></g>
+      <g id="serWires"></g>
+      <g id="serBits" clip-path="url(#serClip)"></g>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="frame" id="serFrame" aria-label="The bits in this frame"></div>
+  <div class="say" id="serSay" aria-live="polite">Press <b>Send</b> to watch the letter travel.</div>
+  <h3>Asynchronous: no shared clock</h3>
+  <div class="prose"><p>RS-232 is <b>asynchronous</b>: there is no clock wire telling the receiver when each bit arrives. Instead both sides agree on the speed beforehand (the <b>baud rate</b>, for example 9600 bits per second), and every character is wrapped in a <b>start bit</b> and a <b>stop bit</b>. The timing between bits is fixed, but the gap between characters can be any length.</p></div>
+  <div class="ana"><b>Analogy: knocking before you speak</b>The start bit is a knock on the door: "listen, a letter is coming." The receiver then counts the next 8 bits at the agreed speed. The stop bit is "done". The next knock can come straight away or a minute later.</div>
+  <h3>Why serial survives in industry</h3>
+  <div class="why">
+    <div class="panel"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M8,40 C20,30 32,22 44,12 M8,44 C20,34 32,26 44,16" stroke="#B87F00" stroke-width="4" fill="none"/></svg><div><b>Simple</b><p>Often just two wires. Cheap and easy to install for basic sensors and meters.</p></div></div>
+    <div class="panel"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M26,6 L44,13 V26 C44,37 36,44 26,48 C16,44 8,37 8,26 V13 Z" fill="none" stroke="var(--sel)" stroke-width="4"/><path d="M28,14 L20,28 H27 L23,40 L33,24 H26 Z" fill="var(--warn)"/></svg><div><b>Tough</b><p>RS-422 and RS-485 use differential signals that shrug off the electrical noise of a factory floor (3.5).</p></div></div>
+    <div class="panel"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="13" fill="none" stroke="var(--pipe)" stroke-width="5"/><g stroke="var(--pipe)" stroke-width="6"><path d="M26,4V11M26,41V48M4,26H11M41,26H48M10,10L15,15M37,37L42,42M42,10L37,15M15,37L10,42"/></g></svg><div><b>Everywhere</b><p>Decades of PLCs, drives, meters and RTUs already speak serial, and they keep running for 20 years or more.</p></div></div>
+  </div>
+  <p class="muted" style="font-size:15px;margin-top:14px">Recap: a <b>protocol</b> is the agreed language of a conversation (syntax, meaning and timing). That was <a href="chapter2.html#s1">Chapter 2.1</a>. This chapter is about the road underneath it.</p>
+</section>
+
+<!-- 3.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">3.2</span>Nodes and addresses</h2>
+  <div class="key"><b>Key idea</b>A node is any device on a network that can send, receive or process data: a PLC, an HMI, an RTU or a computer. Each node has its own address.</div>
+  <div class="ana"><b>Analogy: houses on a street</b>The cable is the street and every node is a house with a house number. The postman walks past every house, but only the house whose number is on the envelope opens it.</div>
+  <div class="ctrl"><span style="font-weight:600">Send a message to address:</span><div class="chips" id="ndChips" role="group" aria-label="Address"></div></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 260" id="ndSvg" role="img" aria-label="A master and five nodes on one shared cable"></svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="ndSay" aria-live="polite">Pick an address. Watch every node hear the message, and only one answer.</div>
+  <h3>Quick check: is it a node?</h3>
+  <div class="panel">
+    <div class="quiz1"><span class="item" id="nqItem"></span><button class="btn" id="nqY">Node</button><button class="btn" id="nqN">Not a node</button><button class="btn" id="nqNext" hidden>Next ▶</button></div>
+    <div class="fb" id="nqFb" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- 3.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">3.3</span>Half duplex and full duplex</h2>
+  <div class="key"><b>Key idea</b>Half duplex: data goes both ways, but only one way at a time. Full duplex: both sides can send at the same time.</div>
+  <div class="twocol">
+    <div class="ana" style="margin:0"><b>Half duplex: a walkie-talkie</b>Press to talk, say "over", then listen. If both press at once, nobody hears anything. RS-485 (two wires) works like this.</div>
+    <div class="ana" style="margin:0"><b>Full duplex: a telephone call</b>Both people can talk and listen at the same time, because there is a separate path each way. RS-232 and RS-422 work like this.</div>
+  </div>
+  <div class="ctrl">
+    <div class="seg" role="group" aria-label="Duplex mode" id="dxMode"><button aria-pressed="true" data-m="h">Half duplex</button><button aria-pressed="false" data-m="f">Full duplex</button></div>
+    <button class="btn" id="dxA">Node A sends</button><button class="btn" id="dxB">Node B sends</button><button class="btn primary" id="dxAB">Both send at once</button>
+    <label id="dxEchoL" hidden><input type="checkbox" id="dxEcho"> Echo check</label>
+  </div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 240" id="dxSvg" role="img" aria-label="Two nodes sending messages to each other">
+      <defs><marker id="dxAr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10Z" fill="var(--ink2)"/></marker></defs>
+      <rect x="20" y="70" width="130" height="100" rx="6" class="box"/><text x="85" y="128" text-anchor="middle" class="lb" font-size="20">NODE A</text>
+      <rect x="750" y="70" width="130" height="100" rx="6" class="box"/><text x="815" y="128" text-anchor="middle" class="lb" font-size="20">NODE B</text>
+      <g id="dxHalf"><path d="M150,120H750" stroke="var(--pipe)" stroke-width="12"/><text x="450" y="200" text-anchor="middle" font-size="14" class="dim">One shared path: traffic both ways, but only one at a time</text></g>
+      <g id="dxFull" style="display:none"><path d="M150,96H740" stroke="var(--pipe)" stroke-width="8" marker-end="url(#dxAr)"/><path d="M750,144H160" stroke="var(--pipe)" stroke-width="8" marker-end="url(#dxAr)"/>
+        <text x="450" y="74" text-anchor="middle" font-size="14" class="dim">A → B path</text><text x="450" y="182" text-anchor="middle" font-size="14" class="dim">B → A path</text></g>
+      <g id="dxPA" style="display:none"><rect x="-50" y="-15" width="100" height="30" rx="4" fill="#D35400"/><text y="5" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:600">Hello B</text></g>
+      <g id="dxPB" style="display:none"><rect x="-50" y="-15" width="100" height="30" rx="4" fill="#1B5AA6"/><text y="5" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:600">Hi A</text></g>
+      <g id="dxPE" style="display:none"><rect x="-62" y="-15" width="124" height="30" rx="4" fill="#2E7A39"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">copy: Hello B ✓</text></g>
+      <g id="dxBoom" style="display:none" transform="translate(450,120)"><path d="M0,-44 L10,-14 L40,-26 L20,0 L44,18 L12,16 L4,46 L-8,18 L-40,30 L-20,2 L-44,-18 L-12,-14 Z" fill="#C22E29"/><text y="6" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700">CRASH</text></g>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="dxSay" aria-live="polite">Try <b>Both send at once</b> in each mode.</div>
+  <p class="muted" style="font-size:15px">Echo check: in full duplex the receiver can send a copy of every byte straight back, so the sender can check it arrived correctly.</p>
+</section>
+
+<!-- 3.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">3.4</span>RS-232: the pioneer</h2>
+  <div class="key"><b>Key idea</b>RS-232 connects exactly two devices over a short cable. It is simple, full duplex and asynchronous, but sensitive to noise.</div>
+  <div class="prose"><p><b>RS</b> stands for <b>Recommended Standard</b>. RS-232C (the "C" means the third version) was approved by the Electronic Industries Alliance (EIA) for connecting serial devices. Old PCs had RS-232 ports called COM1 and COM2; today we use a USB-to-serial adapter.</p></div>
+  <div class="stat">
+    <div><div class="k">Devices</div><div class="v">2 (point to point)</div></div>
+    <div><div class="k">Distance</div><div class="v">~15 m (50 ft)</div></div>
+    <div><div class="k">Speed</div><div class="v">20 kbps*</div></div>
+    <div><div class="k">Duplex</div><div class="v">Full</div></div>
+    <div><div class="k">Signal</div><div class="v">Unbalanced</div></div>
+  </div>
+  <p class="muted" style="font-size:14px;margin-top:-6px">*20 kbps in the standard; up to 115 kbaud is used in practice.</p>
+  <h3>The DB9 connector: tap a pin</h3>
+  <div class="twocol">
+    <figure class="diagram db9" style="margin:0">
+      <svg viewBox="0 0 420 220" id="db9" role="img" aria-label="DB9 connector with nine pins">
+        <path d="M30,40 H390 L356,180 H64 Z" fill="#B8BEC4" stroke="#5B6771" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M48,52 H372 L344,168 H76 Z" fill="#3C4650" stroke="#2A323A" stroke-width="2" stroke-linejoin="round"/>
+        <g id="db9Pins"></g>
+        <text x="210" y="208" text-anchor="middle" font-size="12" class="dim">Front view of a DB9 plug. Gold pins: the 3 you always need.</text>
+      </svg>
+    </figure>
+    <div class="panel pinfo" id="pinInfo" aria-live="polite"><b class="big">Tap a pin</b>Each of the 9 pins has one job. The three gold ones, <b>2, 3 and 5</b>, are enough for most PLC links.</div>
+  </div>
+  <h3>Mouth to ear: the crossover</h3>
+  <div class="prose"><p>One device's <b>transmit</b> pin (TXD, the mouth) must reach the other device's <b>receive</b> pin (RXD, the ear). So the two data wires cross over. Ground goes straight across.</p></div>
+  <div class="row"><button class="btn" id="xoPC">PC sends</button><button class="btn" id="xoPLC">PLC replies</button></div>
+  <figure class="diagram scroll-x wide">
+    <svg viewBox="0 0 900 220" role="img" aria-label="RS-232 crossover wiring between a PC and a PLC">
+      <rect x="40" y="40" width="180" height="150" rx="6" class="box"/><text x="130" y="30" text-anchor="middle" class="lb" font-size="16">PC (COM1)</text>
+      <rect x="680" y="40" width="180" height="150" rx="6" class="box"/><text x="770" y="30" text-anchor="middle" class="lb" font-size="16">PLC</text>
+      <g font-size="15"><text x="206" y="85" text-anchor="end">2 RXD (ear)</text><text x="206" y="125" text-anchor="end">3 TXD (mouth)</text><text x="206" y="165" text-anchor="end">5 GND</text>
+      <text x="694" y="85">2 RXD (ear)</text><text x="694" y="125">3 TXD (mouth)</text><text x="694" y="165">5 GND</text></g>
+      <path id="xo1" d="M220,120 C450,120 450,80 680,80" stroke="#D35400" stroke-width="4" fill="none"/>
+      <path id="xo2" d="M680,120 C450,120 450,80 220,80" stroke="#1B5AA6" stroke-width="4" fill="none"/>
+      <path d="M220,160 H680" stroke="var(--pipe)" stroke-width="4" stroke-dasharray="8 6"/>
+      <circle id="xoDot" r="9" fill="#D35400" style="display:none"/>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <h3>Why only 15 metres? Try it</h3>
+  <div class="prose"><p>RS-232 is <b>unbalanced</b>: one data wire, measured against a shared ground. Electrical noise from motors and welders adds straight onto that wire, and a longer cable picks up more of it. Drag the cable length and watch the received bits.</p></div>
+  <div class="ctrl" style="max-width:640px"><label style="flex:1;min-width:220px">Cable length: <b id="rsLenV" style="min-width:52px">5 m</b><input type="range" id="rsLen" min="1" max="60" value="5" aria-label="Cable length in metres"></label>
+    <label><input type="checkbox" id="rsMotor"> A big motor starts nearby</label></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 262" id="rsWave" role="img" aria-label="Sent and received RS-232 signal">
+      <text x="14" y="58" font-size="14" class="lb">Sent</text><text x="14" y="168" font-size="14" class="lb">Received</text>
+      <g id="rsErr"></g>
+      <path id="rsS" d="" stroke="var(--sel)" stroke-width="2.5" fill="none"/>
+      <path id="rsR" d="" stroke="var(--ink)" stroke-width="2" fill="none"/>
+      <g id="rsBits" font-size="12" text-anchor="middle"></g>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="rsSay" aria-live="polite"></div>
+  <div class="ana"><b>Analogy: talking to a friend in a noisy factory</b>Standing close, you hear them fine. Walk 50 metres away while a machine roars, and words get lost. RS-232 is one voice against the noise, so keep it short.</div>
+  <p>Typical uses: connecting a PC to a PLC for programming (like the CX-Programmer link in <a href="lab1.html">Lab 1</a>), a PC to a microcontroller, a modem or printer, and debugging industrial devices on the bench.</p>
+  <p class="muted" style="font-size:15px">RS-232, RS-422 and RS-485 describe only the wires, plugs and voltages. In the OSI model that is layer 1, the physical layer (<a href="chapter2.html#s5">Chapter 2.5</a>).</p>
+</section>
+
+<!-- 3.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">3.5</span>RS-422 and the differential trick</h2>
+  <div class="key"><b>Key idea</b>RS-422 sends each signal on a pair of wires carrying opposite copies. The receiver looks only at the difference between them, so noise that hits both wires cancels out.</div>
+  <div class="ana"><b>Analogy: two friends on a bumpy bus</b>When the bus hits a pothole, both friends bounce up together. The gap between their heads stays the same. The receiver measures that gap, not the height, so the bumps (the noise) do not matter.</div>
+  <div class="ctrl"><button class="btn" id="difNoise" aria-pressed="true">Factory noise: ON</button><button class="btn primary" id="difZap">⚡ Big spark now</button></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 400" id="difSvg" role="img" aria-label="Differential signalling: wire A, wire B, the difference, and a single wire for comparison">
+      <rect x="110" y="20" width="780" height="160" rx="4" fill="none" stroke="var(--line)"/>
+      <text x="12" y="64" font-size="14" class="lb">Wire A (+)</text><text x="12" y="144" font-size="14" class="lb">Wire B (−)</text>
+      <text x="12" y="226" font-size="14" class="lb">Receiver:</text><text x="12" y="244" font-size="14" class="lb">A − B</text>
+      <text x="12" y="322" font-size="14" class="lb">Single wire</text><text x="12" y="340" font-size="12" class="dim">(RS-232)</text>
+      <path d="M110,280 H890" stroke="var(--line)" stroke-dasharray="4 4"/>
+      <g id="dZap" font-size="18" text-anchor="middle"></g>
+      <path id="dA" stroke="#D35400" stroke-width="2.5" fill="none"/>
+      <path id="dB" stroke="#1B5AA6" stroke-width="2.5" fill="none"/>
+      <path id="dD" stroke="#2E7A39" stroke-width="3" fill="none"/>
+      <path id="dSe" stroke="#C22E29" stroke-width="10" fill="none" opacity=".35"/>
+      <path id="dS" stroke="var(--ink)" stroke-width="2.5" fill="none"/>
+      <text x="500" y="388" text-anchor="middle" font-size="13" class="dim">Red marks: bits the single-wire receiver reads wrongly</text>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="difSay" aria-live="polite"></div>
+  <h3>RS-422 in short</h3>
+  <div class="twocol">
+    <figure class="diagram" style="margin:0">
+      <svg viewBox="0 0 440 200" role="img" aria-label="RS-422 uses a twisted pair for transmit and another for receive">
+        <rect x="10" y="40" width="90" height="120" rx="6" class="box"/><text x="55" y="105" text-anchor="middle" class="lb" font-size="16">Device 1</text>
+        <rect x="340" y="40" width="90" height="120" rx="6" class="box"/><text x="385" y="105" text-anchor="middle" class="lb" font-size="16">Device 2</text>
+        <g fill="none" stroke-width="3"><path id="tw1" stroke="#D35400"/><path id="tw2" stroke="#E8A87C"/><path id="tw3" stroke="#1B5AA6"/><path id="tw4" stroke="#8DB3E2"/></g>
+        <text x="220" y="48" text-anchor="middle" font-size="13">TX+ / TX− pair →</text><text x="220" y="176" text-anchor="middle" font-size="13">← RX+ / RX− pair</text>
+      </svg>
+    </figure>
+    <ul>
+      <li><b>4 wires:</b> one twisted pair to transmit, one to receive, so it is <b>full duplex</b>.</li>
+      <li><b>Distance:</b> up to <b>1200 m</b> (4000 ft).</li>
+      <li><b>Speed:</b> up to <b>10 Mbps</b> (on short cables).</li>
+      <li><b>Devices:</b> one sender can drive up to <b>10 receivers</b>.</li>
+      <li>The wires in each pair are <b>twisted</b> so that noise hits both equally.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 3.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">3.6</span>RS-485: the industrial workhorse</h2>
+  <div class="key"><b>Key idea</b>RS-485 puts up to 32 devices on one twisted pair (multidrop). Only one may talk at a time, so the master calls each address in turn.</div>
+  <div class="ana"><b>Analogy: a lecturer and a class</b>The lecturer (master) calls one student by name (address). Only that student answers. If two students shout at once, nobody understands either of them.</div>
+  <div class="hmi" id="rsHmi">
+    <div class="hmi-title"><b>RS-485 MULTIDROP NETWORK · 9600 bps</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
+    <div class="hmi-body scroll-x wide"><svg viewBox="0 0 1000 300" id="r5Svg" role="img" aria-label="RS-485 bus with a master and slave devices"></svg></div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+    <div class="ctl">
+      <button class="hbtn go" id="r5Poll">▶ Poll all slaves</button>
+      <button class="hbtn" id="r5Less">− Device</button><button class="hbtn" id="r5More">+ Device</button>
+      <button class="hbtn red" id="r5Clash">Two talk at once</button>
+      <button class="hbtn" id="r5Term" aria-pressed="true">Termination 120 Ω: ON</button>
+    </div>
+    <div class="hmi-foot"><span class="alm okk" id="r5Alm">Network healthy</span><span id="r5Cnt" style="font-variant-numeric:tabular-nums">5 of 32 devices</span></div>
+    <ul class="hlog" id="r5Log" aria-live="polite"></ul>
+  </div>
+  <div class="stat">
+    <div><div class="k">Wires</div><div class="v">2 (+ ground)</div></div>
+    <div><div class="k">Devices</div><div class="v">up to 32</div></div>
+    <div><div class="k">Distance</div><div class="v">1200 m</div></div>
+    <div><div class="k">Speed</div><div class="v">10 Mbps</div></div>
+    <div><div class="k">Duplex</div><div class="v">Half</div></div>
+  </div>
+  <h3>Termination resistors: stopping the echo</h3>
+  <div class="prose"><p>On a long cable, a signal reaching the far end bounces back like an echo and spoils the next bits. A resistor of about <b>100 to 120 Ω</b> (matching the cable) at <b>each end</b> of the bus soaks the signal up. Turn termination OFF above and poll again.</p></div>
+  <div class="ana"><b>Analogy: an empty hall versus a curtained room</b>Shout in an empty hall and your words echo back over the next ones. Hang thick curtains at the ends of the room and the echo disappears. The termination resistors are the curtains.</div>
+  <p>RS-485 is the usual road for <b>Modbus RTU</b> (<a href="chapter2.html#s8">Chapter 2.8</a>). Each device needs a <b>unique address</b>, set on the device, so that only one answers each question.</p>
+</section>
+
+<!-- 3.7 -->
+<section class="topic" id="s7">
+  <h2><span class="n">3.7</span>RS-232, RS-422 and RS-485 side by side</h2>
+  <div class="prose"><p>Tap a column heading to highlight it.</p></div>
+  <div class="scroll-x">
+    <table class="cmp3" id="cmp3">
+      <thead><tr><th style="cursor:default">Feature</th><th data-c="1">RS-232</th><th data-c="2">RS-422</th><th data-c="3">RS-485</th></tr></thead>
+      <tbody>
+        <tr><th>Signal</th><td data-c="1">Unbalanced (one wire + ground)</td><td data-c="2">Differential</td><td data-c="3">Differential</td></tr>
+        <tr><th>Wires</th><td data-c="1">3 or more (TXD, RXD, GND)</td><td data-c="2">4 (2 pairs) + ground</td><td data-c="3">2 (1 pair) + ground</td></tr>
+        <tr><th>Devices</th><td data-c="1">2 (point to point)</td><td data-c="2">1 sender, up to 10 receivers</td><td data-c="3">Up to 32 on one bus</td></tr>
+        <tr><th>Distance</th><td data-c="1">~15 m</td><td data-c="2">1200 m</td><td data-c="3">1200 m</td></tr>
+        <tr><th>Speed</th><td data-c="1">20 kbps (115 kbaud in practice)</td><td data-c="2">10 Mbps</td><td data-c="3">10 Mbps</td></tr>
+        <tr><th>Duplex</th><td data-c="1">Full</td><td data-c="2">Full</td><td data-c="3">Half (2-wire)</td></tr>
+        <tr><th>Noise</th><td data-c="1">Sensitive</td><td data-c="2">Very good</td><td data-c="3">Very good</td></tr>
+        <tr><th>Typical use</th><td data-c="1">PC to PLC programming, modems, bench tests</td><td data-c="2">Long point-to-point links in noisy areas</td><td data-c="3">SCADA field networks, Modbus RTU, meters and drives</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Game: pick the right standard</h3>
+  <div class="panel">
+    <p style="font-weight:600;font-size:18px;margin-bottom:8px" id="scQ"></p>
+    <div class="chips" id="scChips"></div>
+    <div class="fb" id="scFb" aria-live="polite"></div>
+    <div class="row"><button class="btn" id="scNext">Next situation ▶</button><span class="muted" id="scScore" style="font-size:15px"></span></div>
+  </div>
+</section>
+
+<!-- 3.8 -->
+<section class="topic" id="s8">
+  <h2><span class="n">3.8</span>Converters</h2>
+  <div class="key"><b>Key idea</b>A converter is a bridge between two electrical standards, for example from a PC's USB or RS-232 port to an RS-485 network. It changes the signal, not the message.</div>
+  <div class="ana"><b>Analogy: a travel plug adapter</b>Your Malaysian plug does not fit a Japanese socket, so you use an adapter. The electricity is the same; only the shape of the plug changes. A converter changes the wires and voltages, but the Modbus message inside stays exactly the same. (Changing the language itself needs a <b>gateway</b>, Chapter 2.)</div>
+  <div class="ctrl"><div class="chips" id="cvChips" role="group" aria-label="Converter type"></div><button class="btn primary" id="cvGo">Send data ▶</button></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 300" id="cvSvg" role="img" aria-label="A computer, a converter box and a field device"></svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="cvSay" aria-live="polite"></div>
+</section>
+
+<!-- 3.9 -->
+<section class="topic" id="s9">
+  <h2><span class="n">3.9</span>Why we need networks</h2>
+  <div class="key"><b>Key idea</b>Wiring every device directly to every other device does not scale. A shared network replaces bundles of cables with one, and lets many PLCs work as a team.</div>
+  <div class="ctrl" style="max-width:640px"><label style="flex:1;min-width:240px">Number of devices: <b id="nwNV">6</b><input type="range" id="nwN" min="2" max="16" value="6" aria-label="Number of devices"></label></div>
+  <div class="twocol">
+    <figure class="diagram" style="margin:0"><svg viewBox="0 0 400 300" id="nwA" role="img" aria-label="Every device wired directly to every other device"></svg><figcaption>Every device wired to every other: <b id="nwAc" style="margin-left:4px"></b></figcaption></figure>
+    <figure class="diagram" style="margin:0"><svg viewBox="0 0 400 300" id="nwB" role="img" aria-label="All devices on one shared network cable"></svg><figcaption>One shared network: <b id="nwBc" style="margin-left:4px"></b></figcaption></figure>
+  </div>
+  <h3>What a network gives you</h3>
+  <div class="threecol">
+    <div class="panel"><h3>Less wiring, less cost</h3>One cable can serve from two to several hundred PLCs, computers and smart devices, often daisy-chained one after another.</div>
+    <div class="panel"><h3>A team of PLCs</h3>Control is spread over many PLCs (more reliable: one failure does not stop everything), but they still coordinate with each other.</div>
+    <div class="panel"><h3>Easier fault-finding</h3>Programming, debugging and troubleshooting are done from one place, and operators can enter data from one terminal.</div>
+  </div>
+  <p class="muted" style="font-size:15px;margin-top:14px">Watch out: many PLC makers sell their own networks that do not talk to other brands (different protocols, commands, error checks and cables). See the vendor comparison in <a href="chapter2.html#s3">Chapter 2.3</a>.</p>
+</section>
+
+<!-- 3.10 -->
+<section class="topic" id="s10">
+  <h2><span class="n">3.10</span>Network topologies</h2>
+  <div class="key"><b>Key idea</b>A topology is the shape of a network: how the cables join the nodes. The four basic shapes are bus, ring, star and tree, and each fails in a different way.</div>
+  <div class="prose"><p>Choose a shape. Press <b>Send a message</b> to see how data travels from the SCADA PC. Then <b>tap any cable or device to break it</b> (tap again to repair) and see what stops working.</p></div>
+  <div class="ctrl">
+    <div class="seg" role="group" aria-label="Topology" id="tpTabs"><button aria-pressed="true" data-t="bus">Bus</button><button aria-pressed="false" data-t="ring">Ring</button><button aria-pressed="false" data-t="star">Star</button><button aria-pressed="false" data-t="tree">Tree</button></div>
+    <button class="btn primary" id="tpSend">▶ Send a message</button><button class="btn" id="tpFix">Repair all</button>
+  </div>
+  <div class="topo scroll-x wide"><svg viewBox="0 0 900 400" id="tpSvg" role="img" aria-label="Network topology diagram"></svg></div>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="tstat good" id="tpStat" aria-live="polite"></div>
+  <div class="say" id="tpSay" aria-live="polite"></div>
+  <div class="ana" id="tpAna"></div>
+  <div class="tinfo"><div><b>Structure</b><span id="tpS"></span></div><div class="g"><b>Good</b><span id="tpG"></span></div><div class="w"><b>Weak point</b><span id="tpW"></span></div></div>
+</section>
+
+<!-- 3.11 -->
+<section class="topic" id="s11">
+  <h2><span class="n">3.11</span>Networking PLCs</h2>
+  <div class="key"><b>Key idea</b>PLCs are networked in three main ways: remote I/O (reaching far-away field devices), peer-to-peer (PLCs talking to each other) and host communication (PLCs reporting to a SCADA computer).</div>
+  <div class="seg" role="group" aria-label="PLC networking type" id="pnTabs"><button aria-pressed="true" data-k="rio">Remote I/O</button><button aria-pressed="false" data-k="p2p">Peer-to-peer</button><button aria-pressed="false" data-k="host">Host computer</button></div>
+  <figure class="diagram scroll-x wide"><svg viewBox="0 0 900 300" id="pnSvg" role="img" aria-label="PLC networking diagram"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="pnSay"></div>
+  <div class="ana" id="pnAna"></div>
+  <div class="note"><b>Centralised control, decentralised operation.</b> Each PLC runs its own machine locally, so one fault stays local, but every PLC still reports to one central SCADA system. Networking makes the plant more reliable, better coordinated and easier to troubleshoot.</div>
+  <h3>The big picture of this chapter</h3>
+  <div class="big4">
+    <a href="#s1"><span class="n">3.1</span><b>Bits</b>Data leaves one bit at a time, wrapped in start and stop bits.</a>
+    <a href="#s4"><span class="n">3.4 to 3.6</span><b>The wire</b>RS-232 for short links, RS-422 and RS-485 for long, noisy ones.</a>
+    <a href="#s10"><span class="n">3.10</span><b>The network</b>Bus, ring, star or tree: the shape decides what one fault stops.</a>
+    <a href="#s11"><span class="n">3.11</span><b>The plant</b>PLCs, remote I/O and SCADA working as one system.</a>
+  </div>
+</section>
+
+<!-- 3.12 -->
+<section class="topic" id="s12">
+  <h2><span class="n">3.12</span>Check your understanding</h2>
+  <div class="prose"><p>Fifteen questions. You get feedback straight away.</p></div>
+  <div id="quiz" class="prose"></div>
+  <div class="score"><span>Score: <b id="qScore">0 / 15</b> <span class="muted" id="qBest"></span></span><button class="btn" id="qReset">Start again</button></div>
+</section>
+
+<!-- 3.13 -->
+<section class="topic" id="s13">
+  <h2><span class="n">3.13</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen ♪</button><button class="btn" id="wMusic" aria-pressed="false">♪ Music off</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Monitoring System Integration, Chapter 3: Serial Communication. Content from the lecture notes of Mohamad Shukor bin Abdul Rahim. All diagrams are drawn for this page. Simulations are simplified for learning; distances, speeds and noise levels are illustrative.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce?Math.min(ms,150):ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+const NS='http://www.w3.org/2000/svg';
+const bitsOf=ch=>{const c=ch.charCodeAt(0)&255;return [...Array(8)].map((_,i)=>(c>>i)&1)};
+function rng(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];
+const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set((store.get('ch3-seen')||[]).filter(id=>document.getElementById(id)));
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;
+    nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('ch3-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+/* Clocks on HMI title bars */
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
+/* Run animations only when on screen */
+const vis=new Set();const vio=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?vis.add(e.target.id):vis.delete(e.target.id)));
+['rsWave','difSvg'].forEach(id=>vio.observe(document.getElementById(id)));
+
+/* ===== Jargon buster ===== */
+const JG=[['Serial','People walking through a turnstile','Bits go one after another along one wire.'],['Parallel','An 8-lane highway','Many bits go side by side, each on its own wire.'],['Bit','A light switch','The smallest piece of data: 0 (off) or 1 (on). 8 bits make one byte, enough for one letter.'],['Baud rate','The agreed walking pace','How many bits per second. Both sides must use the same rate, e.g. 9600.'],['Start / stop bit','"Knock knock" and "done"','Wrap each character so the receiver knows when it begins and ends.'],['COM port','A numbered door on the PC','A serial port, e.g. COM1. A USB adapter adds a new one, e.g. COM5.'],['Node','A house on a street','Any device on the network that can send, receive or process data.'],['Address','The house number','A unique number so only the right node answers.'],['Half duplex','A walkie-talkie','Both directions, but one at a time.'],['Full duplex','A phone call','Both directions at the same time.'],['Noise','Shouting in a noisy factory','Unwanted electrical interference from motors and welders that corrupts bits.'],['Differential pair','Two friends on a bumpy bus','Two wires with opposite signals; noise moves both, the difference survives.'],['Multidrop','One bus line, many stops','Many devices share the same pair of wires.'],['Termination resistor','Curtains that stop an echo','About 120 Ω at each end of an RS-485 cable to stop reflections.'],['Topology','The shape of the road map','How the cables join the nodes: bus, ring, star or tree.']];
+$('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
+$$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+
+/* ===== Hero: the letter A as a stream of bits ===== */
+(function(){const fr=[0,...bitsOf('A'),1];const col=i=>i===0?'#F0C04A':i===9?'#3FB950':'#7FE3FF';
+  $('#heroBits').innerHTML=fr.map((v,i)=>`<g><rect x="-11" y="-14" width="22" height="28" rx="3" fill="#0D1317" stroke="${col(i)}" stroke-width="2"/><text y="6" text-anchor="middle" font-size="16" style="fill:${col(i)};font-weight:700">${v}</text>${reduce?`<animateMotion dur="1s" fill="freeze" path="M${800-i*24},124 H${800-i*24}"/>`:`<animateMotion dur="5s" begin="-${(9-i)*0.5}s" repeatCount="indefinite" path="M576,124 H824"/>`}</g>`).join('')})();
+
+/* ===== 3.1 serial vs parallel ===== */
+let serMode='s',serBusy=false;
+const smb=$$('#serMode button');
+function serWires(){let s='';
+  if(serMode==='p'){for(let i=0;i<8;i++)s+=`<path class="wire" d="M150,${70+i*22}H750"/><text x="742" y="${66+i*22}" font-size="11" text-anchor="end" class="dim">bit ${i}</text>`;
+    s+=`<path class="wire" d="M150,262H750" style="stroke-dasharray:6 5"/><text x="450" y="284" text-anchor="middle" font-size="13" class="dim">ground</text>`}
+  else s=`<text x="450" y="112" text-anchor="middle" font-size="14" class="dim">one data wire</text><path class="wire" d="M150,150H750"/><path class="wire" d="M150,230H750" style="stroke-dasharray:6 5"/><text x="450" y="252" text-anchor="middle" font-size="13" class="dim">ground (the reference)</text>`;
+  $('#serWires').innerHTML=s}
+function serReg(d){$('#serReg').innerHTML=[...Array(8)].map((_,p)=>{const i=7-p,v=d?d[i]:null;return `<rect x="${759+p*14}" y="196" width="13" height="20" fill="${v==null?'var(--panel2)':'var(--sel-soft)'}" stroke="var(--line)"/><text x="${765.5+p*14}" y="211" text-anchor="middle" font-size="12" style="font-weight:600">${v==null?'':v}</text>`}).join('')+'<text x="815" y="234" text-anchor="middle" font-size="11" class="dim">8-bit register</text>'}
+smb.forEach(b=>b.onclick=()=>{if(serBusy)return;press(smb,b);serMode=b.dataset.m;serWires();$('#serBits').innerHTML='';$('#serFrame').innerHTML='';$('#serRx').textContent='?';serReg()});
+$('#serCh').oninput=e=>{let v=e.target.value;if(v&&(v.charCodeAt(0)<32||v.charCodeAt(0)>126))v='?';e.target.value=v;$('#serTx').textContent=v||'A'};
+$('#serGo').onclick=async()=>{if(serBusy)return;serBusy=true;$('#serGo').disabled=true;
+  const ch=$('#serCh').value||'A',d=bitsOf(ch),P=serMode==='p';$('#serTx').textContent=ch;
+  const fr=P?d.map((v,i)=>({v,t:'d',i})):[{v:0,t:'st'},...d.map((v,i)=>({v,t:'d',i})),{v:1,t:'sp'}];
+  const got=Array(8).fill(null);serReg(got);$('#serRx').textContent='?';
+  $('#serFrame').innerHTML=fr.map(b=>`<span class="${b.t}">${b.v}<small>${b.t==='st'?'start':b.t==='sp'?'stop':'bit '+b.i}</small></span>`).join('');
+  const cells=$$('#serFrame span'),g=$('#serBits');g.innerHTML='';
+  const els=fr.map(b=>{const e=document.createElementNS(NS,'g'),w=P?32:40,h=P?18:30,c=b.t==='st'?'#B87F00':b.t==='sp'?'#2E7A39':'#1B5AA6';
+    e.innerHTML=`<rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" rx="3" fill="${c}"/><text y="${P?4.5:5.5}" text-anchor="middle" font-size="${P?13:16}" style="fill:#fff;font-weight:700">${b.v}</text>`;e.setAttribute('transform','translate(-99,-99)');g.appendChild(e);return e});
+  const step=(i,x,y)=>{els[i].setAttribute('transform',`translate(${x},${y})`);cells[i].classList.toggle('on',x>150&&x<750);
+    const b=fr[i];if(!b.done&&x>=750){b.done=true;cells[i].classList.add('ok');if(b.t==='d'){got[b.i]=b.v;serReg(got)}}};
+  $('#serSay').innerHTML=P?'All 8 bits leave <b>together</b>, each on its own wire.':'The bits leave <b>one after another</b>: first the start bit, then bit 0 (the lowest) up to bit 7, then the stop bit.';
+  if(P)await tween(1700,k=>fr.forEach((b,i)=>step(i,130+k*660,70+i*22)));
+  else{const gap=56,dist=600+fr.length*gap+60;await tween(fr.length*650,k=>fr.forEach((b,i)=>step(i,130-i*gap+k*dist,150)))}
+  $('#serRx').textContent=ch;const code=ch.charCodeAt(0);
+  $('#serSay').innerHTML=P?`"${ch}" arrived in <b>1 time slot</b>, but needed <b>8 data wires</b> plus ground. Fast, but the cable is thick and costly, and over long distances the bits drift out of step, so parallel is used only inside equipment or over a metre or two.`
+    :`"${ch}" is number ${code}, binary <b>${d.slice().reverse().join('')}</b>. It took <b>10 time slots</b> on <b>one data wire</b> (8 data bits plus start and stop). Slower, but one cheap pair of wires can run hundreds of metres. That is why industry uses serial.`;
+  serBusy=false;$('#serGo').disabled=false};
+serWires();serReg();
+
+/* ===== 3.2 nodes ===== */
+const ND=[[1,'PLC 1',250],[2,'PLC 2',380],[3,'HMI',510],[4,'RTU',640],[5,'Energy meter',770]];
+$('#ndSvg').innerHTML=`<rect x="20" y="96" width="120" height="80" rx="6" class="box"/><text x="80" y="130" text-anchor="middle" class="lb" font-size="17">SCADA PC</text><text x="80" y="152" text-anchor="middle" font-size="13" class="dim">master</text>
+  <path d="M140,136 H880" stroke="var(--pipe)" stroke-width="6"/>`+ND.map(([a,l,x])=>`<path d="M${x},136 V174" stroke="var(--pipe)" stroke-width="3"/><g class="nd3" id="nd${a}"><rect x="${x-56}" y="174" width="112" height="64" rx="6"/><text x="${x}" y="200" text-anchor="middle" class="lb" font-size="16">${l}</text><text x="${x}" y="222" text-anchor="middle" font-size="13" id="ndT${a}">address ${a}</text></g>`).join('')+
+  `<g id="ndPk" style="display:none"><rect x="-46" y="-15" width="92" height="30" rx="4" fill="#D35400"/><text y="5" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:600" id="ndPkT"></text></g>`;
+$('#ndChips').innerHTML=ND.map(n=>`<button class="chip" data-a="${n[0]}">${n[0]}</button>`).join('');
+let ndBusy=false;
+$$('#ndChips .chip').forEach(c=>c.onclick=async()=>{if(ndBusy)return;ndBusy=true;const a=+c.dataset.a;press($$('#ndChips .chip'),c);
+  ND.forEach(([k])=>{$('#nd'+k).classList.remove('me','heard');$('#ndT'+k).textContent='address '+k});
+  const pk=$('#ndPk');pk.style.display='';$('#ndPkT').textContent='To: '+a;pk.querySelector('rect').setAttribute('fill','#D35400');
+  $('#ndSay').innerHTML=`The SCADA PC sends a message addressed to <b>${a}</b>. It travels along the shared cable, so <b>every</b> node hears it…`;
+  const passed=new Set();
+  await tween(2600,k=>{const x=140+k*740;pk.setAttribute('transform',`translate(${x},116)`);
+    ND.forEach(([n,,nx])=>{if(!passed.has(n)&&x>=nx){passed.add(n);const g=$('#nd'+n);
+      if(n===a){g.classList.add('me');$('#ndT'+n).textContent="That's me!"}else{g.classList.add('heard');$('#ndT'+n).textContent='not for me';setTimeout(()=>{g.classList.remove('heard');$('#ndT'+n).textContent='address '+n},900)}}})});
+  const nx=ND[a-1][2];$('#ndPkT').textContent='From '+a+': OK';pk.querySelector('rect').setAttribute('fill','#2E7A39');
+  await tween(2600*(nx-140)/740,k=>pk.setAttribute('transform',`translate(${nx-k*(nx-140)},116)`));
+  pk.style.display='none';
+  $('#ndSay').innerHTML=`Every node heard the message, but only node <b>${a}</b> (${ND[a-1][1]}) matched the address, so only it replied. That is why each node needs a <b>unique</b> address.`;ndBusy=false});
+const NQ=[['PLC with a communication port',1,'It can send, receive and process data.'],['RS-485 cable',0,'A cable is the road, not a station on it.'],['HMI touch panel',1,'It sends commands and receives values.'],['DB9 connector',0,'Just a plug: it cannot send or process data by itself.'],['RTU at a pump station',1,'It collects data and sends it to SCADA.'],['Termination resistor',0,'It only absorbs echoes at the cable ends.'],['Smart energy meter with Modbus',1,'It answers when the master asks for its readings.'],['SCADA computer',1,'Usually the master node.']];
+let nqI=0,nqOk=0;
+function nqShow(){const q=NQ[nqI%NQ.length];$('#nqItem').textContent=q[0];$('#nqFb').textContent='';$('#nqFb').className='fb';$('#nqY').disabled=$('#nqN').disabled=false;$('#nqNext').hidden=true}
+function nqAns(y){const q=NQ[nqI%NQ.length],ok=(y?1:0)===q[1];if(ok)nqOk++;$('#nqY').disabled=$('#nqN').disabled=true;$('#nqNext').hidden=false;
+  $('#nqFb').className='fb '+(ok?'good':'bad');$('#nqFb').textContent=`${ok?'Correct':'Not quite'}: ${q[1]?'it is a node':'not a node'}. ${q[2]} (${nqOk} of ${nqI%NQ.length+1})`;if(nqI%NQ.length===NQ.length-1)nqOk=0}
+$('#nqY').onclick=()=>nqAns(1);$('#nqN').onclick=()=>nqAns(0);$('#nqNext').onclick=()=>{nqI++;nqShow()};nqShow();
+
+/* ===== 3.3 duplex ===== */
+let dxMode='h',dxHalfBusy=false,dxBusyA=false,dxBusyB=false;
+const dmb=$$('#dxMode button'),dxSay=h=>$('#dxSay').innerHTML=h;
+dmb.forEach(b=>b.onclick=()=>{if(dxHalfBusy||dxBusyA||dxBusyB)return;press(dmb,b);dxMode=b.dataset.m;$('#dxHalf').style.display=dxMode==='h'?'':'none';$('#dxFull').style.display=dxMode==='f'?'':'none';$('#dxEchoL').hidden=dxMode!=='f';
+  dxSay(dxMode==='h'?'Half duplex: one shared path. Try <b>Both send at once</b>.':'Full duplex: a separate path each way. Try <b>Both send at once</b>, and tick <b>Echo check</b>.')});
+const dxMove=(el,x0,x1,y,ms)=>{el.style.display='';return tween(ms,k=>el.setAttribute('transform',`translate(${x0+(x1-x0)*k},${y})`))};
+async function dxSend(w){const A=w==='A',el=$(A?'#dxPA':'#dxPB');
+  if(dxMode==='h'){if(dxHalfBusy){dxSay(`<b>Node ${w} must wait:</b> the line is busy. On a half-duplex line only one side can send at a time, like waiting for "over" on a walkie-talkie.`);return}
+    dxHalfBusy=true;dxSay(`Node ${w} is sending. The line is busy until it finishes.`);await dxMove(el,A?150:750,A?750:150,120,1800);el.style.display='none';dxHalfBusy=false;dxSay(`Node ${A?'B':'A'} received the message. Now it can reply.`);return}
+  if(A?dxBusyA:dxBusyB)return;A?dxBusyA=true:dxBusyB=true;
+  await dxMove(el,A?150:750,A?750:150,A?96:144,1800);el.style.display='none';A?dxBusyA=false:dxBusyB=false;
+  if(A&&$('#dxEcho').checked){dxSay('Node B sends a <b>copy</b> straight back on its own path, so Node A can check the message arrived correctly.');const e=$('#dxPE');await dxMove(e,750,150,144,1800);e.style.display='none';dxSay('Echo matched: Node A knows "Hello B" arrived safely.')}
+  else if(!dxBusyA&&!dxBusyB)dxSay('Delivered. In full duplex each direction has its own path, so nothing waits.')}
+$('#dxA').onclick=()=>dxSend('A');$('#dxB').onclick=()=>dxSend('B');
+$('#dxAB').onclick=async()=>{if(dxMode==='f'){dxSay('Both send <b>at the same time</b>, each on its own path. No crash, like two people talking on the phone.');dxSend('A');dxSend('B');return}
+  if(dxHalfBusy)return;dxHalfBusy=true;const a=$('#dxPA'),b=$('#dxPB');
+  await Promise.all([dxMove(a,150,400,120,1000),dxMove(b,750,500,120,1000)]);
+  $('#dxBoom').style.display='';a.querySelector('rect').setAttribute('fill','#7E1A1D');b.querySelector('rect').setAttribute('fill','#7E1A1D');
+  dxSay('<b>Collision!</b> Both pressed "talk" on a half-duplex line, so the two messages crashed and neither arrived. One side must wait for the other to finish.');
+  await sleep(1800);[a,b,$('#dxBoom')].forEach(e=>e.style.display='none');a.querySelector('rect').setAttribute('fill','#D35400');b.querySelector('rect').setAttribute('fill','#1B5AA6');dxHalfBusy=false};
+
+/* ===== 3.4 RS-232 ===== */
+const PINS={1:['DCD','Data Carrier Detect','The modem tells the computer: "I can hear the other side."'],2:['RXD','Received Data','Data comes IN here. The ear.'],3:['TXD','Transmit Data','Data goes OUT here. The mouth.'],4:['DTR','Data Terminal Ready','The computer says: "I am switched on and ready."'],5:['GND','Signal Ground','The shared reference. Every voltage on the other pins is measured against this pin.'],6:['DSR','Data Set Ready','The other device (the modem) says: "I am ready too."'],7:['RTS','Request To Send','"May I send now?"'],8:['CTS','Clear To Send','"Yes, go ahead."'],9:['RI','Ring Indicator','The telephone line is ringing (used by old dial-up modems).']};
+const pinXY=p=>p<=5?[100+(p-1)*55,92]:[127.5+(p-6)*55,140];
+$('#db9Pins').innerHTML=Object.keys(PINS).map(p=>{const [x,y]=pinXY(+p);return `<g class="pin${[2,3,5].includes(+p)?' key':''}" data-p="${p}" tabindex="0" role="button" aria-label="Pin ${p}, ${PINS[p][1]}"><circle cx="${x}" cy="${y}" r="13"/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" style="fill:#1D2730">${p}</text><rect x="${x-24}" y="${y-24}" width="48" height="48" fill="transparent"/></g>`}).join('');
+const pinPick=g=>{$$('#db9Pins .pin').forEach(x=>x.classList.toggle('on',x===g));const p=PINS[g.dataset.p];
+  $('#pinInfo').innerHTML=`<b class="big">Pin ${g.dataset.p} · ${p[0]}</b><b>${p[1]}</b><br>${p[2]}${[2,3,5].includes(+g.dataset.p)?'<br><span style="color:var(--ok);font-weight:600">One of the 3 essential pins.</span>':'<br><span class="muted">A "handshake" pin: often not needed for PLC links.</span>'}`};
+$$('#db9Pins .pin').forEach(g=>{g.onclick=()=>pinPick(g);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pinPick(g)}}});
+let xoBusy=false;
+async function xoRun(id,col){if(xoBusy)return;xoBusy=true;const p=$(id),L=p.getTotalLength(),d=$('#xoDot');d.setAttribute('fill',col);d.style.display='';
+  await tween(1500,k=>{const pt=p.getPointAtLength(k*L);d.setAttribute('cx',pt.x);d.setAttribute('cy',pt.y)});d.style.display='none';xoBusy=false}
+$('#xoPC').onclick=()=>xoRun('#xo1','#D35400');$('#xoPLC').onclick=()=>xoRun('#xo2','#1B5AA6');
+/* Noise vs cable length */
+const RSB=[0,1,0,0,0,0,0,1,1,0,1,1,0,1,0,1],RX0=110,RBW=48;let rsSeed=7;
+function rsDraw(){const L=+$('#rsLen').value,m=$('#rsMotor').checked;$('#rsLenV').textContent=L+' m';
+  const r=rng(rsSeed),mag=2.6*Math.pow(L/30,1.5)+(m?1.2:0),p=Math.min(.7,L/45+(m?.3:0));
+  let s='',rv='',err=0,bits='',eg='';
+  RSB.forEach((b,i)=>{const lv=b?1:-1,x0=RX0+i*RBW;s+=`${i?'L':'M'}${x0},${60-lv*26}L${x0+RBW},${60-lv*26}`;
+    const sp=r()<p?(r()<.5?-1:1)*mag*(.6+r()*.6):0,spAt=2+Math.floor(r()*6);let sum=0;
+    for(let k=0;k<=12;k++){const n=(r()*2-1)*(.08+L/200)+((k>=spAt&&k<spAt+4)?sp*(k===spAt||k===spAt+3?.5:1):0);const v=Math.max(-2.3,Math.min(2.3,lv+n));if(k>=4&&k<=8)sum+=v;rv+=`${i||k?'L':'M'}${(x0+k*RBW/12).toFixed(1)},${(170-v*26).toFixed(1)}`}
+    const rb=sum>0?1:0,bad=rb!==b;if(bad){err++;eg+=`<rect x="${x0}" y="104" width="${RBW}" height="132" fill="#C22E29" opacity=".18"/>`}
+    bits+=`<text x="${x0+RBW/2}" y="18" class="dim">${b}</text><text x="${x0+RBW/2}" y="254" style="${bad?'fill:#C22E29;font-weight:700':''}">${rb}</text>`});
+  $('#rsS').setAttribute('d',s);$('#rsR').setAttribute('d',rv);$('#rsErr').innerHTML=eg;$('#rsBits').innerHTML=bits;
+  $('#rsSay').innerHTML=`<b>${L} m${m?', with a motor starting':''}:</b> ${err} of 16 bits wrong. `+(err===0?(L<=15?'Reliable: this is RS-232\'s comfort zone.':'Lucky this time. Watch a little longer.'):L<=15?'Even a short unbalanced cable suffers when a big motor starts.':'Beyond about 15 m the noise wins. Use RS-422 or RS-485 instead.')}
+$('#rsLen').oninput=rsDraw;$('#rsMotor').onchange=rsDraw;rsDraw();
+if(!reduce)setInterval(()=>{if(vis.has('rsWave')&&!document.hidden){rsSeed++;rsDraw()}},900);
+
+/* ===== 3.5 differential ===== */
+const DX0=110,DXW=780,DBW=78,dsc=20;let dW=0,dLast=0,spikes=[],dNoise=true,dSpawn=0,dErr=0,dSparks=0;
+const hb=i=>{i=Math.imul(i^0x5bd1e995,0x27d4eb2d);i^=i>>>13;return (Math.imul(i,0x165667b1)>>>16)&1};
+const sig=u=>hb(Math.floor(u/DBW))?1:-1;
+function nz(u,t){let n=0;for(const s of spikes){const d=(u-s.u)/6;if(Math.abs(d)<3)n+=s.a*Math.exp(-d*d)*(Math.cos(d*2.2)>=0?1:-.5)}if(dNoise)n+=.16*Math.sin(u/2.7+t*7);return n}
+function difDraw(t){let A='',B='',D='',S='',E='',inE=false;
+  for(let x=0;x<=DXW;x+=3){const u=dW+x,s=sig(u),n=nz(u,t),X=DX0+x,c=v=>Math.max(-2.6,Math.min(2.6,v));
+    A+=`${x?'L':'M'}${X},${(70-c(s+n)*dsc).toFixed(1)}`;B+=`${x?'L':'M'}${X},${(140-c(-s+n)*dsc).toFixed(1)}`;
+    D+=`${x?'L':'M'}${X},${(232-s*dsc*1.3).toFixed(1)}`;const sv=s+n;S+=`${x?'L':'M'}${X},${(330-c(sv)*dsc).toFixed(1)}`;
+    const bad=Math.sign(sv)!==s;if(bad){E+=`${inE?'L':'M'}${X},330`;inE=true}else inE=false}
+  $('#dA').setAttribute('d',A);$('#dB').setAttribute('d',B);$('#dD').setAttribute('d',D);$('#dS').setAttribute('d',S);$('#dSe').setAttribute('d',E);
+  $('#dZap').innerHTML=spikes.filter(s=>s.u>dW&&s.u<dW+DXW).map(s=>{const X=DX0+s.u-dW;return `<text x="${X}" y="36">⚡</text><text x="${X}" y="300">⚡</text><path d="M${X},40 V160" stroke="#B87F00" stroke-width="1.5" stroke-dasharray="3 4"/>`}).join('')}
+function difSayUpd(){$('#difSay').innerHTML=`Sparks so far: <b>${dSparks}</b>. The single wire was corrupted <b>${dErr}</b> times. The differential receiver (green): <b style="color:var(--ok)">0 errors</b>, because each spark hits wire A and wire B by the same amount, and A − B cancels it.`}
+function spark(big){const a=(Math.random()<.5?-1:1)*(big?2.4:1.2+Math.random()*1.3);spikes.push({u:dW+DXW+10,a});dSparks++;if(Math.abs(a)>1)dErr++;difSayUpd()}
+function difLoop(t){if(vis.has('difSvg')&&!document.hidden){if(dLast){dW+=Math.min(80,t-dLast)*.07;if(dNoise&&t-dSpawn>2600){dSpawn=t;spark(false)}spikes=spikes.filter(s=>s.u>dW-30)}dLast=t;difDraw(t/1000)}else dLast=0;requestAnimationFrame(difLoop)}
+$('#difNoise').onclick=e=>{dNoise=!dNoise;e.target.setAttribute('aria-pressed',dNoise);e.target.textContent='Factory noise: '+(dNoise?'ON':'OFF');if(reduce)difDraw(0)};
+$('#difZap').onclick=()=>{if(reduce){spikes.push({u:dW+300,a:2.4});dSparks++;dErr++;difSayUpd();difDraw(0)}else spark(true)};
+if(reduce){spikes=[{u:200,a:2},{u:520,a:-1.8}];dSparks=2;dErr=2;difDraw(0)}else requestAnimationFrame(difLoop);
+difSayUpd();
+(function(){const tw=(y,ph)=>{let d='';for(let x=100;x<=340;x+=4)d+=`${x===100?'M':'L'}${x},${(y+Math.sin((x-100)/12+ph)*6).toFixed(1)}`;return d};
+  $('#tw1').setAttribute('d',tw(70,0));$('#tw2').setAttribute('d',tw(70,Math.PI));$('#tw3').setAttribute('d',tw(130,0));$('#tw4').setAttribute('d',tw(130,Math.PI))})();
+
+/* ===== 3.6 RS-485 ===== */
+let r5N=5,r5Term=true,r5Busy=false;
+const r5X=k=>r5N===1?570:240+(k-1)*(660/(r5N-1));
+const r5Log=(t,c)=>{const l=$('#r5Log');l.insertAdjacentHTML('afterbegin',`<li class="${c||'i'}">${new Date().toLocaleTimeString('en-GB')}  ${t}</li>`);while(l.children.length>30)l.lastChild.remove()};
+function r5Draw(){let s=`<rect x="20" y="96" width="120" height="96" rx="4" fill="#172028" stroke="#34424D" stroke-width="2"/><text x="80" y="136" text-anchor="middle" class="lb" font-size="16">MASTER</text><text x="80" y="156" text-anchor="middle" class="dim" font-size="12">SCADA / PLC</text>
+    <path d="M140,138 H965" stroke="#F0C04A" stroke-width="3"/><path d="M140,150 H965" stroke="#5AA8FF" stroke-width="3"/>
+    <text x="968" y="134" font-size="11" style="fill:#F0C04A" text-anchor="end">D+ (A)</text><text x="968" y="166" font-size="11" style="fill:#5AA8FF" text-anchor="end">D− (B)</text>`;
+  [150,955].forEach(x=>{s+=r5Term?`<rect x="${x-6}" y="132" width="12" height="24" fill="#E3E7EA" stroke="#0D1317"/><text x="${x+(x<500?24:-24)}" y="182" text-anchor="middle" font-size="11" style="fill:#3FB950">120 Ω</text>`:`<text x="${x+(x<500?24:-24)}" y="182" text-anchor="middle" font-size="11" style="fill:#E5484D">no R</text>`});
+  for(let k=1;k<=r5N;k++){const x=r5X(k);s+=`<path d="M${x-4},138 V206 M${x+4},150 V206" stroke="#5A6A75" stroke-width="2"/><g id="r5S${k}"><rect x="${x-38}" y="206" width="76" height="58" rx="4" fill="#172028" stroke="#34424D" stroke-width="2"/><text x="${x}" y="230" text-anchor="middle" class="lb" font-size="14">SLAVE ${k}</text><text x="${x}" y="250" text-anchor="middle" class="dim" font-size="12" id="r5T${k}">addr ${k}</text></g>`}
+  s+=`<g id="r5Pk" style="display:none"><rect x="-40" y="-13" width="80" height="26" rx="3" fill="#2F6FB5"/><text y="5" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600" id="r5PkT"></text></g>
+    <g id="r5Gh" style="display:none" opacity=".45"><rect x="-40" y="-13" width="80" height="26" rx="3" fill="#E5484D"/><text y="5" text-anchor="middle" font-size="12" style="fill:#fff">echo</text></g>
+    <g id="r5Pk2" style="display:none"><rect x="-40" y="-13" width="80" height="26" rx="3" fill="#B87F00"/><text y="5" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600" id="r5Pk2T"></text></g>
+    <g id="r5Boom" style="display:none"><path d="M0,-34 L8,-11 L31,-20 L15,0 L34,14 L9,12 L3,36 L-6,14 L-31,23 L-15,2 L-34,-14 L-9,-11 Z" fill="#E5484D"/></g>
+    <text x="80" y="290" text-anchor="middle" class="dim" font-size="12">twisted pair, daisy-chained</text>`;
+  $('#r5Svg').innerHTML=s;$('#r5Cnt').textContent=`${r5N} of 32 devices`;$('#r5Term').textContent='Termination 120 Ω: '+(r5Term?'ON':'OFF');$('#r5Term').setAttribute('aria-pressed',r5Term)}
+const r5Alm=(t,c)=>{const a=$('#r5Alm');a.textContent=t;a.className='alm '+c};
+const r5Move=(el,x0,x1,ms)=>{el.style.display='';return tween(ms,k=>el.setAttribute('transform',`translate(${x0+(x1-x0)*k},120)`))};
+function r5Lock(on){r5Busy=on;['#r5Poll','#r5Less','#r5More','#r5Clash','#r5Term'].forEach(s=>$(s).disabled=on)}
+$('#r5Poll').onclick=async()=>{if(r5Busy)return;r5Lock(true);let bad=0;r5Alm('Polling…','');const pk=$('#r5Pk'),gh=$('#r5Gh');
+  for(let k=1;k<=r5N;k++){const x=r5X(k),ms=500+900*(x-140)/820;
+    $('#r5PkT').textContent='Read '+k;pk.querySelector('rect').setAttribute('fill','#2F6FB5');await r5Move(pk,140,x,ms);
+    $('#r5S'+k).querySelector('rect').setAttribute('stroke','#3FB950');
+    const echo=!r5Term&&k%2===1;$('#r5PkT').textContent='Data '+k;pk.querySelector('rect').setAttribute('fill','#1F5130');
+    await Promise.all([r5Move(pk,x,140,ms),echo?(async()=>{await r5Move(gh,x,960,ms*.5);await r5Move(gh,960,300,ms*.5);gh.style.display='none'})():null]);
+    pk.style.display='none';$('#r5S'+k).querySelector('rect').setAttribute('stroke','#34424D');
+    if(echo){bad++;r5Log(`Slave ${k}: reply spoiled by a reflection from the cable end (CRC error)`,'a')}else r5Log(`Slave ${k}: reply OK`,'k')}
+  r5Alm(bad?`${bad} replies corrupted: check the termination resistors`:'Network healthy: all slaves answered',bad?'on':'okk');r5Lock(false)};
+$('#r5Less').onclick=()=>{if(r5Busy||r5N<=2)return;r5N--;r5Draw();r5Log(`Slave ${r5N+1} disconnected`)};
+$('#r5More').onclick=()=>{if(r5Busy)return;if(r5N>=8){r5Log('This screen shows up to 8, but RS-485 allows up to 32 devices on one pair.','i');return}r5N++;r5Draw();r5Log(`Slave ${r5N} added with address ${r5N}`)};
+$('#r5Term').onclick=()=>{if(r5Busy)return;r5Term=!r5Term;r5Draw();r5Log('Termination resistors '+(r5Term?'fitted at both ends':'removed'),r5Term?'k':'a');r5Alm(r5Term?'Network healthy':'Warning: bus not terminated',r5Term?'okk':'on')};
+$('#r5Clash').onclick=async()=>{if(r5Busy)return;r5Lock(true);const a=$('#r5Pk'),b=$('#r5Pk2'),x1=r5X(1),x3=r5X(Math.min(3,r5N)),mid=(x1+x3)/2;
+  $('#r5PkT').textContent='Data 1';a.querySelector('rect').setAttribute('fill','#1F5130');$('#r5Pk2T').textContent='Data '+Math.min(3,r5N);
+  await Promise.all([r5Move(a,x1,mid-30,900),r5Move(b,x3,mid+30,900)]);const bm=$('#r5Boom');bm.setAttribute('transform',`translate(${mid},120)`);bm.style.display='';
+  r5Log(`Collision: slaves 1 and ${Math.min(3,r5N)} transmitted at the same time. RS-485 is half duplex; only the device the master asks may answer.`,'a');r5Alm('Collision on the bus','on');
+  await sleep(1600);[a,b,bm].forEach(e=>e.style.display='none');r5Alm('Network healthy','okk');r5Lock(false)};
+r5Draw();r5Log('Master ready. Press Poll all slaves.','i');
+
+/* ===== 3.7 comparison + game ===== */
+$$('#cmp3 thead th[data-c]').forEach(th=>th.onclick=()=>{const c=th.dataset.c,on=!th.classList.contains('hl');$$('#cmp3 [data-c]').forEach(x=>x.classList.toggle('hl',on&&x.dataset.c===c))});
+const SC=[['Programming a PLC from a laptop on the workbench, 2 m away.',0,'Short and one-to-one: RS-232 (or a USB-serial adapter) is enough.'],['Twenty energy meters on one cable around a factory, read by one SCADA PC.',2,'Many devices on one pair of wires: RS-485 multidrop, up to 32 devices.'],['One PLC sends to a big display board 600 m away. Both must send at the same time, in a noisy area.',1,'Long, noisy, point-to-point and full duplex: RS-422 with its 4 wires.'],['Connecting an old dial-up modem to a computer COM port.',0,'Classic RS-232: pins like DCD, DTR and RI were made for modems.'],['A Modbus RTU network linking 10 variable speed drives to one PLC.',2,'Modbus RTU normally runs on RS-485.'],['A 900 m cable across a site full of welding machines, to one device only, sending both ways at once.',1,'Differential and full duplex over a long distance: RS-422.']];
+const SCO=['RS-232','RS-422','RS-485'];let scI=-1,scOk=0,scN=0;
+function scNext(){scI=(scI+1)%SC.length;const q=SC[scI];$('#scQ').textContent=q[0];$('#scFb').textContent='';$('#scFb').className='fb';let done=false;
+  $('#scChips').innerHTML=SCO.map((o,i)=>`<button class="chip" data-i="${i}">${o}</button>`).join('');
+  $$('#scChips .chip').forEach(c=>c.onclick=()=>{if(done)return;done=true;const ok=+c.dataset.i===q[1];scN++;if(ok)scOk++;c.classList.add(ok?'right':'wrong');if(!ok)$$('#scChips .chip')[q[1]].classList.add('right');
+    $('#scFb').className='fb '+(ok?'good':'bad');$('#scFb').textContent=(ok?'Correct. ':'Not quite. ')+q[2];$('#scScore').textContent=`${scOk} of ${scN} right`})}
+$('#scNext').onclick=scNext;scNext();
+
+/* ===== 3.8 converters ===== */
+const CV={usb485:{n:'USB → RS-485',l:['USB D+','USB D−','5 V','GND'],ld:[0,1],r:['D+ (A)','D− (B)','SG'],rd:[[0,1]],say:'A USB-to-RS-485 adapter. Windows sees it as a new COM port (for example COM5), so SCADA or CX-Programmer just opens that port. On the RS-485 side, two wires carry mirror-image signals to every device on the bus.'},
+  r232_485:{n:'RS-232 → RS-485',l:['TXD','RXD','GND'],ld:[0],r:['D+ (A)','D− (B)','SG','GND'],rd:[[0,1]],say:'An RS-232 to RS-485 box. The PC\'s single-wire TXD signal becomes a differential pair, so the data can now travel up to 1200 m and reach up to 32 devices.'},
+  r232_422:{n:'RS-232 → RS-422',l:['TXD','RXD','GND'],ld:[0],r:['TXD+','TXD−','RXD+','RXD−','SG','GND'],rd:[[0,1]],say:'An RS-232 to RS-422 box. TXD becomes the pair TXD+ and TXD−, RXD becomes RXD+ and RXD−. Four wires, so it stays full duplex, but now over long distances.'}};
+let cvK='usb485';
+$('#cvChips').innerHTML=Object.entries(CV).map(([k,v],i)=>`<button class="chip" aria-pressed="${!i}" data-k="${k}">${v.n}</button>`).join('');
+function cvDraw(anim){const c=CV[cvK],ly=i=>150-(c.l.length-1)*17+i*34,ry=i=>150-(c.r.length-1)*15+i*30;
+  let s=`<rect x="20" y="70" width="150" height="160" rx="6" class="box"/><text x="95" y="60" text-anchor="middle" class="lb" font-size="16">PC</text>
+    <rect x="330" y="60" width="240" height="180" rx="8" fill="var(--sel-soft)" stroke="var(--sel)" stroke-width="2.5"/><text x="450" y="140" text-anchor="middle" class="lb" font-size="19">CONVERTER</text><text x="450" y="166" text-anchor="middle" font-size="14">${c.n}</text>
+    <rect x="730" y="70" width="150" height="160" rx="6" class="box"/><text x="805" y="60" text-anchor="middle" class="lb" font-size="16">Field device</text>`;
+  c.l.forEach((t,i)=>{const d=c.ld.includes(i);s+=`<path d="M170,${ly(i)}H330" stroke="${d?'#D35400':'var(--pipe)'}" stroke-width="${d?3.5:2.5}" ${t.includes('GND')?'stroke-dasharray="6 5"':''}/><text x="250" y="${ly(i)-6}" text-anchor="middle" font-size="13">${t}</text>`});
+  c.r.forEach((t,i)=>{const pr=i<2&&!/SG|GND/.test(t),pl=i%2===0;s+=`<path d="M570,${ry(i)}H730" stroke="${pr?(pl?'#D35400':'#1B5AA6'):'var(--pipe)'}" stroke-width="${pr?3.5:2.5}" ${/SG|GND/.test(t)?'stroke-dasharray="6 5"':''}/><text x="650" y="${ry(i)-6}" text-anchor="middle" font-size="13">${t}</text>`});
+  s+=`<text x="250" y="270" text-anchor="middle" font-size="13" class="dim">single wire vs ground</text><text x="650" y="270" text-anchor="middle" font-size="13" class="dim">differential pair (mirror images)</text>
+    <path d="M190,288 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20" stroke="#D35400" stroke-width="2" fill="none"/>
+    <path d="M590,288 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20" stroke="#D35400" stroke-width="2" fill="none"/><path d="M590,276 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20" stroke="#1B5AA6" stroke-width="2" fill="none"/>`;
+  if(anim){const yl=ly(c.ld[0]),y1=ry(0),y2=ry(1);for(let j=0;j<4;j++){const b=(j*0.35).toFixed(2);
+    s+=`<circle r="6" fill="#D35400" opacity="0"><animateMotion dur="1.2s" begin="${b}s" fill="freeze" path="M170,${yl} H330"/><set attributeName="opacity" to="1" begin="${b}s"/><set attributeName="opacity" to="0" begin="${(+b+1.2).toFixed(2)}s"/></circle>`;
+    s+=`<circle r="6" fill="#D35400" opacity="0"><animateMotion dur="1.2s" begin="${(+b+1.2).toFixed(2)}s" fill="freeze" path="M570,${y1} H730"/><set attributeName="opacity" to="1" begin="${(+b+1.2).toFixed(2)}s"/><set attributeName="opacity" to="0" begin="${(+b+2.4).toFixed(2)}s"/></circle><circle r="6" fill="#1B5AA6" opacity="0"><animateMotion dur="1.2s" begin="${(+b+1.2).toFixed(2)}s" fill="freeze" path="M570,${y2} H730"/><set attributeName="opacity" to="1" begin="${(+b+1.2).toFixed(2)}s"/><set attributeName="opacity" to="0" begin="${(+b+2.4).toFixed(2)}s"/></circle>`}}
+  $('#cvSvg').innerHTML=s;$('#cvSay').textContent=c.say}
+$$('#cvChips .chip').forEach(b=>b.onclick=()=>{press($$('#cvChips .chip'),b);cvK=b.dataset.k;cvDraw(false)});
+$('#cvGo').onclick=()=>cvDraw(!reduce);cvDraw(false);
+
+/* ===== 3.9 why networks ===== */
+function nwDraw(){const n=+$('#nwN').value;$('#nwNV').textContent=n;const pts=[...Array(n)].map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [200+120*Math.cos(a),150+115*Math.sin(a)]});
+  let a='',links=n*(n-1)/2;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)a+=`<path d="M${pts[i][0].toFixed(1)},${pts[i][1].toFixed(1)}L${pts[j][0].toFixed(1)},${pts[j][1].toFixed(1)}" stroke="#D35400" stroke-width="1.4" opacity=".7"/>`;
+  a+=pts.map(p=>`<rect x="${p[0]-9}" y="${p[1]-9}" width="18" height="18" rx="2" fill="var(--sel)"/>`).join('');$('#nwA').innerHTML=a;
+  let b=`<path d="M20,150 H380" stroke="#D35400" stroke-width="5"/>`;const gap=360/(n+1);for(let i=0;i<n;i++){const x=20+gap*(i+1),up=i%2===0;b+=`<path d="M${x},150 V${up?110:190}" stroke="var(--pipe)" stroke-width="2"/><rect x="${x-9}" y="${up?92:190}" width="18" height="18" rx="2" fill="var(--sel)"/>`}
+  $('#nwB').innerHTML=b;$('#nwAc').textContent=`${links} cables`;$('#nwBc').textContent=`1 cable (${n} connections)`}
+$('#nwN').oninput=nwDraw;nwDraw();
+
+/* ===== 3.10 topologies ===== */
+const dv=(id,x,y,l,m)=>({id,x,y,t:'dev',l,m}),tp=(id,x,y)=>({id,x,y,t:'tap'}),en=(id,x,y)=>({id,x,y,t:'end'}),hu=(id,x,y)=>({id,x,y,t:'hub',l:'HUB'});
+const TOP={
+ bus:(()=>{const xs=[150,300,450,600,750],L=['SCADA PC','PLC 1','PLC 2','HMI','RTU'];const n=[en('e0',60,200),en('e6',840,200)],e=[];
+   xs.forEach((x,i)=>{n.push(tp('t'+i,x,200),dv('d'+i,x,i%2?310:90,L[i],!i));e.push(['t'+i,'d'+i,'drop'])});
+   e.push(['e0','t0','bb']);for(let i=0;i<4;i++)e.push(['t'+i,'t'+(i+1),'bb']);e.push(['t4','e6','bb']);return {n,e,master:'d0',rule:'bus'}})(),
+ ring:(()=>{const L=['SCADA PC','PLC 1','PLC 2','HMI','RTU','PLC 3'];const n=L.map((l,i)=>{const a=-Math.PI/2+i*Math.PI/3;return dv('d'+i,450+230*Math.cos(a),200+150*Math.sin(a),l,!i)});
+   return {n,e:L.map((_,i)=>['d'+i,'d'+((i+1)%6),'ring']),master:'d0',rule:'ring'}})(),
+ star:(()=>{const L=['SCADA PC','PLC 1','PLC 2','HMI','RTU','PLC 3'];const n=[hu('h',450,200)];L.forEach((l,i)=>{const a=Math.PI+i*Math.PI/3;n.push(dv('d'+i,450+300*Math.cos(a),200+150*Math.sin(a),l,!i))});
+   n.find(x=>x.id==='h').l='SWITCH';return {n,e:L.map((_,i)=>['h','d'+i,'link']),master:'d0',rule:null}})(),
+ tree:(()=>{const n=[dv('d0',450,40,'SCADA PC',true),en('eL',60,112),en('eR',840,112),tp('tL',180,112),tp('tM',450,112),tp('tR',720,112),hu('h1',180,190),hu('h2',450,190),hu('h3',720,190)],
+   e=[['d0','tM','drop'],['eL','tL','bb'],['tL','tM','bb'],['tM','tR','bb'],['tR','eR','bb'],['tL','h1','drop'],['tM','h2','drop'],['tR','h3','drop']];
+   const A=['Packing','Mixing','Filling'];[180,450,720].forEach((x,j)=>[-85,0,85].forEach((dx,k)=>{const id=`m${j}${k}`;n.push(dv(id,x+dx,315,`${A[j]} ${k+1}`));e.push(['h'+(j+1),id,'link'])}));
+   return {n,e,master:'d0',rule:null}})()};
+const TINFO={bus:['Like an LRT line: one track, many stations. Simple and cheap, but cut the track and no train runs anywhere.','One main cable (the backbone). Every device taps into it and hears every message; only the addressed device answers.','Cheap, little cable, easy to install. RS-485 multidrop is a bus.','One break in the backbone stops the whole network, and the fault can be hard to find.'],
+ ring:['Like passing a parcel round a circle of friends: each person takes it and hands it to the next.','A closed loop. Each device has exactly two neighbours and repeats every message to the next one, always in the same direction.','Orderly: every device gets its turn, and the signal is refreshed at every device.','One broken cable or device breaks the loop and stops everything.'],
+ star:['Like your home Wi-Fi router: every phone and laptop talks through the router, never directly.','Every device has its own cable (usually UTP) to a central hub or switch. Every message passes through the centre.','If one device or cable fails, only that device is lost. Easy to add devices and find faults. The most common layout for Ethernet today.','If the hub or switch fails, the whole network stops. Needs more cable.'],
+ tree:['Like a company organisation chart: the director, then the managers, then their teams.','Several stars joined to one main backbone. Each hub is the "root" of its own group of machines.','Grows easily: each area of the plant gets its own branch, and a fault in one branch does not affect the others.','Everything depends on the backbone and the top: if they fail, whole branches are cut off.']};
+let tk='bus',brE=new Set(),brN=new Set(),tpBusy=false;
+const T=()=>TOP[tk],NI=()=>Object.fromEntries(T().n.map(n=>[n.id,n]));
+function tpReach(){const t=T();if(brN.has(t.master))return new Set();
+  if(t.rule==='bus'&&t.e.some((e,i)=>e[2]==='bb'&&brE.has(i)))return new Set();
+  if(t.rule==='ring'&&(brE.size||brN.size))return new Set();
+  const adj={};t.e.forEach((e,i)=>{if(brE.has(i)||brN.has(e[0])||brN.has(e[1]))return;(adj[e[0]]=adj[e[0]]||[]).push(e[1]);(adj[e[1]]=adj[e[1]]||[]).push(e[0])});
+  const r=new Set([t.master]),q=[t.master];while(q.length){const a=q.shift();(adj[a]||[]).forEach(b=>{if(!r.has(b)){r.add(b);q.push(b)}})}return r}
+function tpRender(){const t=T(),N=NI(),R=tpReach();let s='';
+  t.e.forEach((e,i)=>{const a=N[e[0]],b=N[e[1]],k=brE.has(i);s+=`<line class="ed ${e[2]}${k?' brk':''}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;if(k)s+=`<text class="cut" x="${(a.x+b.x)/2}" y="${(a.y+b.y)/2+7}" text-anchor="middle">✂</text>`});
+  t.e.forEach((e,i)=>{const a=N[e[0]],b=N[e[1]];s+=`<line class="hitl" data-e="${i}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"><title>Cable: tap to break or repair</title></line>`});
+  t.n.forEach(n=>{if(n.t==='tap')s+=`<circle cx="${n.x}" cy="${n.y}" r="6" fill="#D35400"/>`;
+    else if(n.t==='end')s+=`<rect x="${n.x-6}" y="${n.y-14}" width="12" height="28" fill="var(--pipe)"/>`;
+    else{const w=n.t==='hub'?90:(tk==='tree'&&!n.m?78:96),h=n.t==='hub'?32:42,st=brN.has(n.id)?'brk':R.has(n.id)?'':'down';
+      s+=`<g class="nd ${n.t}${n.m?' master':''} ${st}" data-n="${n.id}" transform="translate(${n.x},${n.y})" role="button" tabindex="0" aria-label="${n.l}"><rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" rx="5"/><text y="5" text-anchor="middle" style="font-size:${tk==='tree'&&!n.m&&n.t!=='hub'?11.5:13}px">${n.l}</text>${st==='brk'?'<path class="x" d="M-30,-12L30,12M30,-12L-30,12" opacity=".7"/>':''}</g>`}});
+  s+='<g id="tpPulse"></g>';$('#tpSvg').innerHTML=s;
+  const devs=t.n.filter(n=>n.t==='dev'&&!n.m),up=devs.filter(n=>R.has(n.id)).length,st=$('#tpStat');
+  st.textContent=`${up} of ${devs.length} devices can talk to the SCADA PC`;st.className='tstat '+(up===devs.length?'good':'bad');
+  $$('#tpSvg .hitl').forEach(l=>l.onclick=()=>tpToggle('e',+l.dataset.e));
+  $$('#tpSvg .nd').forEach(g=>{g.onclick=()=>tpToggle('n',g.dataset.n);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tpToggle('n',g.dataset.n)}}})}
+function tpToggle(kind,id){if(tpBusy)return;const S=kind==='e'?brE:brN,was=S.has(id);was?S.delete(id):S.add(id);tpRender();
+  const t=T(),R=tpReach(),devs=t.n.filter(n=>n.t==='dev'&&!n.m),lost=devs.filter(n=>!R.has(n.id)).length;
+  if(was){$('#tpSay').innerHTML='Repaired.';return}
+  let m='';const what=kind==='e'?(t.e[id][2]==='bb'?'backbone':'cable'):(NI()[id].t==='hub'?'hub':'device');
+  if(kind==='n'&&NI()[id].m)m='The SCADA PC itself is down, so nobody is being monitored.';
+  else if(tk==='bus')m=what==='backbone'?'<b>The backbone is cut.</b> On a bus every device shares this one cable, so the whole network stops.':`Only that ${what==='cable'?'device\'s drop cable':'device'} is lost. The rest keep talking on the backbone.`;
+  else if(tk==='ring')m='<b>The loop is broken.</b> Every message must pass through each device in turn, so the whole ring stops.';
+  else if(tk==='star')m=what==='hub'?'<b>The central switch is down.</b> Every message goes through it, so the whole network stops.':`Only ${lost===1?'one device is':lost+' devices are'} lost. The others still reach the switch.`;
+  else m=lost?`${lost} device${lost>1?'s':''} cut off: only the part of the tree below the break is lost. Other branches keep working.`:'Nothing important was cut: every device still has a path.';
+  $('#tpSay').innerHTML=m}
+const tpDot=(a,b,ms)=>{const c=document.createElementNS(NS,'circle');c.setAttribute('r',8);c.setAttribute('fill','#2E7A39');$('#tpPulse').appendChild(c);
+  return tween(ms,k=>{c.setAttribute('cx',a.x+(b.x-a.x)*k);c.setAttribute('cy',a.y+(b.y-a.y)*k)}).then(()=>c.remove())};
+const ping=id=>{const g=$(`#tpSvg .nd[data-n="${id}"]`);if(g){g.classList.add('ping');setTimeout(()=>g.classList.remove('ping'),900)}};
+$('#tpSend').onclick=async()=>{if(tpBusy)return;const t=T(),N=NI(),R=tpReach();
+  if(!R.size||R.size===1){$('#tpSay').innerHTML='The message cannot get out: '+(brN.has(t.master)?'the SCADA PC is down.':'the network is broken. Tap the red parts to repair them.');return}
+  tpBusy=true;$('#tpSay').innerHTML=tk==='ring'?'The message goes round the ring: each device <b>receives it and passes it on</b> to the next.':tk==='bus'?'The message spreads along the backbone, and <b>every</b> device hears it.':tk==='star'?'The message goes to the switch first, then out to each device.':'The message runs along the backbone, into each hub, then out to its machines.';
+  if(tk==='ring'){for(let i=0;i<6;i++){await tpDot(N['d'+i],N['d'+((i+1)%6)],450);ping('d'+((i+1)%6))}}
+  else{const adj={};t.e.forEach((e,i)=>{if(brE.has(i)||brN.has(e[0])||brN.has(e[1]))return;(adj[e[0]]=adj[e[0]]||[]).push(e[1]);(adj[e[1]]=adj[e[1]]||[]).push(e[0])});
+    const seenN=new Set([t.master]);let fr=[t.master];
+    while(fr.length){const nx=[],moves=[];fr.forEach(a=>(adj[a]||[]).forEach(b=>{if(!seenN.has(b)){seenN.add(b);nx.push(b);moves.push([a,b])}}));
+      if(!moves.length)break;await Promise.all(moves.map(([a,b])=>tpDot(N[a],N[b],420)));nx.forEach(ping);fr=nx}}
+  tpBusy=false};
+$('#tpFix').onclick=()=>{if(tpBusy)return;brE.clear();brN.clear();tpRender();$('#tpSay').innerHTML='All repaired. Tap a cable or device to break it.'};
+const tpb=$$('#tpTabs button');
+function tpShow(k){if(tpBusy)return;tk=k;press(tpb,tpb.find(b=>b.dataset.t===k));brE.clear();brN.clear();tpRender();const I=TINFO[k];
+  $('#tpAna').innerHTML=`<b>Analogy</b>${I[0]}`;$('#tpS').textContent=I[1];$('#tpG').textContent=I[2];$('#tpW').textContent=I[3];
+  $('#tpSay').innerHTML='Tap any cable or device to break it. Tap again to repair.'}
+tpb.forEach(b=>b.onclick=()=>tpShow(b.dataset.t));tpShow('bus');
+
+/* ===== 3.11 PLC networking ===== */
+const plc=(x,y,l,s)=>`<g transform="translate(${x},${y})"><rect width="120" height="74" rx="4" fill="#1B5AA6"/><rect x="10" y="10" width="22" height="54" rx="2" fill="#0E3A70"/>${[0,1,2].map(i=>`<rect x="${40+i*24}" y="10" width="18" height="54" rx="2" fill="#E3E7EA"/>`).join('')}<circle cx="21" cy="20" r="3.5" fill="#3FB950"/></g><text x="${x+60}" y="${y+94}" text-anchor="middle" class="lb" font-size="15">${l}</text>${s?`<text x="${x+60}" y="${y+112}" text-anchor="middle" font-size="12" class="dim">${s}</text>`:''}`;
+const dot=(path,col,dur,beg)=>`<circle r="7" fill="${col}"><animateMotion dur="${dur}s" begin="${beg}s" repeatCount="indefinite" path="${path}"/></circle>`;
+const PN={rio:{svg:()=>plc(40,90,'Main PLC','control room')+`<path d="M160,127 H690" stroke="var(--pipe)" stroke-width="5"/><text x="425" y="112" text-anchor="middle" font-size="14">one network cable, hundreds of metres</text>
+    <rect x="690" y="92" width="150" height="70" rx="4" fill="#2E7A39"/><text x="765" y="133" text-anchor="middle" style="fill:#fff;font-weight:600" font-size="15">REMOTE I/O</text><text x="765" y="182" text-anchor="middle" font-size="12" class="dim">rack in the field</text>
+    ${['Level sensor','Valve','Pump motor'].map((t,i)=>`<path d="M${720+i*45},162 V${226}" stroke="var(--pipe)" stroke-width="2"/><circle cx="${720+i*45}" cy="240" r="13" fill="var(--panel)" stroke="var(--pipe)" stroke-width="2"/><text x="${720+i*45}" y="${272+(i%2)*16}" text-anchor="middle" font-size="12">${t}</text>`).join('')}
+    ${reduce?'':dot('M160,127 H690','#D35400',2.4,0)+dot('M690,127 H160','#1B5AA6',2.4,1.2)}`,
+   say:'<b>Remote I/O:</b> the PLC stays in the control room, but its inputs and outputs sit in a rack out in the field, next to the sensors and valves. One network cable replaces dozens of long field wires.',ana:'<b>Analogy</b>An extension cord with a socket box at the far end: the power point stays on the wall, but you can plug things in across the room.'},
+ p2p:{svg:()=>plc(110,100,'PLC A','conveyor')+plc(670,100,'PLC B','packing machine')+`<path d="M230,128 H670" stroke="var(--pipe)" stroke-width="5"/><path d="M230,146 H670" stroke="var(--pipe)" stroke-width="5"/>
+    <g><rect x="-62" y="-14" width="124" height="28" rx="14" fill="#D35400"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">Box coming!</text>${reduce?'<animateMotion dur="1s" fill="freeze" path="M450,100 H450"/>':'<animateMotion dur="3s" repeatCount="indefinite" path="M300,100 H600"/>'}</g>
+    <g><rect x="-50" y="-14" width="100" height="28" rx="14" fill="#1B5AA6"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">Ready!</text>${reduce?'<animateMotion dur="1s" fill="freeze" path="M450,178 H450"/>':'<animateMotion dur="3s" begin="1.5s" repeatCount="indefinite" path="M600,178 H300"/>'}</g>`,
+   say:'<b>Peer-to-peer:</b> PLCs exchange data directly with each other for tightly coordinated control, without waiting for a central computer. Here the conveyor PLC warns the packing PLC that a box is coming.',ana:'<b>Analogy</b>Two colleagues at neighbouring desks talking directly, instead of sending every message through the boss.'},
+ host:{svg:()=>`<rect x="360" y="14" width="180" height="96" rx="6" fill="#0D1317" stroke="var(--pipe)" stroke-width="3"/><path d="M380,80 L410,56 L440,70 L470,40 L520,52" stroke="#7FE3FF" stroke-width="3" fill="none"/><text x="450" y="130" text-anchor="middle" class="lb" font-size="15">SCADA host computer</text>`+
+    [40,250,530,740].map((x,i)=>plc(x,188,'PLC '+(i+1))+`<path d="M${x+60},188 V160 H450 V136" stroke="var(--pipe)" stroke-width="3" fill="none"/>`+(reduce?'':dot(`M${x+60},188 V160 H450 V136`,'#D35400',2.2,i*.55))).join(''),
+   say:'<b>Host computer communication:</b> every PLC runs its own machine, and reports to a central SCADA computer for monitoring, alarms and trends. This is how a whole plant appears on one HMI screen.',ana:'<b>Analogy</b>Branch offices running their own shops, but sending their daily numbers to headquarters.'}};
+const pnb=$$('#pnTabs button');
+function pnShow(k){press(pnb,pnb.find(b=>b.dataset.k===k));$('#pnSvg').innerHTML=PN[k].svg();$('#pnSay').innerHTML=PN[k].say;$('#pnAna').innerHTML=PN[k].ana}
+pnb.forEach(b=>b.onclick=()=>pnShow(b.dataset.k));pnShow('rio');
+/* Class game: name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  /* Game-show music made live with Web Audio: no audio files, no copyright */
+  const Snd=(()=>{let ac,master,mus,timer,on=false,step=0,next=0,noise;
+    const mf=m=>440*Math.pow(2,(m-69)/12),S=60/128/4;
+    const CH=[[48,60,64,67],[43,59,62,67],[45,60,64,69],[41,60,65,69]];
+    function init(){if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();master=ac.createGain();master.gain.value=.3;master.connect(ac.destination);
+        mus=ac.createGain();mus.gain.value=.8;mus.connect(master);noise=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+      if(ac.state==='suspended')ac.resume();return true}
+    function tone(type,f,t,dur,v,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.03)}
+    function kick(t,dest){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(dest);o.start(t);o.stop(t+.3)}
+    function hiss(t,dur,v,freq,type,dest){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;f.type=type;f.frequency.value=freq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.02)}
+    function beat(i,t){const s=i%16,ch=CH[Math.floor(i/16)%4];
+      if(s%4===0)kick(t,mus);
+      if(s===4||s===12){hiss(t,.16,.5,1600,'bandpass',mus);tone('triangle',190,t,.08,.2,mus)}
+      hiss(t,.04,s%2?.12:.22,7000,'highpass',mus);
+      if(s%2===0)tone('square',mf(ch[0]+(s%4===2?12:0)),t,S*1.7,.07,mus);
+      tone('triangle',mf([ch[1],ch[2],ch[3],ch[2]+12][s%4]+12),t,S*.9,.11,mus);
+      if(s===0)[ch[1],ch[2],ch[3]].forEach(m=>tone('sawtooth',mf(m),t,S*14,.018,mus))}
+    function sched(){while(next<ac.currentTime+.12){beat(step,next);next+=S;step++}}
+    return {get on(){return on},
+      start(){if(on||!init())return;on=true;step=0;next=ac.currentTime+.06;timer=setInterval(sched,25)},
+      stop(){on=false;clearInterval(timer);if(mus){mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setValueAtTime(.8,ac.currentTime)}},
+      duck(d){if(!ac)return;mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setTargetAtTime(d?.15:.8,ac.currentTime,.15)},
+      ticks(dur){if(!init())return;const t0=ac.currentTime;let e=0;while(e<dur-.25){const p=e/dur;tone('square',1700,t0+e,.025,.16,master);hiss(t0+e,.02,.15,5000,'highpass',master);e+=.045+.42*p*p*p}},
+      fanfare(){if(!init())return;const t=ac.currentTime+.04;[60,64,67,72].forEach((m,i)=>tone('square',mf(m+12),t+i*.09,.16,.1,master));
+        [60,64,67,72,76].forEach(m=>{tone('triangle',mf(m),t+.4,1.4,.12,master);tone('sawtooth',mf(m),t+.4,1.1,.025,master)});kick(t+.4,master);hiss(t+.4,1.2,.25,6000,'highpass',master)}}})();
+  const mBtn=()=>{const b=$('#wMusic');b.setAttribute('aria-pressed',Snd.on);b.textContent=Snd.on?'♪ Music on':'♪ Music off'};
+  $('#wMusic').onclick=()=>{Snd.on?Snd.stop():Snd.start();mBtn()};
+  addEventListener('pagehide',()=>Snd.stop());
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch3-pool')||names.slice(), picked=store.get('ch3-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch3-pool',pool);store.set('ch3-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');if(Snd.on){Snd.duck(1);Snd.ticks(reduce?0.4:5.5)}
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');if(Snd.on){Snd.fanfare();setTimeout(()=>Snd.duck(0),1800)}picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen()}else{box.requestFullscreen();Snd.start();mBtn()}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&Snd.on){Snd.stop();mBtn()}});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
+
+
+/* ===== Quiz ===== */
+const Q=[
+ ['What does serial communication mean?',['Many bits sent at once on many wires','Bits sent one after another along a single line','Data sent only by radio','Two devices sharing one clock wire'],1,'Serial = one bit at a time on one data wire. Parallel uses one wire per bit.'],
+ ['What is a node?',['Only the SCADA computer','Any device on a network that can send, receive or process data','The cable between two devices','The plug on the end of a cable'],1,'PLCs, HMIs, RTUs and computers are all nodes. Cables and plugs are not.'],
+ ['A walkie-talkie conversation is an example of…',['Simplex','Half duplex','Full duplex','Parallel'],1,'Both directions, but only one at a time: half duplex.'],
+ ['About how far can RS-232 run reliably?',['15 m (50 ft)','120 m','1200 m','12 km'],0,'RS-232 is reliable to about 15 to 16 m.'],
+ ['Why is RS-232 sensitive to noise?',['It uses fibre optics','It is unbalanced: one data wire measured against a shared ground','It has too many pins','It is half duplex'],1,'Noise adds straight onto the single wire, and nothing cancels it.'],
+ ['Which three DB9 pins are enough for a basic RS-232 link?',['1, 4 and 9','2 (RXD), 3 (TXD) and 5 (GND)','6, 7 and 8','All nine are always needed'],1,'Receive, transmit and ground. The others are handshake pins.'],
+ ['Why does differential signalling resist noise?',['The wires are thicker','Noise hits both wires equally, and the receiver looks only at the difference','It sends every bit twice','It uses a higher voltage'],1,'A − B cancels anything added to both wires: the two friends on the bumpy bus.'],
+ ['How many devices can share one RS-485 line?',['2','10','32','1000'],2,'Up to 32 drivers and 32 receivers on the same pair of wires.'],
+ ['Two-wire RS-485 is…',['Full duplex','Half duplex','Simplex only','Parallel'],1,'One pair is shared, so only one device may transmit at a time.'],
+ ['Why does every RS-485 device need a unique address?',['To make the cable shorter','So only the device being asked answers, and replies do not clash','To set the baud rate','To choose RS-232 or RS-485'],1,'The master calls one address; only that device replies.'],
+ ['What do termination resistors (about 120 Ω) at the ends of an RS-485 cable do?',['Boost the voltage','Absorb the signal so it does not echo back from the cable ends','Give each device its address','Convert RS-232 to RS-485'],1,'They stop reflections, like curtains stop an echo in a hall.'],
+ ['What does a USB-to-RS-485 converter change?',['The protocol, e.g. Modbus to DNP3','Only the electrical signal; the message stays the same','The device addresses','Nothing at all'],1,'It is a plug adapter for signals. Translating protocols needs a gateway.'],
+ ['In which topology does one broken cable stop the whole loop?',['Star','Tree','Ring','None of them'],2,'In a ring each device passes messages to the next, so one break stops everything.'],
+ ['In a star topology, which single failure stops the whole network?',['One device','One cable','The central hub or switch','The SCADA screen saver'],2,'Every message passes through the hub.'],
+ ['Which PLC networking type lets PLCs share data directly with each other?',['Remote I/O','Peer-to-peer','Host computer communication','Parallel I/O'],1,'Peer-to-peer: like two colleagues talking without going through the boss.']];
+const quiz=$('#quiz');let score=0,answered=0;
+function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="exp"></div></div>`).join('');
+  $$('.q').forEach(el=>el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const q=Q[el.dataset.i];const j=+b.dataset.j;const ok=j===q[2];
+    el.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q[2])x.classList.add('right')});if(!ok)b.classList.add('wrong');
+    el.classList.add('done');el.querySelector('.exp').textContent=(ok?'Correct. ':'Not quite. ')+q[3];answered++;if(ok)score++;updScore()}));updScore()}
+function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('ch3-best')||0;
+  if(answered===Q.length&&score>best){best=score;store.set('ch3-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
+$('#qReset').onclick=buildQuiz;buildQuiz();
+})();
+</script>
+</body>
+</html>
