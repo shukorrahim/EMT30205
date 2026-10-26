@@ -317,6 +317,14 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 .big4 a:hover{border-color:var(--sel)}
 .big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
 .big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
+/* Bridge box before 3.11 */
+.bridge{background:var(--sel-soft);border:1px solid var(--sel);border-radius:6px;padding:16px 18px;margin:30px 0 0;font-size:17px}
+.bridge p{margin:0 0 8px;max-width:760px}
+.bridge-k{display:block;font-family:var(--cond);font-size:22px;font-weight:600;margin-bottom:6px}
+.bridge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+.bridge-row div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 12px}
+.bridge-row b{display:block;font-family:var(--cond);font-size:18px;font-weight:600}
+.bridge-row span{font-size:14px;color:var(--ink2)}
 
 /* Phones and tablets (iOS and Android) */
 @media (max-width:600px){
@@ -697,6 +705,38 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="ana" id="tpAna"></div>
   <div class="tinfo"><div><b>Structure</b><span id="tpS"></span></div><div class="g"><b>Good</b><span id="tpG"></span></div><div class="w"><b>Weak point</b><span id="tpW"></span></div></div>
 </section>
+
+<!-- Bridge: 3.10 to 3.11 -->
+<div class="bridge">
+  <b class="bridge-k">Before 3.11: from network shapes to PLC teamwork</b>
+  <p>In 3.10 you saw the <b>shapes</b> a network can take: bus, ring, star and tree. The devices were just boxes.</p>
+  <p>Section 3.11 asks the next question: <b>what do the PLCs in a plant actually use those networks for?</b> There are three jobs, and each one runs on a shape you have already met.</p>
+  <div class="ana" style="margin:10px 0"><b>Analogy: roads and trips</b>3.10 is the road map of a town: straight roads, ring roads, roundabouts and branches. 3.11 is the trips people make on those roads: fetching something from far away, visiting the neighbour, and reporting to the town hall. <i>(3.10 ialah peta jalan sebuah bandar: jalan lurus, jalan lingkaran, bulatan dan cabang. 3.11 ialah perjalanan yang dibuat oleh orang di atas jalan itu: mengambil barang dari tempat jauh, melawat jiran, dan melapor ke dewan bandaran.)</i></div>
+  <figure class="diagram scroll-x wide" style="margin:10px 0 0">
+    <svg viewBox="0 0 900 270" role="img" aria-label="One plant network showing remote I/O, peer-to-peer and host communication">
+      <rect x="370" y="12" width="160" height="50" rx="6" fill="#0D1317" stroke="var(--pipe)" stroke-width="2"/><text x="450" y="43" text-anchor="middle" font-size="15" style="fill:#7FE3FF;font-weight:600">SCADA host</text>
+      <rect x="405" y="98" width="90" height="28" rx="4" fill="var(--sel-soft)" stroke="var(--sel)" stroke-width="2"/><text x="450" y="117" text-anchor="middle" font-size="12" style="font-weight:600">SWITCH</text>
+      <path d="M450,62 V98 M420,126 L240,150 M480,126 L660,150" stroke="#1B5AA6" stroke-width="4" fill="none" class="flowline"/>
+      <rect x="170" y="150" width="140" height="52" rx="5" class="box"/><text x="240" y="181" text-anchor="middle" class="lb" font-size="16">PLC A</text>
+      <rect x="590" y="150" width="140" height="52" rx="5" class="box"/><text x="660" y="181" text-anchor="middle" class="lb" font-size="16">PLC B</text>
+      <path d="M240,202 V232 H660 V202" stroke="#D35400" stroke-width="4" fill="none" stroke-dasharray="10 8" class="flowline"/>
+      <path d="M170,176 H112" stroke="#2E7A39" stroke-width="5" fill="none" class="flowline"/>
+      <rect x="18" y="150" width="94" height="52" rx="5" fill="#2E7A39"/><text x="65" y="174" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">REMOTE</text><text x="65" y="191" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">I/O</text>
+      <g font-size="13" style="font-weight:600">
+        <circle cx="140" cy="140" r="13" fill="#2E7A39"/><text x="140" y="145" text-anchor="middle" style="fill:#fff">1</text><text x="65" y="222" text-anchor="middle" style="fill:#2E7A39">remote I/O</text>
+        <circle cx="450" cy="214" r="13" fill="#D35400"/><text x="450" y="219" text-anchor="middle" style="fill:#fff">2</text><text x="450" y="258" text-anchor="middle" style="fill:#D35400">peer-to-peer: PLC talks to PLC</text>
+        <circle cx="580" cy="110" r="13" fill="#1B5AA6"/><text x="580" y="115" text-anchor="middle" style="fill:#fff">3</text><text x="600" y="90" style="fill:#1B5AA6">host communication: PLCs report to SCADA</text>
+      </g>
+      <text x="760" y="181" font-size="12" class="dim">a star of switches,</text><text x="760" y="197" font-size="12" class="dim">like 3.10</text>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="bridge-row">
+    <div><b>1 · Remote I/O</b><span>Reaching sensors and valves far away. Often a bus, for example RS-485 (3.6).</span></div>
+    <div><b>2 · Peer-to-peer</b><span>PLCs talking directly to each other, as neighbours on the same network.</span></div>
+    <div><b>3 · Host computer</b><span>PLCs reporting to SCADA. Usually a star or tree of Ethernet switches (3.10).</span></div>
+  </div>
+</div>
 
 <!-- 3.11 -->
 <section class="topic" id="s11">
