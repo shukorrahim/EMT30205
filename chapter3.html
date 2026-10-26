@@ -317,14 +317,13 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 .big4 a:hover{border-color:var(--sel)}
 .big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
 .big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
-/* Bridge box before 3.11 */
-.bridge{background:var(--sel-soft);border:1px solid var(--sel);border-radius:6px;padding:16px 18px;margin:30px 0 0;font-size:17px}
-.bridge p{margin:0 0 8px;max-width:760px}
-.bridge-k{display:block;font-family:var(--cond);font-size:22px;font-weight:600;margin-bottom:6px}
-.bridge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
-.bridge-row div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 12px}
-.bridge-row b{display:block;font-family:var(--cond);font-size:18px;font-weight:600}
-.bridge-row span{font-size:14px;color:var(--ink2)}
+/* 3.11 topology per job */
+.pntopo{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:4px;padding:12px 16px;margin-top:14px;font-size:16px}
+@media (min-width:760px){.pntopo{grid-template-columns:210px minmax(0,1fr)}}
+.pntopo .ic b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;color:var(--sel)}
+.pntopo .ic svg{display:block;width:100%;max-width:210px;height:auto;margin:6px 0 2px}
+.pntopo h4{margin:0;font-family:var(--cond);font-size:19px;font-weight:600}
+.pntopo ul{margin:4px 0 0;padding-left:20px}.pntopo li{margin-bottom:6px}
 
 /* Phones and tablets (iOS and Android) */
 @media (max-width:600px){
@@ -706,38 +705,6 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="tinfo"><div><b>Structure</b><span id="tpS"></span></div><div class="g"><b>Good</b><span id="tpG"></span></div><div class="w"><b>Weak point</b><span id="tpW"></span></div></div>
 </section>
 
-<!-- Bridge: 3.10 to 3.11 -->
-<div class="bridge">
-  <b class="bridge-k">Before 3.11: from network shapes to PLC teamwork</b>
-  <p>In 3.10 you saw the <b>shapes</b> a network can take: bus, ring, star and tree. The devices were just boxes.</p>
-  <p>Section 3.11 asks the next question: <b>what do the PLCs in a plant actually use those networks for?</b> There are three jobs, and each one runs on a shape you have already met.</p>
-  <div class="ana" style="margin:10px 0"><b>Analogy: roads and trips</b>3.10 is the road map of a town: straight roads, ring roads, roundabouts and branches. 3.11 is the trips people make on those roads: fetching something from far away, visiting the neighbour, and reporting to the town hall. <i>(3.10 ialah peta jalan sebuah bandar: jalan lurus, jalan lingkaran, bulatan dan cabang. 3.11 ialah perjalanan yang dibuat oleh orang di atas jalan itu: mengambil barang dari tempat jauh, melawat jiran, dan melapor ke dewan bandaran.)</i></div>
-  <figure class="diagram scroll-x wide" style="margin:10px 0 0">
-    <svg viewBox="0 0 900 270" role="img" aria-label="One plant network showing remote I/O, peer-to-peer and host communication">
-      <rect x="370" y="12" width="160" height="50" rx="6" fill="#0D1317" stroke="var(--pipe)" stroke-width="2"/><text x="450" y="43" text-anchor="middle" font-size="15" style="fill:#7FE3FF;font-weight:600">SCADA host</text>
-      <rect x="405" y="98" width="90" height="28" rx="4" fill="var(--sel-soft)" stroke="var(--sel)" stroke-width="2"/><text x="450" y="117" text-anchor="middle" font-size="12" style="font-weight:600">SWITCH</text>
-      <path d="M450,62 V98 M420,126 L240,150 M480,126 L660,150" stroke="#1B5AA6" stroke-width="4" fill="none" class="flowline"/>
-      <rect x="170" y="150" width="140" height="52" rx="5" class="box"/><text x="240" y="181" text-anchor="middle" class="lb" font-size="16">PLC A</text>
-      <rect x="590" y="150" width="140" height="52" rx="5" class="box"/><text x="660" y="181" text-anchor="middle" class="lb" font-size="16">PLC B</text>
-      <path d="M240,202 V232 H660 V202" stroke="#D35400" stroke-width="4" fill="none" stroke-dasharray="10 8" class="flowline"/>
-      <path d="M170,176 H112" stroke="#2E7A39" stroke-width="5" fill="none" class="flowline"/>
-      <rect x="18" y="150" width="94" height="52" rx="5" fill="#2E7A39"/><text x="65" y="174" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">REMOTE</text><text x="65" y="191" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">I/O</text>
-      <g font-size="13" style="font-weight:600">
-        <circle cx="140" cy="140" r="13" fill="#2E7A39"/><text x="140" y="145" text-anchor="middle" style="fill:#fff">1</text><text x="65" y="222" text-anchor="middle" style="fill:#2E7A39">remote I/O</text>
-        <circle cx="450" cy="214" r="13" fill="#D35400"/><text x="450" y="219" text-anchor="middle" style="fill:#fff">2</text><text x="450" y="258" text-anchor="middle" style="fill:#D35400">peer-to-peer: PLC talks to PLC</text>
-        <circle cx="580" cy="110" r="13" fill="#1B5AA6"/><text x="580" y="115" text-anchor="middle" style="fill:#fff">3</text><text x="600" y="90" style="fill:#1B5AA6">host communication: PLCs report to SCADA</text>
-      </g>
-      <text x="760" y="181" font-size="12" class="dim">a star of switches,</text><text x="760" y="197" font-size="12" class="dim">like 3.10</text>
-    </svg>
-  </figure>
-  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
-  <div class="bridge-row">
-    <div><b>1 · Remote I/O</b><span>Reaching sensors and valves far away. Often a bus, for example RS-485 (3.6).</span></div>
-    <div><b>2 · Peer-to-peer</b><span>PLCs talking directly to each other, as neighbours on the same network.</span></div>
-    <div><b>3 · Host computer</b><span>PLCs reporting to SCADA. Usually a star or tree of Ethernet switches (3.10).</span></div>
-  </div>
-</div>
-
 <!-- 3.11 -->
 <section class="topic" id="s11">
   <h2><span class="n">3.11</span>Networking PLCs</h2>
@@ -747,6 +714,19 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
   <div class="say" id="pnSay"></div>
   <div class="ana" id="pnAna"></div>
+  <div class="pntopo" id="pnTopo" aria-live="polite"></div>
+  <h3>Which topology for which job?</h3>
+  <div class="prose"><p>A summary of the three jobs. The highlighted row matches the tab chosen above.</p></div>
+  <div class="scroll-x">
+    <table class="cmp3" id="pnTbl">
+      <thead><tr><th style="cursor:default">Job</th><th style="cursor:default">Usual topology (3.10)</th><th style="cursor:default">Typical networks</th><th style="cursor:default">Example</th></tr></thead>
+      <tbody>
+        <tr data-k="rio"><th>Remote I/O</th><td><b>Bus</b>, daisy-chained rack to rack. Newer Ethernet systems: star or ring</td><td>Profibus DP, Modbus RTU (RS-485), DeviceNet; PROFINET, EtherNet/IP</td><td>Remote I/O panel at a pump house 500 m from the control room</td></tr>
+        <tr data-k="p2p"><th>Peer-to-peer</th><td><b>Bus</b> joining a few PLCs of equal rank, or a shared Ethernet <b>star</b></td><td>OMRON PC Link and Controller Link, Allen-Bradley DH+; EtherNet/IP, Modbus TCP</td><td>Filler PLC and capper PLC on a bottling line staying in step</td></tr>
+        <tr data-k="host"><th>Host computer</th><td><b>Star</b> in one building, <b>tree</b> across a plant, fibre <b>ring</b> backbone</td><td>Ethernet with Modbus TCP, DNP3, IEC 61850, OPC UA (Chapter 2)</td><td>Every machine in a factory shown on one SCADA screen</td></tr>
+      </tbody>
+    </table>
+  </div>
   <div class="note"><b>Centralised control, decentralised operation.</b> Each PLC runs its own machine locally, so one fault stays local, but every PLC still reports to one central SCADA system. Networking makes the plant more reliable, better coordinated and easier to troubleshoot.</div>
   <h3>The big picture of this chapter</h3>
   <div class="big4">
@@ -1160,7 +1140,23 @@ const PN={rio:{svg:()=>plc(40,90,'Main PLC','control room')+`<path d="M160,127 H
     [40,250,530,740].map((x,i)=>plc(x,188,'PLC '+(i+1))+`<path d="M${x+60},188 V160 H450 V136" stroke="var(--pipe)" stroke-width="3" fill="none"/>`+(reduce?'':dot(`M${x+60},188 V160 H450 V136`,'#D35400',2.2,i*.55))).join(''),
    say:'<b>Host computer communication:</b> every PLC runs its own machine, and reports to a central SCADA computer for monitoring, alarms and trends. This is how a whole plant appears on one HMI screen.',ana:'<b>Analogy</b>Branch offices running their own shops, but sending their daily numbers to headquarters. <i>(Cawangan-cawangan menguruskan kedai masing-masing, tetapi menghantar angka harian mereka ke ibu pejabat.)</i>'}};
 const pnb=$$('#pnTabs button');
-function pnShow(k){press(pnb,pnb.find(b=>b.dataset.k===k));$('#pnSvg').innerHTML=PN[k].svg();$('#pnSay').innerHTML=PN[k].say;$('#pnAna').innerHTML=PN[k].ana}
+const TICON={
+ bus:`<path d="M10,50 H190" stroke="#D35400" stroke-width="5"/>${[40,80,120,160].map((x,i)=>`<path d="M${x},50 V${i%2?66:34}" stroke="var(--pipe)" stroke-width="2"/><rect x="${x-9}" y="${i%2?66:16}" width="18" height="18" rx="2" fill="var(--sel)"/>`).join('')}`,
+ star:`${[0,1,2,3,4,5].map(i=>{const a=i*Math.PI/3,x=100+70*Math.cos(a),y=50+36*Math.sin(a);return `<path d="M100,50 L${x.toFixed(0)},${y.toFixed(0)}" stroke="var(--pipe)" stroke-width="2.5"/><rect x="${(x-8).toFixed(0)}" y="${(y-8).toFixed(0)}" width="16" height="16" rx="2" fill="var(--sel)"/>`}).join('')}<rect x="86" y="42" width="28" height="16" rx="3" fill="#2E7A39"/>`,
+ tree:`<rect x="90" y="4" width="20" height="14" rx="2" fill="#2E7A39"/><path d="M100,18 V34 M40,34 H160" stroke="#D35400" stroke-width="4"/><path d="M60,34 V50 M140,34 V50" stroke="var(--pipe)" stroke-width="2.5"/><rect x="48" y="50" width="24" height="12" rx="2" fill="var(--sel-soft)" stroke="var(--sel)"/><rect x="128" y="50" width="24" height="12" rx="2" fill="var(--sel-soft)" stroke="var(--sel)"/>${[30,60,90,110,140,170].map(x=>`<path d="M${x<100?60:140},62 L${x},82" stroke="var(--pipe)" stroke-width="2"/><rect x="${x-7}" y="82" width="14" height="14" rx="2" fill="var(--sel)"/>`).join('')}`};
+const PT={rio:{shape:'bus',name:'Bus (daisy-chain)',topo:'Remote I/O racks are usually <b>daisy-chained on a bus</b>: one cable runs from the PLC to the first rack, then on to the next. Newer Ethernet remote I/O also uses a <b>star</b>, or a <b>ring</b> that keeps working if one cable is cut.',
+   net:'Profibus DP and Modbus RTU (both on RS-485, 3.6), DeviceNet; newer: PROFINET and EtherNet/IP.',
+   ex:['<b>Water treatment plant:</b> the PLC stays in the control room. A remote I/O panel at the intake pump house, 500 m away, reads the river level and starts the pumps, all over one RS-485 cable.','<b>Long factory conveyor:</b> small remote I/O boxes are placed every 50 m along a 200 m line, daisy-chained, each wired to the sensors and motors next to it.','<b>Large building or offshore platform:</b> a remote I/O cabinet on each floor or deck, joined by one fieldbus cable back to the main PLC.']},
+ p2p:{shape:'bus',name:'Bus (or a shared star)',topo:'A few PLCs of <b>equal rank</b> (no master) share one <b>bus</b> and swap data directly. On modern sites the PLCs often sit on the same Ethernet <b>star</b> switch and still talk directly to each other.',
+   net:'OMRON PC Link and Controller Link, Allen-Bradley DH+; on Ethernet: EtherNet/IP, PROFINET, Modbus TCP.',
+   ex:['<b>Bottling line:</b> the filler PLC tells the capper PLC "bottle coming", and the capper answers "ready", so the two machines stay in step.','<b>Two pump stations on one pipeline:</b> each PLC shares its tank level with the other, so they never pump against each other.','<b>Car assembly line:</b> the welding robot cell PLC tells the conveyor PLC when a car body is finished, so the conveyor moves it on.']},
+ host:{shape:'tree',name:'Star or tree (often a fibre ring backbone)',topo:'Inside one building, every PLC is wired to an Ethernet switch: a <b>star</b>. Across a big plant, each area has its own switch, all joined to a backbone: a <b>tree</b>. The backbone is often a fibre <b>ring</b>, so one cut cable does not stop SCADA. Far-away sites reach the control centre by radio, fibre or 4G/5G.',
+   net:'Ethernet with Modbus TCP, DNP3, IEC 61850 or OPC UA (Chapter 2). Smaller systems still use Modbus RTU on RS-485.',
+   ex:['<b>Factory control room:</b> the SCADA PC shows every machine. Each machine PLC connects to the switch in its area, and the area switches connect to the control room.','<b>Power utility such as TNB:</b> substation RTUs and PLCs report to the regional control centre, so engineers see breaker status and alarms on one screen (Chapter 1).','<b>Water supply company:</b> pump stations and reservoirs across a district send tank levels and pump status to one SCADA centre over radio or fibre.']}};
+function pnShow(k){press(pnb,pnb.find(b=>b.dataset.k===k));$('#pnSvg').innerHTML=PN[k].svg();$('#pnSay').innerHTML=PN[k].say;$('#pnAna').innerHTML=PN[k].ana;
+  const t=PT[k];$('#pnTopo').innerHTML=`<div class="ic"><b>Usual topology</b><svg viewBox="0 0 200 100" role="img" aria-label="${t.name}">${TICON[t.shape]}</svg><span class="muted" style="font-size:14px">${t.name}</span></div>
+    <div><h4>Which topology?</h4><p style="margin:2px 0 8px">${t.topo}</p><h4>Typical networks</h4><p style="margin:2px 0 8px">${t.net}</p><h4>Real examples</h4><ul>${t.ex.map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+  $$('#pnTbl tbody tr').forEach(r=>r.querySelectorAll('th,td').forEach(c=>c.classList.toggle('hl',r.dataset.k===k)))}
 pnb.forEach(b=>b.onclick=()=>pnShow(b.dataset.k));pnShow('rio');
 /* Class game: name wheel: names live only in this browser (localStorage), never in the page */
 (function(){
