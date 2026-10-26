@@ -1011,15 +1011,24 @@ function cvDraw(anim){const c=CV[cvK],ly=i=>150-(c.l.length-1)*17+i*34,ry=i=>150
     <rect x="730" y="70" width="150" height="160" rx="6" class="box"/><text x="805" y="60" text-anchor="middle" class="lb" font-size="16">Field device</text>`;
   c.l.forEach((t,i)=>{const d=c.ld.includes(i);s+=`<path d="M170,${ly(i)}H330" stroke="${d?'#D35400':'var(--pipe)'}" stroke-width="${d?3.5:2.5}" ${t.includes('GND')?'stroke-dasharray="6 5"':''}/><text x="250" y="${ly(i)-6}" text-anchor="middle" font-size="13">${t}</text>`});
   c.r.forEach((t,i)=>{const pr=i<2&&!/SG|GND/.test(t),pl=i%2===0;s+=`<path d="M570,${ry(i)}H730" stroke="${pr?(pl?'#D35400':'#1B5AA6'):'var(--pipe)'}" stroke-width="${pr?3.5:2.5}" ${/SG|GND/.test(t)?'stroke-dasharray="6 5"':''}/><text x="650" y="${ry(i)-6}" text-anchor="middle" font-size="13">${t}</text>`});
-  s+=`<text x="250" y="270" text-anchor="middle" font-size="13" class="dim">single wire vs ground</text><text x="650" y="270" text-anchor="middle" font-size="13" class="dim">differential pair (mirror images)</text>
+  s+=`<text x="250" y="270" text-anchor="middle" font-size="13" class="dim">${cvK==='usb485'?'USB signal (short distance)':'single wire vs ground'}</text><text x="650" y="270" text-anchor="middle" font-size="13" class="dim">differential pair (mirror images)</text>
     <path d="M190,288 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20" stroke="#D35400" stroke-width="2" fill="none"/>
     <path d="M590,288 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20" stroke="#D35400" stroke-width="2" fill="none"/><path d="M590,276 h20 v12 h20 v-12 h20 v12 h20 v-12 h20 v12 h20 v-12 h20" stroke="#1B5AA6" stroke-width="2" fill="none"/>`;
-  if(anim){const yl=ly(c.ld[0]),y1=ry(0),y2=ry(1);for(let j=0;j<4;j++){const b=(j*0.35).toFixed(2);
-    s+=`<circle r="6" fill="#D35400" opacity="0"><animateMotion dur="1.2s" begin="${b}s" fill="freeze" path="M170,${yl} H330"/><set attributeName="opacity" to="1" begin="${b}s"/><set attributeName="opacity" to="0" begin="${(+b+1.2).toFixed(2)}s"/></circle>`;
-    s+=`<circle r="6" fill="#D35400" opacity="0"><animateMotion dur="1.2s" begin="${(+b+1.2).toFixed(2)}s" fill="freeze" path="M570,${y1} H730"/><set attributeName="opacity" to="1" begin="${(+b+1.2).toFixed(2)}s"/><set attributeName="opacity" to="0" begin="${(+b+2.4).toFixed(2)}s"/></circle><circle r="6" fill="#1B5AA6" opacity="0"><animateMotion dur="1.2s" begin="${(+b+1.2).toFixed(2)}s" fill="freeze" path="M570,${y2} H730"/><set attributeName="opacity" to="1" begin="${(+b+1.2).toFixed(2)}s"/><set attributeName="opacity" to="0" begin="${(+b+2.4).toFixed(2)}s"/></circle>`}}
-  $('#cvSvg').innerHTML=s;$('#cvSay').textContent=c.say}
-$$('#cvChips .chip').forEach(b=>b.onclick=()=>{press($$('#cvChips .chip'),b);cvK=b.dataset.k;cvDraw(false)});
-$('#cvGo').onclick=()=>cvDraw(!reduce);cvDraw(false);
+  s+='<g id="cvDots"></g>';
+  $('#cvSvg').innerHTML=s;if(!anim)$('#cvSay').textContent=c.say;return {yl:ly(c.ld[0]),y1:ry(0),y2:ry(1)}}
+let cvBusy=false;
+const cvDot=(col,x0,x1,y,ms)=>{const d=document.createElementNS(NS,'circle');d.setAttribute('r',8);d.setAttribute('fill',col);d.setAttribute('cy',y);d.setAttribute('cx',x0);$('#cvDots').appendChild(d);
+  return tween(ms,k=>d.setAttribute('cx',x0+(x1-x0)*k)).then(()=>d.remove())};
+async function cvBit(p){await cvDot('#D35400',170,330,p.yl,2200);const bx=$('#cvSvg rect[fill="var(--sel-soft)"]');if(bx)bx.setAttribute('stroke-width','6');await sleep(500);if(bx)bx.setAttribute('stroke-width','2.5');
+  await Promise.all([cvDot('#D35400',570,730,p.y1,2200),cvDot('#1B5AA6',570,730,p.y2,2200)])}
+$$('#cvChips .chip').forEach(b=>b.onclick=()=>{if(cvBusy)return;press($$('#cvChips .chip'),b);cvK=b.dataset.k;cvDraw(false)});
+$('#cvGo').onclick=async()=>{if(cvBusy)return;cvBusy=true;$('#cvGo').disabled=true;const p=cvDraw(true),c=CV[cvK],say=h=>$('#cvSay').innerHTML=h;
+  say(cvK==='usb485'?`<b>Step 1:</b> the PC sends its data down the <b>USB cable</b> (D+ and D−), a short-distance signal made for computers.`:`<b>Step 1:</b> the PC sends its data as a <b>single-wire</b> signal (${c.l[c.ld[0]]}), measured against ground.`);
+  const bits=[];for(let j=0;j<3;j++){bits.push(cvBit(p));await sleep(1300)}
+  await sleep(1400);say(`<b>Step 2:</b> the converter turns each bit into a <b>pair of mirror-image signals</b> (${c.r[0]} and ${c.r[1]}). The message itself does not change.`);
+  await Promise.all(bits);say(`<b>Step 3:</b> the pair arrives at the field device, safe from noise and able to travel far. `+c.say);
+  cvBusy=false;$('#cvGo').disabled=false};
+cvDraw(false);
 
 /* ===== 3.9 why networks ===== */
 function nwDraw(){const n=+$('#nwN').value;$('#nwNV').textContent=n;const pts=[...Array(n)].map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [200+120*Math.cos(a),150+115*Math.sin(a)]});
