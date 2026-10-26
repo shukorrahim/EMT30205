@@ -396,7 +396,6 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <div><div class="k">RS-485 devices on one pair</div><div class="v">32</div></div>
     <div><div class="k">Top speed (RS-422/485)</div><div class="v">10 Mbps</div></div>
   </div>
-  <div class="jargon"><h3 style="font-size:26px;margin:0 0 4px">Jargon buster</h3><p class="muted" style="margin:0;font-size:15px">Serial words in everyday language. Tap a card to flip it.</p><div class="cards" id="jargon"></div></div>
 </header>
 
 <!-- 3.1 -->
@@ -719,10 +718,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 
 <!-- 3.12 -->
 <section class="topic" id="s12">
-  <h2><span class="n">3.12</span>Check your understanding</h2>
-  <div class="prose"><p>Fifteen questions. You get feedback straight away.</p></div>
-  <div id="quiz" class="prose"></div>
-  <div class="score"><span>Score: <b id="qScore">0 / 15</b> <span class="muted" id="qBest"></span></span><button class="btn" id="qReset">Start again</button></div>
+  <h2><span class="n">3.12</span>Jargon buster</h2>
+  <div class="prose"><p>Serial words in everyday language. Tap a card to flip it.</p></div>
+  <div class="jargon" style="margin-top:0"><div class="cards" id="jargon"></div></div>
 </section>
 
 <!-- 3.13 -->
@@ -1178,31 +1176,6 @@ pnb.forEach(b=>b.onclick=()=>pnShow(b.dataset.k));pnShow('rio');
 })();
 
 
-/* ===== Quiz ===== */
-const Q=[
- ['What does serial communication mean?',['Many bits sent at once on many wires','Bits sent one after another along a single line','Data sent only by radio','Two devices sharing one clock wire'],1,'Serial = one bit at a time on one data wire. Parallel uses one wire per bit.'],
- ['What is a node?',['Only the SCADA computer','Any device on a network that can send, receive or process data','The cable between two devices','The plug on the end of a cable'],1,'PLCs, HMIs, RTUs and computers are all nodes. Cables and plugs are not.'],
- ['A walkie-talkie conversation is an example of…',['Simplex','Half duplex','Full duplex','Parallel'],1,'Both directions, but only one at a time: half duplex.'],
- ['About how far can RS-232 run reliably?',['15 m (50 ft)','120 m','1200 m','12 km'],0,'RS-232 is reliable to about 15 to 16 m.'],
- ['Why is RS-232 sensitive to noise?',['It uses fibre optics','It is unbalanced: one data wire measured against a shared ground','It has too many pins','It is half duplex'],1,'Noise adds straight onto the single wire, and nothing cancels it.'],
- ['Which three DB9 pins are enough for a basic RS-232 link?',['1, 4 and 9','2 (RXD), 3 (TXD) and 5 (GND)','6, 7 and 8','All nine are always needed'],1,'Receive, transmit and ground. The others are handshake pins.'],
- ['Why does differential signalling resist noise?',['The wires are thicker','Noise hits both wires equally, and the receiver looks only at the difference','It sends every bit twice','It uses a higher voltage'],1,'A − B cancels anything added to both wires: the two friends on the bumpy bus.'],
- ['How many devices can share one RS-485 line?',['2','10','32','1000'],2,'Up to 32 drivers and 32 receivers on the same pair of wires.'],
- ['Two-wire RS-485 is…',['Full duplex','Half duplex','Simplex only','Parallel'],1,'One pair is shared, so only one device may transmit at a time.'],
- ['Why does every RS-485 device need a unique address?',['To make the cable shorter','So only the device being asked answers, and replies do not clash','To set the baud rate','To choose RS-232 or RS-485'],1,'The master calls one address; only that device replies.'],
- ['What do termination resistors (about 120 Ω) at the ends of an RS-485 cable do?',['Boost the voltage','Absorb the signal so it does not echo back from the cable ends','Give each device its address','Convert RS-232 to RS-485'],1,'They stop reflections, like curtains stop an echo in a hall.'],
- ['What does a USB-to-RS-485 converter change?',['The protocol, e.g. Modbus to DNP3','Only the electrical signal; the message stays the same','The device addresses','Nothing at all'],1,'It is a plug adapter for signals. Translating protocols needs a gateway.'],
- ['In which topology does one broken cable stop the whole loop?',['Star','Tree','Ring','None of them'],2,'In a ring each device passes messages to the next, so one break stops everything.'],
- ['In a star topology, which single failure stops the whole network?',['One device','One cable','The central hub or switch','The SCADA screen saver'],2,'Every message passes through the hub.'],
- ['Which PLC networking type lets PLCs share data directly with each other?',['Remote I/O','Peer-to-peer','Host computer communication','Parallel I/O'],1,'Peer-to-peer: like two colleagues talking without going through the boss.']];
-const quiz=$('#quiz');let score=0,answered=0;
-function buildQuiz(){score=0;answered=0;quiz.innerHTML=Q.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button data-j="${j}">${o}</button>`).join('')}</div><div class="exp"></div></div>`).join('');
-  $$('.q').forEach(el=>el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const q=Q[el.dataset.i];const j=+b.dataset.j;const ok=j===q[2];
-    el.querySelectorAll('button').forEach((x,k)=>{x.disabled=true;if(k===q[2])x.classList.add('right')});if(!ok)b.classList.add('wrong');
-    el.classList.add('done');el.querySelector('.exp').textContent=(ok?'Correct. ':'Not quite. ')+q[3];answered++;if(ok)score++;updScore()}));updScore()}
-function updScore(){$('#qScore').textContent=`${score} / ${Q.length}`;let best=store.get('ch3-best')||0;
-  if(answered===Q.length&&score>best){best=score;store.set('ch3-best',best)}$('#qBest').textContent=best?`Best: ${best}`:''}
-$('#qReset').onclick=buildQuiz;buildQuiz();
 })();
 </script>
 </body>
