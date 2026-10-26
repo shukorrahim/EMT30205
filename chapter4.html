@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>HMI Part 1: Designing a Good HMI | Monitoring System Integration</title>
+<meta name="description" content="Chapter 4 of EMT30205 (HMI Part 1): the HMI in the control loop, system architecture, evolution, and the five rules of good HMI design, with interactive simulations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side .home-m{display:none}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.ticker{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.lead{max-width:700px;font-size:19px;margin-top:24px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;row-gap:6px}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.ask{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:16px 0;font-size:16px}
+.ask b{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--warn)}
+.ask details{margin-top:6px}.ask summary{cursor:pointer;color:var(--sel);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.threecol{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.threecol{grid-template-columns:repeat(3,1fr)}}
+.twocol ul,.threecol ul{padding-left:20px;margin:0}
+.twocol h3,.threecol h3{margin-top:0;font-size:21px}
+.out{min-height:60px}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.danger{border-color:var(--alarm);color:var(--alarm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+input[type=range]{width:100%;accent-color:var(--sel)}
+
+/* Light diagrams */
+.diagram{margin:14px 0}
+.diagram svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.diagram svg text{fill:var(--ink);font-family:var(--body)}
+.diagram svg .lb{font-family:var(--cond);font-weight:600}
+.diagram svg .dim{fill:var(--ink2)}
+.diagram figcaption{font-size:14px;color:var(--ink2);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.diagram figcaption i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.wide svg{min-width:720px}.pan-hint{display:block}.hmi .pan-hint{color:#8A99A6;background:#172028}}
+
+/* HMI screens (same as Chapter 1) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--kv132:#5AA8FF;--kv33:#F0C04A;--cls:#E5484D;--opn:#3FB950;--val:#7FE3FF;
+  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);margin-top:12px;font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
+.hmi-nav button,.hmi-nav span{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
+.hmi-body{position:relative;min-width:0}
+.hmi svg{display:block;width:100%;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi svg .dim{fill:var(--hd)}
+.hmi svg .lb{font-family:var(--cond);font-weight:600}
+.vbox rect{fill:#000;stroke:var(--hl)}
+.vbox text{font-variant-numeric:tabular-nums;font-weight:600;fill:var(--val)!important}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
+.hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
+.hmi-foot .alm.okk{background:#1F5130;color:#fff}
+.hmi-foot .alm.step{background:#2F6FB5;color:#fff;font-size:14px}
+@keyframes hblink{50%{background:#7E1A1D}}
+.hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
+.hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
+.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer}
+.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}.hbtn.red{background:#9E2A2E;border-color:#C23A3F;color:#fff}
+.hbtn[disabled]{opacity:.4;cursor:not-allowed}
+.hmi .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--hp);border-top:1px solid var(--hl);color:var(--hd)}
+.hmi .ctl label{display:inline-flex;gap:6px;align-items:center}
+.hmi .ctl input[type=range]{width:120px}
+.hlog{list-style:none;margin:0;padding:6px 10px;font:12px/1.5 Consolas,"Courier New",monospace;max-height:120px;overflow-y:auto;border-top:1px solid var(--hl)}
+.hlog li.a{color:#FF8A84}.hlog li.k{color:#7FE3A0}.hlog li.i{color:var(--val)}
+.flowline{stroke-dasharray:10 8;animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.blink{animation:blinkf 1s steps(2) infinite}
+@keyframes blinkf{50%{opacity:.2}}
+.hmi .ln{transition:opacity .3s}
+.netsvg[data-sel] .ln:not(.on){opacity:.12}
+
+/* Flip cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:170px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:26px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+
+/* Class game: name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Key idea, teaching tips, jargon buster */
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.tip{border:1px dashed var(--pipe);border-radius:4px;padding:8px 14px;margin:14px 0;background:var(--panel);max-width:760px}
+.tip summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tip p{margin:8px 0 0;font-size:16px}
+.jargon{margin-top:26px}
+.jargon .flip{height:150px}
+.jargon .flip .f b{font-size:24px}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* ===== Shared with Chapter 3 ===== */
+.diagram svg .wire{stroke:var(--pipe);stroke-width:3;fill:none}
+.diagram svg .box{fill:var(--panel);stroke:var(--pipe);stroke-width:2}
+.diagram svg .thin{stroke:var(--pipe);stroke-width:1.5;fill:none}
+.diagram.flat svg{background:var(--panel2)}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.ctrl label{display:inline-flex;gap:6px;align-items:center;font-size:15px}
+.ctrl input[type=text]{width:64px;font:600 24px var(--cond);text-align:center;padding:2px 4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.say{min-height:52px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px;margin-top:10px}
+.say b{font-weight:600}
+/* Serial frame strip */
+.frame{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.frame span{min-width:46px;text-align:center;border:2px solid var(--sel);border-radius:3px;padding:2px 2px 3px;font:700 20px/1.1 var(--cond);background:var(--panel);transition:background .2s}
+.frame span small{display:block;font:500 11px var(--body);color:var(--ink2)}
+.frame span.st{border-color:var(--warn)}.frame span.sp{border-color:var(--ok)}
+.frame span.on{background:var(--sel);color:var(--sel-ink)}.frame span.on small{color:var(--sel-ink)}
+.frame span.ok{background:var(--sel-soft)}
+/* Analogy box */
+.ana{border-left:4px solid var(--ok);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:14px 0;font-size:16px;max-width:780px}
+.ana>b:first-child{display:block;font-family:var(--cond);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ok)}
+/* Stat strip */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:14px 0}
+.stat div{background:var(--panel);padding:8px 12px}
+.stat .k{font-size:13px;color:var(--ink2)}.stat .v{font-family:var(--cond);font-size:26px;font-weight:600;line-height:1.15}
+/* Why-serial cards */
+.why{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.why{grid-template-columns:repeat(3,1fr)}}
+.why .panel{display:flex;gap:12px;align-items:flex-start}
+.why svg{flex:0 0 52px;width:52px;height:52px}
+.why b{font-family:var(--cond);font-size:20px;font-weight:600;display:block}
+.why p{margin:0;font-size:15px}
+/* Signal vs language */
+.sl{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media (min-width:700px){.sl{grid-template-columns:1fr 1fr}}
+.sl>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:16px}
+.sl>div.me{border:2px solid var(--sel)}
+.sl b.t{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+/* Nodes */
+.nd3 rect{fill:var(--panel);stroke:var(--pipe);stroke-width:2;transition:fill .2s,stroke .2s}
+.nd3.heard rect{stroke:var(--warn);stroke-width:3}
+.nd3.me rect{fill:var(--ok);stroke:var(--ok)}.nd3.me text{fill:#fff!important}
+.quiz1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.quiz1 .item{font-family:var(--cond);font-size:24px;font-weight:600;min-width:240px}
+/* DB9 */
+.db9 .pin{cursor:pointer}
+.db9 .pin circle{fill:#C9CED3;stroke:#6B7680;stroke-width:2}
+.db9 .pin.key circle{fill:#F0C04A;stroke:#7A6420}
+.db9 .pin.on circle{fill:var(--sel);stroke:var(--sel)}
+.db9 .pin text{font-weight:600}
+.pinfo{min-height:96px}
+.pinfo b.big{font-family:var(--cond);font-size:30px;font-weight:700;display:block;line-height:1.1}
+.pinlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* Comparison table */
+.cmp3{width:100%;border-collapse:collapse;font-size:16px;background:var(--panel);min-width:560px}
+.cmp3 th,.cmp3 td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.cmp3 thead th{background:var(--panel2);font-family:var(--cond);font-size:20px;cursor:pointer}
+.cmp3 tbody th{font-weight:600;color:var(--ink2);font-size:15px;width:24%}
+.cmp3 .hl{background:var(--sel-soft)}
+.cmp3 thead th.hl{background:var(--sel);color:var(--sel-ink)}
+/* Topologies */
+.topo svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.topo .ed{stroke:var(--pipe);stroke-width:4;fill:none;stroke-linecap:round}
+.topo .ed.bb{stroke:#D35400;stroke-width:6}
+.topo .ed.brk{stroke:var(--alarm);stroke-dasharray:4 10;opacity:.8}
+.topo .hitl{stroke:transparent;stroke-width:24;cursor:pointer}
+.topo .nd{cursor:pointer}
+.topo .nd rect{fill:var(--panel);stroke:var(--sel);stroke-width:2.5;transition:fill .25s,stroke .25s}
+.topo .nd.hub rect{fill:var(--sel-soft)}
+.topo .nd text{fill:var(--ink);font-size:13px;font-weight:600;font-family:var(--body);pointer-events:none}
+.topo .nd.down rect{stroke:var(--alarm);fill:var(--panel2)}
+.topo .nd.down text{fill:var(--ink2)}
+.topo .nd.brk rect{stroke:var(--alarm);fill:var(--alarm)}.topo .nd.brk text{fill:#fff}
+.topo .nd .x{stroke:#fff;stroke-width:3}
+.topo .nd.ping rect{fill:var(--ok);stroke:var(--ok)}.topo .nd.ping text{fill:#fff}
+.topo .master rect{stroke-width:4}
+.topo text.cut{font-size:20px}
+.tinfo{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+@media (min-width:760px){.tinfo{grid-template-columns:repeat(3,1fr)}}
+.tinfo>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:15px}
+.tinfo b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.tinfo .g b{color:var(--ok)}.tinfo .w b{color:var(--alarm)}
+.tstat{font-family:var(--cond);font-size:22px;font-weight:600;margin-top:10px}
+.tstat.bad{color:var(--alarm)}.tstat.good{color:var(--ok)}
+/* Big picture */
+.big4{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media (min-width:760px){.big4{grid-template-columns:repeat(4,1fr)}}
+.big4 a{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--sel);border-radius:4px;padding:10px 12px;font-size:15px}
+.big4 a:hover{border-color:var(--sel)}
+.big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
+.big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
+/* 3.11 topology per job */
+.pntopo{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:4px;padding:12px 16px;margin-top:14px;font-size:16px}
+@media (min-width:760px){.pntopo{grid-template-columns:210px minmax(0,1fr)}}
+.pntopo .ic b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;color:var(--sel)}
+.pntopo .ic svg{display:block;width:100%;max-width:210px;height:auto;margin:6px 0 2px}
+.pntopo h4{margin:0;font-family:var(--cond);font-size:19px;font-weight:600}
+.pntopo ul{margin:4px 0 0;padding-left:20px}.pntopo li{margin-bottom:6px}
+
+/* ===== Chapter 4 ===== */
+.names{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.names span{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:15px}
+.names b{font-family:var(--cond);font-weight:600}
+.diagram svg .hi>rect:first-child,.diagram svg .hi>circle:first-child{stroke:var(--sel);stroke-width:4}
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+.spin{transform-box:fill-box;transform-origin:center;animation:rot 1.2s linear infinite}
+.spin.rev{animation-direction:reverse}
+@keyframes rot{to{transform:rotate(360deg)}}
+/* Air-con panel */
+.ac{display:inline-grid;grid-template-columns:auto auto;gap:10px 14px;align-items:center;background:#E9EEF2;color:#1D2730;border:2px solid #9AA6B0;border-radius:14px;padding:14px 18px;margin-top:8px}
+.ac .scr{grid-column:1/-1;background:#0E2A3A;color:#7FE3FF;border-radius:8px;padding:8px 14px;font:700 34px var(--cond);text-align:center;transition:box-shadow .2s}
+.ac .scr small{font-size:14px;font-weight:500;display:block;color:#9FC9DA}
+.ac .scr.flash{box-shadow:0 0 0 4px #F0C04A}
+.ac button{background:#fff;border:1px solid #9AA6B0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;color:#1D2730}
+.ac button.flash{outline:4px solid #D35400}
+.io-tag{display:inline-block;font-family:var(--cond);font-weight:600;font-size:13px;padding:1px 8px;border-radius:3px;color:#fff}
+.io-tag.ii{background:#D35400}.io-tag.oo{background:#1B5AA6}
+/* Example controls */
+.exc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;margin-top:10px;min-height:62px}
+.exc input[type=number]{width:90px;font:600 20px var(--cond);padding:4px 6px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel2);color:var(--ink)}
+.exc .sw{width:30px;height:30px;border-radius:50%;border:3px solid var(--pipe);cursor:pointer}
+/* Timeline */
+.tl4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.tl4 button{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--off);border-radius:4px;padding:8px;cursor:pointer;text-align:left}
+.tl4 button b{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+.tl4 button span{font-size:13px;color:var(--ink2)}
+.tl4 button[aria-pressed="true"]{border-top-color:var(--sel);background:var(--sel-soft)}
+.tlcard{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;margin-top:10px;align-items:center}
+@media (min-width:760px){.tlcard{grid-template-columns:300px 1fr}}
+.tlcard svg{width:100%;height:auto;display:block;background:var(--panel2);border-radius:4px}
+.tlcard h3{margin:0 0 6px}
+@media (max-width:600px){.tl4 button b{font-size:16px}.tl4 button span{display:none}}
+/* Industry tiles */
+.ind{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:10px}
+.ind button{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 8px;cursor:pointer;font-weight:600;font-size:15px;text-align:center}
+.ind button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+/* Advantage cards */
+.adv{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:760px){.adv{grid-template-columns:repeat(4,1fr)}}
+.adv div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:4px;padding:10px 12px;font-size:15px}
+.adv b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3 span{background:var(--sel-soft);border:1px solid var(--sel);border-radius:4px;padding:4px 12px}
+/* Rules */
+.rules{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.rnum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--sel);color:var(--sel-ink);font-weight:700;font-size:14px;margin-right:6px}
+.rule-k{display:inline-block;font-family:var(--cond);font-size:15px;font-weight:600;background:var(--sel);color:var(--sel-ink);padding:2px 10px;border-radius:3px;margin-bottom:8px}
+/* Results */
+.res{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:10px;max-width:520px}
+.res div{background:var(--panel);padding:8px 12px}
+.res .k{font-size:13px;color:var(--ink2)}.res .v{font-family:var(--cond);font-size:26px;font-weight:600}
+/* Text-only tag list */
+.taglist{width:100%;border-collapse:collapse;font:14px Consolas,"Courier New",monospace;background:#0D1317;color:#D6DEE4}
+.taglist td{border-bottom:1px solid #222D35;padding:6px 10px}
+.taglist button{font:inherit;background:#2A3843;color:#D6DEE4;border:1px solid #4A5A66;border-radius:2px;padding:2px 8px;cursor:pointer}
+.taglist tr.alm td{color:#FF8A84}
+/* Find the alarm */
+.fgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:12px;border-radius:6px;margin-top:10px}
+.fgrid button{border:0;border-radius:4px;padding:10px 2px;font:600 12px var(--body);cursor:pointer;min-height:44px;color:#fff}
+.fgrid.idle button{opacity:.35;cursor:default}
+@media (max-width:600px){.fgrid{grid-template-columns:repeat(4,1fr)}}
+.bgpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.bgpick button{border:2px solid var(--line);border-radius:6px;padding:0;cursor:pointer;overflow:hidden;background:none}
+.bgpick button[aria-pressed="true"]{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel)}
+.bgpick svg{display:block;width:100%;height:auto}
+.bgpick span{display:block;font-size:14px;font-weight:600;padding:4px;background:var(--panel)}
+/* Poor vs best value box */
+.pvb{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:700px){.pvb{grid-template-columns:1fr 1fr}}
+.pvb>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.pvb .t{font-family:var(--cond);font-weight:600;font-size:18px}
+.pvb .poor .t{color:var(--warn)}.pvb .best .t{color:var(--ok)}
+.pvb .face{background:#fff;border:1px solid #C5CCD2;border-radius:4px;text-align:center;padding:10px;margin:6px 0;color:#1D2730}
+.ovd{display:grid;gap:6px;margin-top:10px}
+.ovd .it{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 10px}
+.ovd .it span{flex:1 1 220px;font-weight:500}
+.ovd .it.good{border-color:var(--ok)}.ovd .it.bad{border-color:var(--alarm)}
+.ovd .it small{flex-basis:100%;font-size:14px;color:var(--ink2)}
+/* Navigation demo */
+.navdemo .hmi-nav{min-height:38px}
+.navscreen{min-height:230px;padding:12px;color:var(--ht)}
+.navscreen .row{margin-top:10px}
+.navscreen h4{margin:0 0 6px;font-family:var(--cond);font-size:20px;font-weight:600}
+.navscreen .eq{display:inline-flex;gap:8px;align-items:center;background:#172028;border:1px solid #34424D;border-radius:4px;padding:8px 12px;margin:4px}
+.navscreen .eq i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.clicks{font-family:var(--cond);font-size:22px;font-weight:600}
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){
+  .panel{padding:14px}main{padding:0 14px 60px}
+  .seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+  .frame span{min-width:38px;font-size:18px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip{min-height:44px}
+  .hbtn,.hmi-nav button{min-height:36px;padding-left:14px;padding-right:14px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .side a{padding:10px 12px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .flip .b{transform:none;display:none}.flip.on .b{display:flex}.flip.on .in{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Chapter sections">
+  <div class="brand"><b>HMI Part 1: Designing a Good HMI</b><span>Monitoring System Integration, Chapter 4</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 12 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">Monitoring System Integration, Chapter 4 · HMI Part 1</div>
+  <h1>Human Machine Interface<small>Part 1: designing a good HMI</small></h1>
+  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
+  <div class="hmi">
+    <div class="hmi-title"><b>HMI · THE OPERATOR'S WINDOW INTO THE PLANT</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
+    <div class="hmi-body scroll-x wide">
+      <svg viewBox="0 0 1000 230" role="img" aria-label="Operator, HMI, PLC and plant linked in a two-way loop">
+        <g transform="translate(90,112)"><circle cy="-38" r="20" fill="none" stroke="#D6DEE4" stroke-width="3"/><path d="M-30,30 C-30,-6 30,-6 30,30" fill="none" stroke="#D6DEE4" stroke-width="3"/><text y="62" text-anchor="middle" class="lb" font-size="16">OPERATOR</text></g>
+        <rect x="290" y="62" width="160" height="104" rx="8" fill="#172028" stroke="#5AA8FF" stroke-width="3"/><rect x="304" y="76" width="132" height="62" rx="2" fill="#0D1317"/><rect x="316" y="102" width="20" height="28" fill="#5AA8FF"/><text x="400" y="120" text-anchor="middle" font-size="18" style="fill:#7FE3FF;font-weight:700">78%</text><text x="370" y="156" text-anchor="middle" class="lb" font-size="14">HMI</text>
+        <rect x="560" y="70" width="130" height="90" rx="6" fill="#1B5AA6"/><g fill="#E3E7EA"><rect x="600" y="82" width="16" height="66"/><rect x="622" y="82" width="16" height="66"/><rect x="644" y="82" width="16" height="66"/></g><rect x="572" y="82" width="20" height="66" fill="#0E3A70"/><text x="625" y="186" text-anchor="middle" class="lb" font-size="16">PLC</text>
+        <rect x="800" y="60" width="70" height="100" rx="6" fill="none" stroke="#D6DEE4" stroke-width="3"/><rect x="803" y="100" width="64" height="57" fill="#2F6FB5" opacity=".8"/><circle cx="920" cy="135" r="24" fill="none" stroke="#D6DEE4" stroke-width="3"/><g class="spin"><path d="M920,135 L920,115 M920,135 L937,145 M920,135 L903,145" stroke="#7FE3FF" stroke-width="4"/></g><text x="880" y="196" text-anchor="middle" class="lb" font-size="16">PLANT</text>
+        <g stroke-width="4" fill="none"><path d="M130,96 H290 M450,96 H560 M690,96 H800" stroke="#D35400" class="flowline"/><path d="M800,132 H690 M560,132 H450 M290,132 H130" stroke="#7FE3FF" class="flowline"/></g>
+        <text x="500" y="26" text-anchor="middle" font-size="14" style="fill:#F0B27A;font-weight:600">INPUT → the operator tells the machine what to do</text>
+        <text x="500" y="222" text-anchor="middle" font-size="14" style="fill:#7FE3FF;font-weight:600">← OUTPUT: the machine tells the operator what is happening</text>
+      </svg>
+    </div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  </div>
+  <p class="lead">An HMI is the screen or panel where a person and a machine talk to each other. What an HMI is, and the parts of an HMI screen, were introduced in <a href="chapter1.html#s10">Chapter 1.10</a>. This part is about <b>how to design a good one</b>. <a href="chapter5.html">Chapter 5 (HMI Part 2)</a> builds HMI screens with real components in CX-Designer.</p>
+  <div class="names"><span><b>HMI</b> Human Machine Interface</span><span><b>MMI</b> Man Machine Interface</span><span><b>OIT</b> Operator Interface Terminal</span><span><b>LOI</b> Local Operator Interface</span><span><b>OT</b> Operator Terminal</span></div>
+  <div class="ticker">
+    <div><div class="k">Rules of a good HMI</div><div class="v">5</div></div>
+    <div><div class="k">Other names</div><div class="v">4</div></div>
+    <div><div class="k">Directions of talk</div><div class="v">2 (in + out)</div></div>
+    <div><div class="k">HMI Part 2</div><div class="v"><a href="chapter5.html" style="text-decoration:none">Components →</a></div></div>
+  </div>
+</header>
+
+<!-- 4.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">4.1</span>The HMI in the loop</h2>
+  <div class="key"><b>Key idea</b>The HMI works in both directions. Input: the operator tells the machine what to do. Output: the machine tells the operator what is happening. Together they make a loop that never stops.</div>
+  <div class="ana"><b>Analogy: driving a car</b>You turn the steering wheel and press the pedals (input). The dashboard shows your speed and fuel (output). You look, decide, act, and look again. <i>(Anda memusing stereng dan menekan pedal (input). Papan pemuka menunjukkan kelajuan dan minyak (output). Anda melihat, membuat keputusan, bertindak, dan melihat semula.)</i></div>
+  <div class="ctrl"><button class="btn" id="lpBack">◀ Back</button><button class="btn primary" id="lpNext">Next step ▶</button><button class="btn" id="lpAuto">▶ Play all</button><span class="stepn" id="lpN"></span></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0"><svg viewBox="0 0 900 300" id="lpSvg" role="img" aria-label="The loop between operator, HMI, PLC and plant"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="lpSay" aria-live="polite"></div>
+  <h3>Input or output?</h3>
+  <div class="prose"><p><b>Input</b> devices let the user tell the machine what to do: keyboards, touchscreens, joysticks and mice. <b>Output</b> keeps the user updated: what appears on the screen, or what the machine itself does.</p></div>
+  <div class="panel">
+    <div class="quiz1"><span class="item" id="ioItem"></span><button class="btn" id="ioIn">Input</button><button class="btn" id="ioOut">Output</button><button class="btn" id="ioNext" hidden>Next ▶</button></div>
+    <div class="fb" id="ioFb" aria-live="polite"></div>
+  </div>
+  <h3>HMIs you already use</h3>
+  <div class="prose"><p>An air conditioner panel and an ATM machine are both HMIs. Try the air conditioner: every button you press is an <span class="io-tag ii">INPUT</span>, and the display answering you is an <span class="io-tag oo">OUTPUT</span>.</p></div>
+  <div class="ac" id="ac" aria-label="Air conditioner panel">
+    <div class="scr" id="acScr">24°C<small>COOL · fan auto</small></div>
+    <button id="acUp">▲ Warmer</button><button id="acDn">▼ Cooler</button>
+    <button id="acMode">Mode</button><button id="acPow">⏻ On / Off</button>
+  </div>
+  <p class="muted" style="font-size:15px;margin-top:8px" id="acSay">Press a button.</p>
+</section>
+
+<!-- 4.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">4.2</span>What is under the screen</h2>
+  <div class="key"><b>Key idea</b>The HMI does not drive the machine by itself. It talks to the PLC, and the PLC switches the real devices. The computer is only needed to write and download the program and the screens.</div>
+  <div class="prose"><p>Pick an example from the notes, change the setting on the HMI, and watch the command travel down to the device.</p></div>
+  <div class="chips" id="exChips" role="group" aria-label="Example"></div>
+  <div class="exc" id="exCtl"></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0"><svg viewBox="0 0 900 380" id="arSvg" role="img" aria-label="Computer, HMI, PLC and field device"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="arSay" aria-live="polite"></div>
+  <div class="threecol" style="margin-top:12px">
+    <div class="panel"><h3>Computer</h3>CX-Programmer writes the PLC program; CX-Designer draws the HMI screens. Used to <b>install and download</b>, then it can be unplugged.</div>
+    <div class="panel"><h3>HMI</h3><b>Set up parameters</b> (temperature, speed, counts) and <b>control the I/O devices</b> through the PLC.</div>
+    <div class="panel"><h3>PLC and devices</h3>The PLC runs the logic and drives the real devices: thermocouple, motor, indicator lamp.</div>
+  </div>
+</section>
+
+<!-- 4.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">4.3</span>How HMIs evolved</h2>
+  <div class="key"><b>Key idea</b>HMIs grew from walls of buttons and dials into touchscreens, tablets and now AI and virtual reality. We use HMIs every day on our phones and computers, and industry uses them for mass production.</div>
+  <div class="tl4" id="tlBtns" role="group" aria-label="Era"></div>
+  <div class="tlcard" id="tlCard"></div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="tlPrev">◀ Earlier</button><button class="btn" id="tlNext">Later ▶</button></div>
+</section>
+
+<!-- 4.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">4.4</span>Where HMIs are used, and why</h2>
+  <div class="key"><b>Key idea</b>A good HMI saves time. It increases productivity and uptime and keeps product quality consistent, so it is used in almost every industry.</div>
+  <div class="prose"><p>Tap an industry to see an HMI at work there.</p></div>
+  <div class="ind" id="indBtns" role="group" aria-label="Industry"></div>
+  <div class="say" id="indSay" aria-live="polite">Tap an industry.</div>
+  <h3>Four advantages of an HMI</h3>
+  <div class="adv">
+    <div><b>Enhances communication</b>Operators, engineers and managers all see the same live picture of the plant.</div>
+    <div><b>Improves productivity</b>Problems are spotted and fixed quickly, so machines stop less often.</div>
+    <div><b>Prevents injuries</b>Operators control dangerous machines from a safe place instead of standing next to them.</div>
+    <div><b>Records data</b>Counts, trends and alarms are saved, so you can look back and improve.</div>
+  </div>
+  <div class="goal3"><span>Saves time</span>→<span>More uptime</span>→<span>Consistent quality</span></div>
+</section>
+
+<!-- 4.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">4.5</span>What makes a good HMI?</h2>
+  <div class="key"><b>Key idea</b>The goal of every HMI screen is <b>situation awareness</b>: one look tells the operator what the process is doing and what needs attention. Five rules get you there.</div>
+  <div class="ana"><b>Analogy: a car dashboard</b>A good dashboard shows speed big and clear, uses a red light only for real problems, and puts everything in the same place in every car. A dashboard covered in flashing colours would be dangerous. <i>(Papan pemuka yang baik menunjukkan kelajuan dengan besar dan jelas, menggunakan lampu merah hanya untuk masalah sebenar, dan meletakkan semuanya di tempat yang sama dalam setiap kereta. Papan pemuka yang penuh dengan warna berkelip akan berbahaya.)</i></div>
+  <p style="font-weight:600">Ciri-ciri HMI yang baik: tap a rule to compare a bad and a good screen.</p>
+  <div class="rules" id="ruleChips" role="group" aria-label="Rule"></div>
+  <div class="seg" role="group" aria-label="Design" id="gbSeg" style="margin-top:10px"><button aria-pressed="true" data-v="bad">Bad design</button><button aria-pressed="false" data-v="good">Good design</button></div>
+  <figure class="diagram scroll-x wide" style="margin:8px 0 0"><svg viewBox="0 0 900 380" id="gbSvg" role="img" aria-label="Pump station HMI screen"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="gbSay" aria-live="polite"></div>
+</section>
+
+<!-- 4.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">4.6</span>Rule 1: the schematic screen</h2>
+  <span class="rule-k">Rule 1 of 5</span>
+  <div class="key"><b>Key idea</b>A schematic (mimic) screen draws the process the way it really looks: tanks, pipes, pumps and valves. If a tank's level bar is rising, it is natural to click the valve at its outlet to bring the level down.</div>
+  <div class="ana"><b>Analogy: a map versus a list of directions</b>"Turn left after 300 m, then right after 1.2 km…" is hard to follow. A map shows you at a glance where you are and where to go. <i>("Belok kiri selepas 300 m, kemudian kanan selepas 1.2 km…" sukar diikut. Peta menunjukkan dengan sekali pandang di mana anda berada dan ke mana hendak pergi.)</i></div>
+  <div class="prose"><p><b>Try it.</b> The tank is filling. When the HIGH alarm comes on, open the outlet valve as fast as you can. Do it once with the schematic and once with a plain list of numbers, and compare your times.</p></div>
+  <div class="ctrl"><div class="seg" role="group" aria-label="Screen type" id="scSeg"><button aria-pressed="true" data-v="sch">Schematic screen</button><button aria-pressed="false" data-v="txt">Text list only</button></div><button class="btn primary" id="scGo">▶ Start the tank</button></div>
+  <div class="hmi"><div class="hmi-title"><b>TANK T-101 · INLET</b><span class="meta" id="scLvl">Level --</span></div><div class="hmi-body" id="scBody" style="min-height:260px"></div><div class="hmi-foot"><span class="alm" id="scAlm">Press Start</span></div></div>
+  <div class="res"><div><div class="k">Schematic screen</div><div class="v" id="scR1">–</div></div><div><div class="k">Text list only</div><div class="v" id="scR2">–</div></div></div>
+  <div class="say" id="scSay" aria-live="polite"></div>
+</section>
+
+<!-- 4.7 -->
+<section class="topic" id="s7">
+  <h2><span class="n">4.7</span>Rule 2: colour</h2>
+  <span class="rule-k">Rule 2 of 5</span>
+  <div class="key"><b>Key idea</b>Choose a calm background and save strong colours for things that need attention. If everything is colourful, the alarm cannot stand out.</div>
+  <div class="ana"><b>Analogy: a highlighter pen</b>If you highlight every line in your textbook, nothing stands out any more. Highlight only the key sentence and your eye goes straight to it. <i>(Jika anda menyerlahkan setiap baris dalam buku teks, tiada apa yang menonjol lagi. Serlahkan hanya ayat yang penting dan mata anda terus tertumpu padanya.)</i></div>
+  <h3>Game: find the alarm</h3>
+  <div class="prose"><p>One piece of equipment is in alarm. Find it and tap it. Play once on the colourful screen and once on the grey screen.</p></div>
+  <div class="ctrl"><div class="seg" role="group" aria-label="Colour style" id="faSeg"><button aria-pressed="true" data-v="col">Colourful screen</button><button aria-pressed="false" data-v="grey">Grey screen</button></div><button class="btn primary" id="faGo">▶ Start a round</button></div>
+  <div class="fgrid idle" id="faGrid"></div>
+  <div class="res"><div><div class="k">Colourful screen</div><div class="v" id="faR1">–</div></div><div><div class="k">Grey screen</div><div class="v" id="faR2">–</div></div></div>
+  <div class="say" id="faSay" aria-live="polite">Press Start.</div>
+  <h3>Choosing the background colour</h3>
+  <div class="prose"><p>The first DCS screens had a <b>black</b> background. Black gives good contrast with almost every other colour, but the curved CRT screens reflected light, so control rooms were kept dark. Tap each background to compare.</p></div>
+  <div class="bgpick" id="bgPick" role="group" aria-label="Background colour"></div>
+  <div class="say" id="bgSay" aria-live="polite"></div>
+</section>
+
+<!-- 4.8 -->
+<section class="topic" id="s8">
+  <h2><span class="n">4.8</span>Rule 3: layout</h2>
+  <span class="rule-k">Rule 3 of 5</span>
+  <div class="key"><b>Key idea</b>Put things where the eye expects them: the process flows from left to right, related items sit together, and the title, menu and alarm bar stay in the same place on every screen.</div>
+  <div class="ana"><b>Analogy: a supermarket</b>Rice is with rice, drinks are with drinks, and the cashier is always at the exit. You find things without thinking. <i>(Beras bersama beras, minuman bersama minuman, dan juruwang sentiasa di pintu keluar. Anda menjumpai barang tanpa perlu berfikir.)</i></div>
+  <div class="ctrl"><button class="btn primary" id="lyGo">▶ Tidy up the screen</button><button class="btn" id="lyReset">Make it messy again</button></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0"><svg viewBox="0 0 900 380" id="lySvg" role="img" aria-label="An HMI screen being rearranged"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="lySay" aria-live="polite">A messy screen. Press <b>Tidy up</b> to fix it one step at a time.</div>
+</section>
+
+<!-- 4.9 -->
+<section class="topic" id="s9">
+  <h2><span class="n">4.9</span>Rule 4: process values and labels</h2>
+  <span class="rule-k">Rule 4 of 5</span>
+  <div class="key"><b>Key idea</b>Live process values must stand out more (bigger, bolder) than the labels and units next to them. Values that are not critical belong on a detail screen, not the overview.</div>
+  <div class="ana"><b>Analogy: a newspaper</b>The headline is big so you see it first; the details are in smaller print inside the article. <i>(Tajuk utama dicetak besar supaya anda nampak dahulu; butirannya dalam tulisan kecil di dalam artikel.)</i></div>
+  <div class="pvb">
+    <div class="poor"><span class="t">Poor practice</span><div class="face"><div style="font:700 34px/1 var(--cond)">TEMPERATURE LIMIT</div><div style="font-size:14px;margin-top:4px">45°C</div></div>The label shouts; the value whispers.</div>
+    <div class="best"><span class="t">Best practice</span><div class="face"><div style="font:700 50px/1 var(--cond);color:#1B5AA6">45</div><div style="font-size:14px;color:#4B5661">°C temperature limit</div></div>The value is what the operator needs, so it is the biggest thing.</div>
+  </div>
+  <h3>Overview screen or detail screen?</h3>
+  <div class="prose"><p>Decide where each value belongs.</p></div>
+  <div class="ovd" id="ovd"></div>
+  <p class="muted" id="ovdScore" style="font-size:15px;margin-top:8px"></p>
+</section>
+
+<!-- 4.10 -->
+<section class="topic" id="s10">
+  <h2><span class="n">4.10</span>Rule 5: consistency and navigation</h2>
+  <span class="rule-k">Rule 5 of 5</span>
+  <div class="key"><b>Key idea</b>An HMI is a collection of screens, not one screen. The operator must move easily between the overview and the detail screens, and every screen must use the same layout, buttons and colour meanings.</div>
+  <div class="ana"><b>Analogy: a shopping mall</b>Every floor has the same signboards, and the lift buttons are always in the same place. In a mall where every floor looked different, you would get lost. <i>(Setiap tingkat mempunyai papan tanda yang sama, dan butang lif sentiasa di tempat yang sama. Dalam pusat beli-belah yang setiap tingkatnya berbeza, anda akan sesat.)</i></div>
+  <div class="prose"><p><b>Task:</b> go to the <b>Storage</b> screen, check that pump <b>P-301</b> is running, then come back to the <b>Overview</b>. Do it in both designs and compare the number of taps and how sure you felt.</p></div>
+  <div class="seg" role="group" aria-label="Design" id="nvSeg"><button aria-pressed="true" data-v="good">Consistent design</button><button aria-pressed="false" data-v="bad">Inconsistent design</button></div>
+  <div class="twocol" style="margin-top:10px;align-items:start">
+    <div class="hmi navdemo" id="nvHmi"></div>
+    <figure class="diagram" style="margin:0"><svg viewBox="0 0 420 220" id="nvMap" role="img" aria-label="Screen hierarchy"></svg><figcaption>Screen map: overview at the top, detail screens below.</figcaption></figure>
+  </div>
+  <div class="res"><div><div class="k">Taps this attempt</div><div class="v clicks" id="nvClicks">0</div></div><div><div class="k">Task</div><div class="v" id="nvTask" style="font-size:18px">Not done</div></div></div>
+  <div class="say" id="nvSay" aria-live="polite"></div>
+</section>
+
+<!-- A-Z -->
+<section class="topic" id="s11">
+  <h2><span class="n">A–Z</span>Jargon buster</h2>
+  <div class="prose"><p>HMI words in everyday language. Tap a card to flip it.</p></div>
+  <div class="jargon" style="margin-top:0"><div class="cards" id="jargon"></div></div>
+  <div class="note">Next: <a href="chapter5.html"><b>Chapter 5, HMI Part 2: HMI components and CX-Designer</b></a>, where you build HMI screens with bit buttons, lamps and numeric displays.</div>
+</section>
+
+<!-- Class game -->
+<section class="topic" id="s12">
+  <h2><span class="n">★</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen ♪</button><button class="btn" id="wMusic" aria-pressed="false">♪ Music off</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Monitoring System Integration, Chapter 4, HMI Part 1: Designing a Good HMI. Content from the lecture notes of Mohamad Shukor bin Abdul Rahim. All diagrams are drawn for this page. Simulations are simplified for learning.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce?Math.min(ms,150):ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+const NS='http://www.w3.org/2000/svg';
+const bitsOf=ch=>{const c=ch.charCodeAt(0)&255;return [...Array(8)].map((_,i)=>(c>>i)&1)};
+function rng(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];
+const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set((store.get('ch4-seen')||[]).filter(id=>document.getElementById(id)));
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;
+    nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('ch4-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+/* Clocks on HMI title bars */
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
+const vis=new Set();
+
+/* ===== Jargon buster ===== */
+const JG=[['HMI','The dashboard of a car','The screen or panel where a person and a machine talk to each other.'],['MMI, OIT, LOI, OT','Nicknames for the same friend','Man Machine Interface, Operator Interface Terminal, Local Operator Interface, Operator Terminal: all mean an HMI.'],['Situation awareness','Knowing what is happening at a glance','The operator understands the process and spots what matters in seconds.'],['Schematic / mimic','A map of the plant','A screen drawn like the real process: tanks, pipes, pumps and valves.'],['Overview screen','The front page of a newspaper','The top screen with only the most important values and alarms.'],['Detail screen','The full article inside','A lower screen with all the data for one machine or area.'],['Navigation','Signboards in a mall','How the operator moves between screens.'],['Process value (PV)','The speedometer reading','The live measured value, e.g. 78 % level or 45 °C.'],['Label / unit','The small print under the number','Text that says what the value is and its unit.'],['Alarm','A smoke detector','A warning that something is abnormal and needs action.'],['Contrast','Black text on white paper','How strongly something stands out from its background.'],['DCS','The first control-room computers','Distributed Control System: early systems that brought screens into control rooms.'],['Input','Pressing the lift button','The operator telling the machine what to do.'],['Output','The lift floor display','The machine telling the operator what it is doing.'],['Tag','A name badge','The name of a signal, e.g. LT-101 for a level transmitter.']];
+$('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
+$$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+
+/* ===== 4.1 the loop ===== */
+const LPX={op:95,hmi:320,plc:550,plant:785};
+$('#lpSvg').innerHTML=`
+  <path d="M170,140 H230 M410,140 H480 M620,140 H690" stroke="var(--pipe)" stroke-width="4"/>
+  <g id="lpOp"><rect x="20" y="40" width="150" height="200" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><circle cx="95" cy="100" r="24" fill="none" stroke="var(--ink)" stroke-width="3"/><path d="M60,190 C60,140 130,140 130,190" fill="none" stroke="var(--ink)" stroke-width="3"/><text x="95" y="226" text-anchor="middle" class="lb" font-size="16">OPERATOR</text></g>
+  <g id="lpHmi"><rect x="230" y="40" width="180" height="200" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><rect x="246" y="56" width="148" height="96" rx="3" fill="#0D1317"/><text x="320" y="78" text-anchor="middle" font-size="12" style="fill:#8A99A6">TANK LEVEL</text><text x="320" y="116" text-anchor="middle" font-size="34" id="lpHV" style="fill:#7FE3FF;font-weight:700">62%</text><text x="320" y="140" text-anchor="middle" font-size="13" id="lpHS" style="fill:#8A99A6;font-weight:600">normal</text>
+    <rect x="256" y="166" width="128" height="40" rx="6" id="lpBtn" fill="#2A3843" stroke="#4A5A66" stroke-width="2"/><text x="320" y="191" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:600">START PUMP</text><text x="320" y="228" text-anchor="middle" class="lb" font-size="16">HMI</text></g>
+  <g id="lpPlc"><rect x="480" y="60" width="140" height="160" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><rect x="500" y="84" width="100" height="74" rx="4" fill="#1B5AA6"/><g fill="#E3E7EA"><rect x="530" y="94" width="16" height="54"/><rect x="552" y="94" width="16" height="54"/><rect x="574" y="94" width="16" height="54"/></g><rect x="508" y="94" width="16" height="54" fill="#0E3A70"/><text x="550" y="200" text-anchor="middle" class="lb" font-size="16">PLC</text></g>
+  <g id="lpPlant"><rect x="690" y="20" width="190" height="260" rx="8" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/><rect x="710" y="50" width="80" height="170" rx="4" fill="none" stroke="var(--ink)" stroke-width="3"/><rect x="713" y="120" width="74" height="97" id="lpLvl" fill="#2F6FB5" opacity=".8"/><text x="750" y="44" text-anchor="middle" font-size="12" class="dim">level sensor</text>
+    <path d="M750,220 V240 H822" stroke="var(--pipe)" stroke-width="5" fill="none"/><circle cx="845" cy="240" r="22" fill="var(--panel2)" stroke="var(--ink)" stroke-width="3"/><g id="lpRot"><path d="M845,240 L845,222 M845,240 L861,249 M845,240 L829,249" stroke="var(--sel)" stroke-width="4"/></g><text x="785" y="272" text-anchor="middle" class="lb" font-size="15">PLANT · tank + pump</text></g>
+  <g id="lpPk" style="display:none"><rect x="-40" y="-15" width="80" height="30" rx="4" fill="#D35400"/><text y="5" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:700" id="lpPkT"></text></g>`;
+const LPS=[
+ {hi:['lpPlant'],l:[62,85],hv:'62%',hs:0,say:'The tank is filling. The <b>level sensor</b> in the plant measures it: now 85 %.'},
+ {hi:['lpPlant','lpPlc'],l:[85,85],hv:'62%',hs:0,pk:[['plant','plc']],t:'85%',c:'#1B5AA6',say:'The sensor value travels to the <b>PLC</b>.'},
+ {hi:['lpPlc','lpHmi'],l:[85,85],hv:'85%',hs:1,pk:[['plc','hmi']],t:'85%',c:'#1B5AA6',say:'The PLC passes the value to the <b>HMI</b>, which shows <b>85 % HIGH</b>.'},
+ {hi:['lpOp','lpHmi'],l:[85,85],hv:'85%',hs:1,pk:[['hmi','op']],t:'HIGH!',c:'#1B5AA6',say:'<span class="io-tag oo">OUTPUT</span> The HMI tells the operator: "the tank is high". The operator sees it and decides to act.'},
+ {hi:['lpOp','lpHmi'],l:[85,85],hv:'85%',hs:1,btn:1,pk:[['op','hmi']],t:'tap',c:'#D35400',say:'<span class="io-tag ii">INPUT</span> The operator taps <b>START PUMP</b> on the touchscreen.'},
+ {hi:['lpHmi','lpPlc'],l:[85,85],hv:'85%',hs:1,btn:1,pk:[['hmi','plc']],t:'START',c:'#D35400',say:'The HMI sends the command to the <b>PLC</b>. The HMI never switches the pump itself.'},
+ {hi:['lpPlc','lpPlant'],l:[85,60],hv:'85%',hs:1,run:1,pk:[['plc','plant']],t:'RUN',c:'#D35400',say:'The PLC switches the pump on. The level starts to fall.'},
+ {hi:['lpPlant','lpPlc','lpHmi'],l:[60,60],hv:'60%',hs:0,run:1,pk:[['plant','plc'],['plc','hmi']],t:'60%',c:'#1B5AA6',say:'The new level travels back up to the HMI: <b>60 %, normal</b>. The operator sees it worked, and the loop carries on, all day, every day.'}];
+let lpK=-1,lpBusy=false,lpAutoOn=false;
+function lpLvl(v){const h=167*v/100;$('#lpLvl').setAttribute('y',217-h);$('#lpLvl').setAttribute('height',h)}
+function lpStatic(s){['lpOp','lpHmi','lpPlc','lpPlant'].forEach(id=>$('#'+id).classList.toggle('hi',s.hi.includes(id)));$('#lpHV').textContent=s.hv;$('#lpHS').textContent=s.hs?'HIGH':'normal';$('#lpHS').style.fill=s.hs?'#FF8A84':'#8A99A6';
+  $('#lpBtn').setAttribute('fill',s.btn?'#2F6FB5':'#2A3843');$('#lpRot').classList.toggle('spin',!!s.run);$('#lpSay').innerHTML=s.say;$('#lpN').textContent=`Step ${lpK+1} of ${LPS.length}`;$('#lpBack').disabled=lpK<=0;$('#lpNext').disabled=lpK>=LPS.length-1}
+async function lpGo(k,anim){if(lpBusy)return;lpBusy=true;lpK=k;const s=LPS[k];lpStatic(s);lpLvl(s.l[0]);
+  if(anim){const pk=$('#lpPk');if(s.pk){$('#lpPkT').textContent=s.t;pk.querySelector('rect').setAttribute('fill',s.c);pk.style.display='';
+      for(const [a,b] of s.pk)await tween(1800,q=>pk.setAttribute('transform',`translate(${LPX[a]+(LPX[b]-LPX[a])*q},140)`));pk.style.display='none'}
+    if(s.l[0]!==s.l[1])await tween(2600,q=>lpLvl(s.l[0]+(s.l[1]-s.l[0])*q))}
+  lpLvl(s.l[1]);lpBusy=false}
+$('#lpNext').onclick=()=>{if(lpK<LPS.length-1)lpGo(lpK+1,true)};
+$('#lpBack').onclick=()=>{if(lpK>0)lpGo(lpK-1,false)};
+$('#lpAuto').onclick=async()=>{if(lpBusy||lpAutoOn)return;lpAutoOn=true;$('#lpAuto').disabled=true;for(let k=0;k<LPS.length;k++){await lpGo(k,true);await sleep(2600)}lpAutoOn=false;$('#lpAuto').disabled=false};
+lpK=0;lpStatic(LPS[0]);lpLvl(62);$('#lpSay').innerHTML='Press <b>Next step</b> (or <b>Play all</b>) to follow one trip around the loop.';$('#lpN').textContent='';
+/* Input or output */
+const IOQ=[['Tapping a touchscreen',1,'The operator is telling the machine something.'],['A trend graph on the screen',0,'The machine is showing you its history.'],['Typing on a keyboard',1,'Keyboards are input devices.'],['An alarm lamp flashing',0,'The machine is warning you.'],['Moving a joystick',1,'Joysticks send commands, for example to a crane.'],['The conveyor starts moving',0,'Machine activity is also output: you can see it obey.'],['Clicking with a mouse',1,'Mice are input devices.'],['A beep when a door opens',0,'Sound can be output too.']];
+let ioI=0,ioOk=0;
+function ioShow(){const q=IOQ[ioI%IOQ.length];$('#ioItem').textContent=q[0];$('#ioFb').textContent='';$('#ioFb').className='fb';$('#ioIn').disabled=$('#ioOut').disabled=false;$('#ioNext').hidden=true}
+function ioAns(v){const q=IOQ[ioI%IOQ.length],ok=v===q[1];if(ok)ioOk++;$('#ioIn').disabled=$('#ioOut').disabled=true;$('#ioNext').hidden=false;$('#ioFb').className='fb '+(ok?'good':'bad');
+  $('#ioFb').textContent=`${ok?'Correct':'Not quite'}: ${q[1]?'input':'output'}. ${q[2]} (${ioOk} of ${ioI%IOQ.length+1})`;if(ioI%IOQ.length===IOQ.length-1)ioOk=0}
+$('#ioIn').onclick=()=>ioAns(1);$('#ioOut').onclick=()=>ioAns(0);$('#ioNext').onclick=()=>{ioI++;ioShow()};ioShow();
+/* Air conditioner */
+const AC={t:24,on:true,m:0},ACM=['COOL','FAN','DRY'];
+function acShow(){$('#acScr').innerHTML=AC.on?`${AC.t}°C<small>${ACM[AC.m]} · fan auto</small>`:`--<small>OFF</small>`}
+async function acPress(b,txt,fn){$$('#ac button').forEach(x=>x.classList.remove('flash'));b.classList.add('flash');$('#acSay').innerHTML=`<span class="io-tag ii">INPUT</span> you pressed <b>${txt}</b>…`;
+  await sleep(500);fn();acShow();b.classList.remove('flash');$('#acScr').classList.add('flash');$('#acSay').innerHTML=`<span class="io-tag ii">INPUT</span> you pressed <b>${txt}</b> → <span class="io-tag oo">OUTPUT</span> the display answers: <b>${AC.on?AC.t+'°C '+ACM[AC.m]:'OFF'}</b>.`;await sleep(600);$('#acScr').classList.remove('flash')}
+$('#acUp').onclick=e=>acPress(e.currentTarget,'▲ Warmer',()=>{if(AC.on&&AC.t<30)AC.t++});
+$('#acDn').onclick=e=>acPress(e.currentTarget,'▼ Cooler',()=>{if(AC.on&&AC.t>16)AC.t--});
+$('#acMode').onclick=e=>acPress(e.currentTarget,'Mode',()=>{if(AC.on)AC.m=(AC.m+1)%3});
+$('#acPow').onclick=e=>acPress(e.currentTarget,'On / Off',()=>{AC.on=!AC.on});
+
+/* ===== 4.2 under the screen ===== */
+const AP={pc:[155,48],hmi:[155,170],plc:[155,325],dev:[470,325]};
+$('#arSvg').innerHTML=`
+  <path d="M155,80 V130" stroke="var(--pipe)" stroke-width="3" stroke-dasharray="7 6"/><path d="M280,48 H330 V325 H280" stroke="var(--pipe)" stroke-width="3" stroke-dasharray="7 6" fill="none"/>
+  <text x="338" y="190" font-size="12" class="dim" transform="rotate(90 338 190)">download only</text>
+  <path d="M155,210 V290" stroke="var(--pipe)" stroke-width="5"/><path d="M280,325 H470" stroke="var(--pipe)" stroke-width="5"/>
+  <g><rect x="30" y="16" width="250" height="64" rx="6" class="box"/><text x="155" y="42" text-anchor="middle" class="lb" font-size="16">COMPUTER</text><text x="155" y="62" text-anchor="middle" font-size="12" class="dim">CX-Programmer + CX-Designer</text></g>
+  <g><rect x="30" y="130" width="250" height="80" rx="8" fill="#172028" stroke="#5AA8FF" stroke-width="3"/><text x="155" y="156" text-anchor="middle" font-size="13" style="fill:#8A99A6;font-weight:600">HMI</text><text x="155" y="190" text-anchor="middle" font-size="22" id="arHv" style="fill:#7FE3FF;font-weight:700"></text></g>
+  <g><rect x="30" y="290" width="250" height="70" rx="6" fill="#1B5AA6"/><text x="155" y="332" text-anchor="middle" font-size="18" style="fill:#fff;font-weight:700">PLC</text></g>
+  <rect x="470" y="110" width="410" height="260" rx="8" class="box"/><text x="675" y="138" text-anchor="middle" class="lb" font-size="16" id="arDevT"></text><g id="arDev"></g>
+  <g id="arPk" style="display:none"><rect x="-44" y="-14" width="88" height="28" rx="4" fill="#D35400"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700" id="arPkT"></text></g>
+  <g id="arPk2" style="display:none"><rect x="-44" y="-14" width="88" height="28" rx="4" fill="#6C4AB6"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700">program</text></g>`;
+const arMove=async(el,pts,ms)=>{el.style.display='';for(let i=0;i<pts.length-1;i++){const [a,b]=[pts[i],pts[i+1]];await tween(ms,q=>el.setAttribute('transform',`translate(${a[0]+(b[0]-a[0])*q},${a[1]+(b[1]-a[1])*q})`))}el.style.display='none'};
+const AR={temp:{n:'Injection moulding temperature',my:'penukaran suhu pada mesin injection moulding',v:180},motor:{n:'Motor direction and speed',my:'penukaran arah pusingan motor atau kelajuan pusingan motor',dir:1,sp:50},lamp:{n:'Indicator lamp colour',my:'penukaran warna lampu',c:'#2E7A39',cn:'GREEN'}};
+let arK='temp',arBusy=false,arTemp=180;
+function arDev(){const d=AR[arK];$('#arDevT').textContent=d.n;
+  if(arK==='temp'){const k=Math.max(0,Math.min(1,(arTemp-150)/100)),col=`rgb(${Math.round(90+150*k)},${Math.round(130-40*k)},${Math.round(200-160*k)})`;
+    $('#arDev').innerHTML=`<rect x="520" y="200" width="300" height="70" rx="10" fill="${col}" stroke="var(--ink)" stroke-width="2"/>${[0,1,2,3].map(i=>`<rect x="${550+i*65}" y="194" width="34" height="82" rx="3" fill="#B87F00" opacity=".85"/>`).join('')}<path d="M820,235 h30" stroke="var(--ink)" stroke-width="6"/><text x="670" y="180" text-anchor="middle" font-size="13" class="dim">barrel with heater bands · thermocouple</text><text x="670" y="330" text-anchor="middle" font-size="40" style="font-weight:700" id="arTv">${Math.round(arTemp)} °C</text>`}
+  else if(arK==='motor'){$('#arDev').innerHTML=`<rect x="560" y="190" width="170" height="110" rx="14" fill="var(--panel2)" stroke="var(--ink)" stroke-width="3"/><circle cx="645" cy="245" r="42" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><g id="arRot" class="${d.sp?'spin':''}${d.dir<0?' rev':''}" style="animation-duration:${d.sp?(3.2-d.sp/40).toFixed(2):1}s"><path d="M645,245 L645,207 M645,245 L678,264 M645,245 L612,264" stroke="var(--sel)" stroke-width="6"/></g><path d="M730,245 h60" stroke="var(--ink)" stroke-width="8"/><text x="670" y="335" text-anchor="middle" font-size="18" style="font-weight:700">${d.sp?(d.dir>0?'FORWARD':'REVERSE')+' · '+d.sp+' %':'STOPPED'}</text>`}
+  else $('#arDev').innerHTML=`<rect x="650" y="300" width="40" height="40" fill="var(--pipe)"/><circle cx="670" cy="240" r="58" fill="${d.c}" stroke="var(--ink)" stroke-width="3"/><circle cx="650" cy="220" r="14" fill="#fff" opacity=".35"/><text x="760" y="245" font-size="20" style="font-weight:700">${d.cn}</text>`}
+function arCtl(){const d=AR[arK];$('#arHv').textContent=arK==='temp'?`SP ${d.v} °C`:arK==='motor'?`${d.dir>0?'FWD':'REV'} ${d.sp}%`:d.cn;
+  $('#exCtl').innerHTML=arK==='temp'?`<label>Set temperature <input type="number" id="arIn" min="150" max="250" step="5" value="${d.v}"> °C</label><button class="btn primary" id="arSend">Send ▶</button><button class="btn" id="arDl">↓ Download program</button>`
+   :arK==='motor'?`<button class="btn" data-d="1">⟳ Forward</button><button class="btn" data-d="-1">⟲ Reverse</button><label style="flex:1;min-width:180px">Speed <input type="range" id="arSp" min="0" max="100" step="10" value="${d.sp}"></label><button class="btn primary" id="arSend">Send ▶</button><button class="btn" id="arDl">↓ Download program</button>`
+   :[['#2E7A39','GREEN'],['#E3B23F','AMBER'],['#C22E29','RED'],['#1B5AA6','BLUE']].map(([c,n])=>`<button class="sw" data-c="${c}" data-n="${n}" style="background:${c}" aria-label="${n}"></button>`).join('')+`<span class="muted">Tap a colour, then</span><button class="btn primary" id="arSend">Send ▶</button><button class="btn" id="arDl">↓ Download program</button>`;
+  if(arK==='motor'){$$('#exCtl [data-d]').forEach(b=>b.onclick=()=>{AR.motor.dir=+b.dataset.d;$('#arHv').textContent=`${AR.motor.dir>0?'FWD':'REV'} ${AR.motor.sp}%`});$('#arSp').oninput=e=>{AR.motor.sp=+e.target.value;$('#arHv').textContent=`${AR.motor.dir>0?'FWD':'REV'} ${AR.motor.sp}%`}}
+  if(arK==='lamp')$$('#exCtl .sw').forEach(b=>b.onclick=()=>{AR.lamp.c=b.dataset.c;AR.lamp.cn=b.dataset.n;$('#arHv').textContent=b.dataset.n});
+  if(arK==='temp')$('#arIn').oninput=e=>{$('#arHv').textContent=`SP ${e.target.value} °C`};
+  $('#arSend').onclick=arSend;$('#arDl').onclick=arDl}
+async function arSend(){if(arBusy)return;arBusy=true;const d=AR[arK];if(arK==='temp')d.v=Math.max(150,Math.min(250,+$('#arIn').value||180));arCtl();$('#arSend').disabled=true;
+  const pk=$('#arPk');$('#arPkT').textContent=arK==='temp'?`SP ${d.v}`:arK==='motor'?`${d.dir>0?'FWD':'REV'} ${d.sp}%`:d.cn;
+  $('#arSay').innerHTML=`<b>1.</b> The operator changes the setting on the <b>HMI</b>. <i>(cth: ${d.my})</i>`;await sleep(1200);
+  $('#arSay').innerHTML='<b>2.</b> The HMI writes the new value into the <b>PLC</b>\'s memory.';await arMove(pk,[AP.hmi,AP.plc],1800);
+  $('#arSay').innerHTML='<b>3.</b> The PLC program uses the value to drive the <b>device</b>.';await arMove(pk,[AP.plc,AP.dev],1800);
+  if(arK==='temp'){const t0=arTemp;$('#arSay').innerHTML='<b>4.</b> The heater bands warm the barrel. The <b>thermocouple</b> reports the real temperature as it changes.';await tween(4000,q=>{arTemp=t0+(d.v-t0)*q;arDev()})}else arDev();
+  $('#arSay').innerHTML+=' Done: the HMI only asked; the PLC did the work.';arBusy=false;$('#arSend').disabled=false}
+async function arDl(){if(arBusy)return;arBusy=true;$('#arSay').innerHTML='The <b>computer</b> downloads the PLC program (CX-Programmer) and the HMI screens (CX-Designer). After that, the computer can be unplugged.';
+  const p2=$('#arPk2');$('#arPkT').textContent='screens';await Promise.all([arMove($('#arPk'),[AP.pc,[155,105],AP.hmi],1200).catch(()=>{}),arMove(p2,[[280,48],[330,48],[330,325],[280,325]],1000)]);arBusy=false}
+$('#exChips').innerHTML=Object.entries(AR).map(([k,v],i)=>`<button class="chip" aria-pressed="${!i}" data-k="${k}">${v.n}</button>`).join('');
+$$('#exChips .chip').forEach(b=>b.onclick=()=>{if(arBusy)return;press($$('#exChips .chip'),b);arK=b.dataset.k;arCtl();arDev();$('#arSay').innerHTML=`<i>cth: ${AR[arK].my}.</i> Change the setting, then press <b>Send</b>.`});
+arCtl();arDev();$('#arSay').innerHTML=`<i>cth: ${AR.temp.my}.</i> Change the setting, then press <b>Send</b>.`;
+
+/* ===== 4.3 evolution ===== */
+const TL=[['1970s','Hardware controls','Walls of push buttons, switches, dials and lamps in the control room. Every signal needed its own wire and its own lamp, so big plants had control panels many metres long.',
+  `<rect x="20" y="30" width="260" height="130" rx="6" fill="#8A949C"/>${[0,1,2].map(i=>`<circle cx="${70+i*80}" cy="70" r="24" fill="#fff" stroke="#333" stroke-width="2"/><path d="M${70+i*80},70 l${12-i*8},-15" stroke="#C22E29" stroke-width="3"/>`).join('')}${[0,1,2,3,4,5].map(i=>`<circle cx="${50+i*40}" cy="125" r="10" fill="${['#2E7A39','#C22E29','#E3B23F','#2E7A39','#2E7A39','#C22E29'][i]}"/>`).join('')}`],
+ ['1980s to 1990s','Graphical screens','DCS systems brought computer screens (CRT monitors) into control rooms. Black backgrounds, keyboards and mice, and the first touchscreens.',
+  `<rect x="60" y="20" width="180" height="120" rx="10" fill="#C8CDD2" stroke="#555" stroke-width="3"/><rect x="76" y="34" width="148" height="90" rx="12" fill="#0D1317"/><path d="M90,100 h30 v-30 h40 v20 h40" stroke="#3FB950" stroke-width="3" fill="none"/><text x="150" y="58" text-anchor="middle" font-size="12" style="fill:#F0C04A">PUMP 1 RUN</text><rect x="70" y="146" width="160" height="20" rx="3" fill="#C8CDD2" stroke="#555"/>`],
+ ['2000s to 2010s','Touch panels and mobile','Flat touch panels on every machine, and tablets and smartphones for monitoring a plant from anywhere.',
+  `<rect x="30" y="30" width="170" height="120" rx="10" fill="#1D2730"/><rect x="42" y="42" width="146" height="96" rx="3" fill="#E7E9EB"/><rect x="54" y="60" width="40" height="60" fill="#2F6FB5" opacity=".7"/><rect x="110" y="60" width="64" height="22" rx="4" fill="#2E7A39"/><rect x="215" y="50" width="60" height="105" rx="10" fill="#1D2730"/><rect x="221" y="60" width="48" height="84" rx="2" fill="#E7E9EB"/><path d="M226,120 l10,-12 l10,6 l12,-20" stroke="#1B5AA6" stroke-width="2.5" fill="none"/>`],
+ ['Today and the future','AI and virtual reality','Smart assistants that predict faults, virtual and augmented reality headsets that show live data on top of the real machine, and control by voice or gesture. The future of HMIs is limitless.',
+  `<rect x="70" y="60" width="160" height="60" rx="28" fill="#1D2730"/><rect x="88" y="72" width="54" height="36" rx="14" fill="#2F6FB5"/><rect x="158" y="72" width="54" height="36" rx="14" fill="#2F6FB5"/><path d="M70,90 C40,90 40,120 60,130 M230,90 C260,90 260,120 240,130" stroke="#1D2730" stroke-width="6" fill="none"/><text x="150" y="160" text-anchor="middle" font-size="14" style="font-weight:600;fill:#1B5AA6">AI: "Pump 2 bearing will fail in 3 days"</text>`]];
+let tlI=0;const tlb=()=>$$('#tlBtns button');
+$('#tlBtns').innerHTML=TL.map((t,i)=>`<button aria-pressed="${!i}" data-i="${i}"><b>${t[0]}</b><span>${t[1]}</span></button>`).join('');
+function tlShow(i){tlI=i;press(tlb(),tlb()[i]);const t=TL[i];$('#tlCard').innerHTML=`<svg viewBox="0 0 300 180" role="img" aria-label="${t[1]}">${t[3]}</svg><div><h3>${t[0]}: ${t[1]}</h3><p style="margin:0">${t[2]}</p></div>`;$('#tlPrev').disabled=!i;$('#tlNext').disabled=i===TL.length-1}
+tlb().forEach(b=>b.onclick=()=>tlShow(+b.dataset.i));$('#tlPrev').onclick=()=>tlShow(Math.max(0,tlI-1));$('#tlNext').onclick=()=>tlShow(Math.min(TL.length-1,tlI+1));tlShow(0);
+
+/* ===== 4.4 industries ===== */
+const IND=[['Automotive','Robot welding lines: the HMI shows each robot cell, cycle time and faults.'],['Electronics','Pick-and-place machines: the operator loads the board recipe and watches the reject count.'],['Entertainment','Theme-park rides and stage lighting: the operator starts the ride only when every safety bar is shown locked.'],['Energy','Solar farms: the HMI shows the power from every inverter and flags the weak ones.'],['Food and beverage','Bottling lines: set the filling volume and see bottles per minute.'],['Manufacturing','Production counts per shift, machine status and downtime reasons.'],['Military','Ship engine rooms: engines, fuel and generators monitored from one console.'],['Medical','Hospital buildings: chillers, medical gas and standby generators watched around the clock.'],['Oil and gas','Pipelines: pressures along hundreds of kilometres and remote valve control.'],['Power','Substations: breaker status and alarms sent to a control centre, as in Chapter 1.'],['Recycling','Sorting conveyors: belt speeds, jams and bin levels.'],['Robotics','The robot teach pendant is a hand-held HMI for moving and programming the robot.'],['Water and wastewater','Pump stations and reservoirs: tank levels, pump status and water quality.']];
+$('#indBtns').innerHTML=IND.map((x,i)=>`<button aria-pressed="false" data-i="${i}">${x[0]}</button>`).join('');
+$$('#indBtns button').forEach(b=>b.onclick=()=>{press($$('#indBtns button'),b);const x=IND[+b.dataset.i];$('#indSay').innerHTML=`<b>${x[0]}:</b> ${x[1]}`});
+
+/* ===== 4.5 good vs bad ===== */
+const GB={bad:()=>`<rect width="900" height="380" fill="#000"/>
+   <text x="24" y="48" font-size="34" style="fill:#FF3EC8;font-weight:700">PUMP STATION 2!!!</text>
+   <rect x="690" y="18" width="90" height="34" fill="#FFE600"/><text x="735" y="41" text-anchor="middle" font-size="14" style="fill:#000">TRENDS</text>
+   <rect x="40" y="318" width="150" height="44" fill="#00E000"/><text x="115" y="346" text-anchor="middle" font-size="15" style="fill:#000">alarms</text>
+   <rect x="520" y="300" width="70" height="26" fill="#00E5FF"/><text x="555" y="318" text-anchor="middle" font-size="12" style="fill:#000">Pumps</text>
+   ${[['LT-101 TANK LEVEL INDICATOR TRANSMITTER','78.43219 %','#00FFFF'],['FT-100 INLET FLOW TRANSMITTER','118.2 m3/h','#FFE600'],['PT-102 OUTLET PRESSURE TRANSMITTER','6.84 bar','#FF5050'],['P-101 PUMP STATUS','STOP','#00FF66'],['XV-102 OUTLET VALVE','OPEN','#FF8C00'],['TT-101 WATER TEMPERATURE','29.1 °C','#FF5050']].map((r,i)=>`<text x="${60+(i%2)*30}" y="${100+i*34}" font-size="19" style="fill:${r[2]};font-weight:700">${r[0]}</text><text x="${600+(i%3)*40}" y="${100+i*34}" font-size="11" style="fill:${r[2]}">${r[1]}</text>`).join('')}
+   <text x="640" y="250" font-size="11" style="fill:#00FF66">green = STOP on this screen</text>`,
+ good:()=>`<rect width="900" height="380" fill="#D9DCDF"/>
+   <rect width="900" height="38" fill="#222D35"/><text x="16" y="25" font-size="15" style="fill:#fff;font-weight:600">PUMP STATION PS-2 · OVERVIEW</text>
+   ${['Overview','Pumps','Trends','Alarms'].map((t,i)=>`<rect x="${520+i*92}" y="6" width="86" height="26" rx="2" fill="${i?'#34424D':'#2F6FB5'}"/><text x="${563+i*92}" y="24" text-anchor="middle" font-size="13" style="fill:#fff">${t}</text>`).join('')}
+   <rect x="70" y="90" width="110" height="180" rx="6" fill="#C5CCD2" stroke="#4B5661" stroke-width="2"/><rect x="73" y="129" width="104" height="138" fill="#8DA6BD"/>
+   <text x="125" y="78" text-anchor="middle" font-size="13" style="fill:#4B5661">Tank T-101</text><text x="125" y="200" text-anchor="middle" font-size="40" style="fill:#1D2730;font-weight:700">78</text><text x="125" y="222" text-anchor="middle" font-size="13" style="fill:#1D2730">% level</text>
+   <path d="M180,250 H330 M374,250 H520 M560,250 H760" stroke="#4B5661" stroke-width="8" fill="none"/>
+   <circle cx="352" cy="250" r="24" fill="#4B5661"/><text x="352" y="296" text-anchor="middle" font-size="13" style="fill:#1D2730">P-101 running</text>
+   <path d="M520,232 L560,268 M520,268 L560,232" stroke="#4B5661" stroke-width="5"/><text x="540" y="296" text-anchor="middle" font-size="13" style="fill:#1D2730">XV-102 open</text>
+   <rect x="610" y="168" width="110" height="56" rx="3" fill="#fff" stroke="#C22E29" stroke-width="3"/><text x="665" y="204" text-anchor="middle" font-size="28" style="fill:#C22E29;font-weight:700">6.8</text><text x="665" y="160" text-anchor="middle" font-size="13" style="fill:#1D2730">PT-102 bar</text>
+   <text x="790" y="244" font-size="13" style="fill:#4B5661">to town →</text>
+   <text x="250" y="200" text-anchor="middle" font-size="26" style="fill:#1D2730;font-weight:700">118</text><text x="250" y="220" text-anchor="middle" font-size="12" style="fill:#4B5661">m³/h in</text>
+   <rect y="338" width="900" height="42" fill="#C22E29"/><text x="16" y="365" font-size="16" style="fill:#fff;font-weight:600">ALARM  PT-102 HIGH PRESSURE 6.8 bar  ·  08:41</text>`};
+const GBM={bad:[[0,'',''],[1,540,170],[2,610,108],[3,630,320],[4,40,90],[5,690,250]],good:[[0,'',''],[1,40,180],[2,690,355],[3,450,232],[4,195,165],[5,700,22]]};
+const RULES=[['All rules',''],['1 Schematic','Bad: just a list of tags, so the operator has to imagine the plant. Good: a schematic (mimic) of tank, pump and valve, so the process is understood at a glance.'],['2 Colour','Bad: black background with bright colours everywhere, so the real alarm (PT-102) is lost among them. Good: a calm grey background; red is used only for the alarm.'],['3 Layout','Bad: buttons and data scattered anywhere. Good: the process flows left to right, the menu is at the top and the alarm bar is at the bottom.'],['4 Values and labels','Bad: long labels in big letters, values in tiny print with too many decimals (78.43219). Good: the value 78 is the biggest thing; the label and unit are small.'],['5 Consistency and navigation','Bad: menu buttons in random places, and green means STOP on this screen only. Good: the same menu bar on every screen and the same colour meaning everywhere.']];
+let gbV='bad',gbR=0;
+$('#ruleChips').innerHTML=RULES.map((r,i)=>`<button class="chip" aria-pressed="${!i}" data-i="${i}">${r[0]}</button>`).join('');
+function gbDraw(){$('#gbSvg').innerHTML=GB[gbV]()+GBM[gbV].slice(1).map(([n,x,y])=>`<g transform="translate(${x},${y})" opacity="${gbR&&gbR!==n?.25:1}"><circle r="${gbR===n?20:15}" fill="#F0C04A" stroke="#1D2730" stroke-width="2">${gbR===n&&!reduce?'<animate attributeName="r" values="16;22;16" dur="1.2s" repeatCount="indefinite"/>':''}</circle><text y="6" text-anchor="middle" font-size="16" style="fill:#1D2730;font-weight:700">${n}</text></g>`).join('');
+  $('#gbSay').innerHTML=gbR?`<b>Rule ${RULES[gbR][0]}.</b> ${RULES[gbR][1]}`:`This is the <b>${gbV}</b> design. The yellow numbers mark the five rules. Tap a rule above, or switch to the <b>${gbV==='bad'?'good':'bad'}</b> design.`}
+$$('#ruleChips .chip').forEach(b=>b.onclick=()=>{press($$('#ruleChips .chip'),b);gbR=+b.dataset.i;gbDraw()});
+$$('#gbSeg button').forEach(b=>b.onclick=()=>{press($$('#gbSeg button'),b);gbV=b.dataset.v;gbDraw()});gbDraw();
+
+/* ===== 4.6 schematic vs text ===== */
+let scV='sch',scT=null,scL=60,scOpen=false,scAl=0,scRun=false;
+const scWrong={XV101:'That is the <b>inlet</b> valve: opening it adds even more water!',XV103:'That is the <b>drain to the sump</b>, normally kept shut. The outlet valve is XV-102.'};
+function scDraw(){if(scV==='sch'){const h=180*scL/100;$('#scBody').innerHTML=`<svg viewBox="0 0 700 260" style="display:block;width:100%;height:auto">
+   <path d="M20,40 H240 V60" stroke="#5A6A75" stroke-width="10" fill="none"/><text x="60" y="30" font-size="13" class="dim">inlet</text>
+   <g class="scv" data-v="XV101" style="cursor:pointer"><rect x="120" y="20" width="44" height="40" fill="transparent"/><path d="M124,30 L160,50 M124,50 L160,30" stroke="#D6DEE4" stroke-width="4"/><text x="142" y="76" text-anchor="middle" font-size="11" class="dim">XV-101</text></g>
+   <rect x="220" y="60" width="140" height="190" rx="6" fill="none" stroke="#D6DEE4" stroke-width="3"/><rect x="223" y="${247-h}" width="134" height="${h}" fill="${scL>=85?'#E5484D':'#2F6FB5'}" opacity=".85"/>
+   <text x="290" y="150" text-anchor="middle" font-size="34" style="fill:#fff;font-weight:700">${Math.round(scL)}%</text><path d="M210,${247-0.85*180} h160" stroke="#F0C04A" stroke-dasharray="5 4"/><text x="372" y="${251-0.85*180}" font-size="11" style="fill:#F0C04A">HIGH 85%</text>
+   <path d="M360,230 H640" stroke="#5A6A75" stroke-width="10" fill="none"/><path d="M290,250 V255 H180" stroke="#5A6A75" stroke-width="6" fill="none"/>
+   <g class="scv" data-v="XV102" style="cursor:pointer"><rect x="470" y="200" width="60" height="60" fill="transparent"/><path d="M478,214 L522,246 M478,246 L522,214" stroke="${scOpen?'#3FB950':'#E5484D'}" stroke-width="6"/><text x="500" y="196" text-anchor="middle" font-size="12" style="fill:#D6DEE4;font-weight:600">XV-102 outlet</text></g>
+   <g class="scv" data-v="XV103" style="cursor:pointer"><rect x="140" y="236" width="44" height="30" fill="transparent"/><path d="M146,244 L176,262 M146,262 L176,244" stroke="#D6DEE4" stroke-width="3"/><text x="120" y="250" text-anchor="end" font-size="11" class="dim">XV-103 drain</text></g>
+   <text x="660" y="226" font-size="12" class="dim">to town</text></svg>`;
+   $$('#scBody .scv').forEach(g=>g.onclick=()=>scClick(g.dataset.v))}
+  else{if(!scRows)scRows=[['TT-101','Water temperature','28.9 °C',null],['FT-100','Inlet flow','120 m³/h',null],['XV-101','Inlet valve','OPEN','XV101'],['LT-101','Tank level',Math.round(scL)+' %','L'],['PT-102','Outlet pressure','2.1 bar',null],['XV-103','Drain valve','CLOSED','XV103'],['P-101','Transfer pump','STOPPED',null],['XV-102','Outlet valve',scOpen?'OPEN':'CLOSED','XV102'],['AT-101','Turbidity','0.4 NTU',null]].sort(()=>Math.random()-.5);
+   $('#scBody').innerHTML=`<table class="taglist">${scRows.map(r=>`<tr class="${r[3]==='L'&&scL>=85?'alm':''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[3]==='L'?Math.round(scL)+' %':r[3]==='XV102'?(scOpen?'OPEN':'CLOSED'):r[2]}</td><td>${r[3]&&r[3]!=='L'?`<button data-v="${r[3]}">Open</button>`:''}</td></tr>`).join('')}</table>`;
+   $$('#scBody button[data-v]').forEach(b=>b.onclick=()=>scClick(b.dataset.v))}
+  $('#scLvl').textContent=`Level ${Math.round(scL)} %`}
+let scRows=null;
+function scClick(v){if(!scRun)return;if(v!=='XV102'){$('#scSay').innerHTML=scWrong[v];return}
+  if(scOpen)return;scOpen=true;const t=scAl?((performance.now()-scAl)/1000).toFixed(1)+' s':'before the alarm!';$(scV==='sch'?'#scR1':'#scR2').textContent=t;
+  $('#scAlm').textContent='Outlet valve opened: level falling';$('#scAlm').className='alm okk';$('#scSay').innerHTML=`Well done: you reacted in <b>${t}</b> on the <b>${scV==='sch'?'schematic':'text list'}</b> screen. ${scV==='sch'?'Now try the text list and compare.':'Compare it with the schematic. The schematic is quicker because you can see where the outlet is.'}`}
+$$('#scSeg button').forEach(b=>b.onclick=()=>{if(scRun)return;press($$('#scSeg button'),b);scV=b.dataset.v;scRows=null;scL=60;scOpen=false;scDraw()});
+$('#scGo').onclick=()=>{if(scRun)return;scRun=true;scL=60;scOpen=false;scAl=0;scRows=null;$('#scGo').disabled=true;$('#scAlm').textContent='Tank filling… watch for the HIGH alarm';$('#scAlm').className='alm';$('#scSay').innerHTML='';scDraw();
+  scT=setInterval(()=>{scL+=scOpen?-0.8:(scAl?0.2:0.3);if(!scAl&&scL>=85){scAl=performance.now();$('#scAlm').textContent='ALARM: LT-101 TANK LEVEL HIGH, open the outlet valve!';$('#scAlm').className='alm on'}
+    if(scL>=100&&!scOpen){scL=100;$('#scAlm').textContent='Tank overflowed!';$('#scSay').innerHTML='Too slow: the tank overflowed. Press Start to try again.';$(scV==='sch'?'#scR1':'#scR2').textContent='overflow';scEnd()}
+    if(scOpen&&scL<=55)scEnd();
+    if(scV==='sch')scDraw();else{const td=$$('#scBody tr').find(r=>r.firstChild.textContent==='LT-101');if(td){td.children[2].textContent=Math.round(scL)+' %';td.className=scL>=85?'alm':''}$$('#scBody tr').forEach(r=>{if(r.firstChild.textContent==='XV-102')r.children[2].textContent=scOpen?'OPEN':'CLOSED'});$('#scLvl').textContent=`Level ${Math.round(scL)} %`}},100)};
+function scEnd(){clearInterval(scT);scRun=false;$('#scGo').disabled=false;$('#scGo').textContent='▶ Start again'}
+scDraw();
+
+/* ===== 4.7 colour ===== */
+const FN=['P-101','P-102','P-103','P-201','P-202','XV-101','XV-102','XV-103','XV-201','LT-101','LT-201','FT-100','FT-200','PT-101','PT-102','TT-101','M-301','M-302','AT-101','CV-110','CV-120','P-301','XV-301','LT-301'];
+const FS=['RUN','STOP','AUTO','MAN','OPEN','SHUT','HIGH','LOW'],FC=['#C22E29','#D35400','#B87F00','#2E7A39','#1B5AA6','#6C4AB6','#C2306B','#1F7A8C','#00A3A3'];
+let faV='col',faOn=false,faT0=0,faAt=-1,faMiss=0;
+function faDraw(){const g=$('#faGrid');g.style.background=faV==='col'?'#000':'#C5CCD2';const r=rng(faAt+7);
+  g.innerHTML=FN.map((n,i)=>{const alm=i===faAt,bg=alm?'#C22E29':faV==='col'?FC[Math.floor(r()*FC.length)]:'#7D8891',st=alm?'HIGH':FS[Math.floor(r()*FS.length)];return `<button data-i="${i}" style="background:${bg}">${n}<br>${st}</button>`}).join('');
+  $$('#faGrid button').forEach(b=>b.onclick=()=>{if(!faOn)return;if(+b.dataset.i!==faAt){faMiss++;$('#faSay').textContent=`Not that one (${faMiss} wrong). Keep looking for the alarm: HIGH, shown in red.`;return}
+    faOn=false;g.classList.add('idle');const t=((performance.now()-faT0)/1000).toFixed(1);$(faV==='col'?'#faR1':'#faR2').textContent=t+' s';
+    $('#faSay').innerHTML=`Found in <b>${t} s</b>${faMiss?` with ${faMiss} wrong tap${faMiss>1?'s':''}`:''}. ${faV==='col'?'Now try the grey screen.':'On the grey screen the red alarm jumps out, because it is the only colour.'}`})}
+$$('#faSeg button').forEach(b=>b.onclick=()=>{if(faOn)return;press($$('#faSeg button'),b);faV=b.dataset.v;faDraw()});
+$('#faGo').onclick=()=>{faAt=Math.floor(Math.random()*FN.length);faMiss=0;faDraw();$('#faGrid').classList.remove('idle');faOn=true;faT0=performance.now();$('#faSay').textContent='Go! One item is in alarm (HIGH). Tap it.'};
+faDraw();
+const BG=[['black','#000','#D6DEE4','Black: strong contrast, the classic DCS look. But it tires the eyes in a bright room and makes reflections worse, so control rooms had to be kept dark.'],['white','#FFFFFF','#1D2730','White: easy to read in a bright room, but very bright for 12-hour shifts, and bright colours on white look washed out.'],['grey','#C5CCD2','#1D2730','Grey: today\'s best practice for most HMIs. Calm on the eyes, works in a lit room, and red or yellow alarms stand out clearly.']];
+$('#bgPick').innerHTML=BG.map((b,i)=>`<button aria-pressed="${i===2}" data-i="${i}"><svg viewBox="0 0 200 110"><rect width="200" height="110" fill="${b[1]}"/><rect x="20" y="20" width="40" height="70" fill="none" stroke="${b[2]}" stroke-width="2"/><rect x="22" y="50" width="36" height="38" fill="#2F6FB5" opacity=".7"/><path d="M60,80 H170" stroke="${b[2]}" stroke-width="4"/><rect x="95" y="20" width="80" height="22" fill="#C22E29"/><text x="135" y="36" text-anchor="middle" font-size="11" fill="#fff">ALARM</text><rect x="95" y="48" width="80" height="18" fill="#E3B23F"/><text x="135" y="61" text-anchor="middle" font-size="10" fill="#1D2730">WARNING</text></svg><span>${b[0]}</span></button>`).join('');
+$$('#bgPick button').forEach(b=>b.onclick=()=>{press($$('#bgPick button'),b);$('#bgSay').textContent=BG[+b.dataset.i][3]});$('#bgSay').textContent=BG[2][3];
+
+/* ===== 4.8 layout ===== */
+const LY={title:[[620,300],[0,0]],nav:[[40,170],[560,6]],tank:[[640,120],[60,90]],pump:[[160,250],[330,190]],valve:[[440,70],[540,190]],vlev:[[300,40],[60,250]],vflow:[[60,310],[420,140]],alarm:[[200,140],[0,330]]};
+$('#lySvg').innerHTML=`<rect width="900" height="380" fill="#D9DCDF"/><g id="lyPipes" opacity="0"><path d="M150,230 H310 M350,230 H520 M560,230 H860" stroke="#4B5661" stroke-width="8" fill="none"/><text x="800" y="220" font-size="13" style="fill:#4B5661">to town →</text></g>
+ <g id="ly_title"><rect width="560" height="40" fill="#222D35"/><text x="16" y="26" font-size="16" style="fill:#fff;font-weight:600">PUMP STATION PS-2 · OVERVIEW</text></g>
+ <g id="ly_nav">${['Overview','Pumps','Trends','Alarms'].map((t,i)=>`<rect x="${i*82}" width="78" height="28" rx="2" fill="${i?'#34424D':'#2F6FB5'}"/><text x="${39+i*82}" y="19" text-anchor="middle" font-size="13" style="fill:#fff">${t}</text>`).join('')}</g>
+ <g id="ly_tank"><rect width="90" height="150" rx="6" fill="#C5CCD2" stroke="#4B5661" stroke-width="2"/><rect x="3" y="40" width="84" height="107" fill="#8DA6BD"/><text x="45" y="-6" text-anchor="middle" font-size="13" style="fill:#4B5661">Tank T-101</text></g>
+ <g id="ly_pump"><circle cx="20" cy="40" r="24" fill="#4B5661"/><text x="20" y="84" text-anchor="middle" font-size="13" style="fill:#1D2730">P-101</text></g>
+ <g id="ly_valve"><path d="M0,22 L40,58 M0,58 L40,22" stroke="#4B5661" stroke-width="5"/><text x="20" y="84" text-anchor="middle" font-size="13" style="fill:#1D2730">XV-102</text></g>
+ <g id="ly_vlev"><text x="45" y="30" text-anchor="middle" font-size="30" style="fill:#1D2730;font-weight:700">78</text><text x="45" y="48" text-anchor="middle" font-size="12" style="fill:#4B5661">% level</text></g>
+ <g id="ly_vflow"><text x="40" y="30" text-anchor="middle" font-size="26" style="fill:#1D2730;font-weight:700">118</text><text x="40" y="48" text-anchor="middle" font-size="12" style="fill:#4B5661">m³/h out</text></g>
+ <g id="ly_alarm"><rect width="900" height="50" fill="#C22E29"/><text x="16" y="31" font-size="16" style="fill:#fff;font-weight:600">ALARM  PT-102 HIGH PRESSURE  ·  08:41</text></g>`;
+const lyPut=(k,p)=>$('#ly_'+k).setAttribute('transform',`translate(${p[0]},${p[1]})`);
+let lyBusy=false;
+function lyMessy(){Object.keys(LY).forEach(k=>lyPut(k,LY[k][0]));$('#lyPipes').setAttribute('opacity',0);$('#ly_alarm rect').setAttribute('width',420)}
+const lyMove=(ks,ms)=>tween(ms,q=>{const e=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2;ks.forEach(k=>{const [a,b]=LY[k];lyPut(k,[a[0]+(b[0]-a[0])*e,a[1]+(b[1]-a[1])*e])})});
+$('#lyGo').onclick=async()=>{if(lyBusy)return;lyBusy=true;lyMessy();$('#lyGo').disabled=true;const say=h=>$('#lySay').innerHTML=h;
+  say('<b>Step 1:</b> the title and the menu go to the <b>top</b>, in the same place on every screen.');await lyMove(['title','nav'],1800);await sleep(1600);
+  say('<b>Step 2:</b> the equipment is lined up so the process flows <b>left to right</b>: tank → pump → valve → to town, like reading a sentence.');await lyMove(['tank','pump','valve'],1800);await tween(800,q=>$('#lyPipes').setAttribute('opacity',q));await sleep(1600);
+  say('<b>Step 3:</b> each value sits <b>next to its equipment</b>: the level beside the tank, the flow on the outlet pipe.');await lyMove(['vlev','vflow'],1800);await sleep(1600);
+  say('<b>Step 4:</b> the alarm bar goes <b>full width at the bottom</b>, always in the same place, so the eye knows where to look.');await tween(1800,q=>{const [a,b]=LY.alarm;lyPut('alarm',[a[0]+(b[0]-a[0])*q,a[1]+(b[1]-a[1])*q]);$('#ly_alarm rect').setAttribute('width',420+480*q)});
+  say('<b>Tidy!</b> Same items, same colours, but now the operator understands the screen in seconds.');lyBusy=false;$('#lyGo').disabled=false};
+$('#lyReset').onclick=()=>{if(lyBusy)return;lyMessy();$('#lySay').innerHTML='A messy screen. Press <b>Tidy up</b> to fix it one step at a time.'};lyMessy();
+
+/* ===== 4.9 overview or detail ===== */
+const OVD=[['Tank level (%)','o','This is why the screen exists: always on the overview.'],['Pump running or stopped','o','The status of the main equipment belongs on the overview.'],['High-level alarm','o','Alarms must be seen at once.'],['Pump motor current, normal (A)','d','The notes\' own example: a non-critical reference value goes on a lower-level detail screen.'],['Pump bearing temperature, normal','d','Useful for maintenance, not for minute-by-minute decisions.'],['Total running hours of the pump','d','Maintenance information: detail screen.'],['Outlet flow to the town (m³/h)','o','A key result of the whole process: overview.']];
+let ovdOk=0,ovdN=0;
+$('#ovd').innerHTML=OVD.map((x,i)=>`<div class="it" data-i="${i}"><span>${x[0]}</span><button class="btn" data-a="o">Overview</button><button class="btn" data-a="d">Detail</button><small hidden></small></div>`).join('');
+$$('#ovd .it').forEach(it=>it.querySelectorAll('button').forEach(b=>b.onclick=()=>{const x=OVD[+it.dataset.i],ok=b.dataset.a===x[1];it.querySelectorAll('button').forEach(z=>z.disabled=true);it.classList.add(ok?'good':'bad');ovdN++;if(ok)ovdOk++;
+  const s=it.querySelector('small');s.hidden=false;s.textContent=`${ok?'✓':'✗'} ${x[1]==='o'?'Overview':'Detail'} screen. ${x[2]}`;$('#ovdScore').textContent=`${ovdOk} of ${ovdN} right`}));
+
+/* ===== 4.10 consistency and navigation ===== */
+const NV={ov:{t:'Overview',eq:[['Intake','in'],['Filters','fi'],['Storage','st']]},in:{t:'Intake',eq:[['P-101',1],['P-102',0]]},fi:{t:'Filters',eq:[['F-201',1],['F-202',1]]},st:{t:'Storage',eq:[['P-301',1],['P-302',0]]}};
+const NVBAD={ov:['Main','Pumps?','Filter page','Tank'],in:['Storage','Home page','Water in','Filters'],fi:['Back','Tank area','Intake','Plant'],st:['Filtering','Start','Intake',null]};
+let nvV='good',nvS='ov',nvC=0,nvSaw=false,nvDone=false;
+function nvGo(s){nvC++;nvS=s;if(s==='st')nvSaw=true;nvDraw();if(s==='ov'&&nvSaw&&!nvDone)nvAsk()}
+function nvDraw(){const bad=nvV==='bad',order=['ov','in','fi','st'],lab={ov:'Overview',in:'Intake',fi:'Filters',st:'Storage'};
+  let tabs;if(!bad)tabs=order.map(k=>[k,lab[k]]);else{const L=NVBAD[nvS];tabs=[['ov',L[0]],['st',L[1]],['in',L[2]],['fi',L[3]]].filter(x=>x[1]&&x[0]!==nvS).sort((a,b)=>(a[1]+nvS).length-(b[1]+nvS).length)}
+  const sc=NV[nvS],green=bad&&nvS==='st';
+  const eq=nvS==='ov'?sc.eq.map(([n,k])=>`<button class="hbtn${bad?'':' go'}" data-go="${k}" style="${bad?`margin-left:${k==='fi'?60:0}px;font-size:${k==='st'?11:14}px`:''}">${n} ▸</button>`).join(' ')
+    :sc.eq.map(([n,r])=>{const run=!!r,col=green?(run?'#E5484D':'#3FB950'):(run?'#3FB950':'#8A99A6');return `<span class="eq"><i style="background:${col}"></i>${n}</span>`}).join('');
+  const legend=nvS==='ov'?'':green?'<p style="font-size:10px;color:#8A99A6;margin:6px 0 0">(this screen only: red = running, green = stopped)</p>':'<p style="font-size:13px;color:#8A99A6;margin:6px 0 0">● green = running · ● grey = stopped</p>';
+  const back=nvS!=='ov'&&(!bad||nvS==='in')?`<button class="hbtn" data-go="ov" style="${bad?'float:right':''}">◀ Back to Overview</button>`:'';
+  $('#nvHmi').innerHTML=`<div class="hmi-title"><b>${bad?(nvS==='st'?'tank stuff':sc.t.toUpperCase()+' SCREEN'):'WATER PLANT · '+sc.t.toUpperCase()}</b><span class="meta">${nvC} taps</span></div>
+    <div class="hmi-nav">${tabs.map(([k,l])=>`<button data-go="${k}" aria-pressed="${!bad&&k===nvS}">${l}</button>`).join('')}</div>
+    <div class="navscreen"><h4>${sc.t}</h4>${eq}${legend}<div class="row">${back}</div></div>`;
+  $$('#nvHmi [data-go]').forEach(b=>b.onclick=()=>nvGo(b.dataset.go));
+  const P={ov:[210,40],in:[80,160],fi:[210,160],st:[340,160]};
+  $('#nvMap').innerHTML=['in','fi','st'].map(k=>`<path d="M210,62 L${P[k][0]},138" stroke="var(--pipe)" stroke-width="2.5" ${bad?'stroke-dasharray="5 5"':''}/>`).join('')+Object.entries(P).map(([k,[x,y]])=>`<rect x="${x-58}" y="${y-22}" width="116" height="44" rx="5" fill="${k===nvS?'var(--sel)':'var(--panel)'}" stroke="var(--sel)" stroke-width="2"/><text x="${x}" y="${y+6}" text-anchor="middle" font-size="15" style="font-weight:600;fill:${k===nvS?'var(--sel-ink)':'var(--ink)'}">${lab[k]}</text>`).join('');
+  $('#nvClicks').textContent=nvC}
+function nvAsk(){nvDone=true;$('#nvTask').textContent='Answer below';$('#nvSay').innerHTML=`Back on the Overview in <b>${nvC} taps</b>. Was pump <b>P-301</b> running? <button class="btn" id="nvY">Yes</button> <button class="btn" id="nvN">No</button>`;
+  $('#nvY').onclick=()=>nvRes(true);$('#nvN').onclick=()=>nvRes(false)}
+function nvRes(y){$('#nvTask').textContent=y?'Done ✓':'Wrong answer';$('#nvSay').innerHTML=(y?'<b>Correct: P-301 was running.</b> ':'<b>Not quite: P-301 was running.</b> ')+(nvV==='bad'?'On the inconsistent screen the colours were swapped, the menu changed on every screen and the Back button disappeared. That is how operators make mistakes.':'With a consistent design the same menu, Back button and colours were everywhere. Now try the inconsistent design.')}
+$$('#nvSeg button').forEach(b=>b.onclick=()=>{press($$('#nvSeg button'),b);nvV=b.dataset.v;nvS='ov';nvC=0;nvSaw=false;nvDone=false;$('#nvTask').textContent='Not done';$('#nvSay').textContent='Start from the Overview.';nvDraw()});
+nvDraw();$('#nvSay').textContent='Start from the Overview.';
+
+/* Class game: name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  /* Game-show music made live with Web Audio: no audio files, no copyright */
+  const Snd=(()=>{let ac,master,mus,timer,on=false,step=0,next=0,noise;
+    const mf=m=>440*Math.pow(2,(m-69)/12),S=60/128/4;
+    const CH=[[48,60,64,67],[43,59,62,67],[45,60,64,69],[41,60,65,69]];
+    function init(){if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();master=ac.createGain();master.gain.value=.3;master.connect(ac.destination);
+        mus=ac.createGain();mus.gain.value=.8;mus.connect(master);noise=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+      if(ac.state==='suspended')ac.resume();return true}
+    function tone(type,f,t,dur,v,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.03)}
+    function kick(t,dest){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(dest);o.start(t);o.stop(t+.3)}
+    function hiss(t,dur,v,freq,type,dest){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;f.type=type;f.frequency.value=freq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.02)}
+    function beat(i,t){const s=i%16,ch=CH[Math.floor(i/16)%4];
+      if(s%4===0)kick(t,mus);
+      if(s===4||s===12){hiss(t,.16,.5,1600,'bandpass',mus);tone('triangle',190,t,.08,.2,mus)}
+      hiss(t,.04,s%2?.12:.22,7000,'highpass',mus);
+      if(s%2===0)tone('square',mf(ch[0]+(s%4===2?12:0)),t,S*1.7,.07,mus);
+      tone('triangle',mf([ch[1],ch[2],ch[3],ch[2]+12][s%4]+12),t,S*.9,.11,mus);
+      if(s===0)[ch[1],ch[2],ch[3]].forEach(m=>tone('sawtooth',mf(m),t,S*14,.018,mus))}
+    function sched(){while(next<ac.currentTime+.12){beat(step,next);next+=S;step++}}
+    return {get on(){return on},
+      start(){if(on||!init())return;on=true;step=0;next=ac.currentTime+.06;timer=setInterval(sched,25)},
+      stop(){on=false;clearInterval(timer);if(mus){mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setValueAtTime(.8,ac.currentTime)}},
+      duck(d){if(!ac)return;mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setTargetAtTime(d?.15:.8,ac.currentTime,.15)},
+      ticks(dur){if(!init())return;const t0=ac.currentTime;let e=0;while(e<dur-.25){const p=e/dur;tone('square',1700,t0+e,.025,.16,master);hiss(t0+e,.02,.15,5000,'highpass',master);e+=.045+.42*p*p*p}},
+      fanfare(){if(!init())return;const t=ac.currentTime+.04;[60,64,67,72].forEach((m,i)=>tone('square',mf(m+12),t+i*.09,.16,.1,master));
+        [60,64,67,72,76].forEach(m=>{tone('triangle',mf(m),t+.4,1.4,.12,master);tone('sawtooth',mf(m),t+.4,1.1,.025,master)});kick(t+.4,master);hiss(t+.4,1.2,.25,6000,'highpass',master)}}})();
+  const mBtn=()=>{const b=$('#wMusic');b.setAttribute('aria-pressed',Snd.on);b.textContent=Snd.on?'♪ Music on':'♪ Music off'};
+  $('#wMusic').onclick=()=>{Snd.on?Snd.stop():Snd.start();mBtn()};
+  addEventListener('pagehide',()=>Snd.stop());
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch4-pool')||names.slice(), picked=store.get('ch4-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch4-pool',pool);store.set('ch4-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');if(Snd.on){Snd.duck(1);Snd.ticks(reduce?0.4:5.5)}
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');if(Snd.on){Snd.fanfare();setTimeout(()=>Snd.duck(0),1800)}picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen()}else{box.requestFullscreen();Snd.start();mBtn()}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&Snd.on){Snd.stop();mBtn()}});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
+})();
+</script>
+</body>
+</html>

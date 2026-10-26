@@ -13,20 +13,22 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
 Every page is one self-contained HTML file: all CSS and JS inline, no build step.
 `chapter1.html` is the style reference for every new page.
 
-## Course plan (8 chapters) and topic owners
+## Course plan (9 chapters) and topic owners
 Each topic is taught in full in ONE chapter only. Other chapters give a one-line recap and link to it.
-The lecturer's source files use the old numbers in brackets (there is no old chapter 5).
+The lecturer's HMI source file (old chapter 4) is split into Chapters 4 and 5, so chapters 6 to 9
+now match the numbers of the lecturer's source files again.
 
 | Ch | Title | Owns | Links back to |
 |---|---|---|---|
 | 1 | Introduction to SCADA | control philosophy, SCADA parts, RTU vs PLC, alarms, what an HMI is (1.10) | – |
 | 2 | Communication Protocols | protocol idea, envelope, OSI, TCP/IP, Ethernet/CSMA-CD, Modbus, IEC 60870-5, DNP3, IEC 61850/GOOSE | serial details → Ch 3 |
 | 3 | Serial Communication | RS-232/422/485, differential signalling, half/full duplex, converters, nodes, wired topologies (bus, ring, star, tree), PLC networking | OSI and "what is a protocol" → Ch 2 |
-| 4 | Human Machine Interface | HMI design rules (schematic, colour, layout, values, consistency), HMI components, CX-Designer tutorials | "what is an HMI" → Ch 1.10 |
-| 5 | IoT Fundamentals (old 6) | what IoT is, history, the "thing" (connect/compute/communicate), architecture, communication models, data, security/issues | IP basics → Ch 2 |
-| 6 | IoT Protocols and Zigbee (old 7) | the single wireless comparison table, MQTT/CoAP, Zigbee in depth (802.15.4, device types, mesh, self-healing) | star topology → Ch 3 |
-| 7 | IoT in Monitoring Systems (old 8) | ESP32/Pi/Arduino, gateways, cloud platforms, monitoring examples, SCADA vs IIoT | IoT definition/architecture → Ch 5; protocol table → Ch 6 |
-| 8 | Design PLC and SCADA Systems (old 9) | the design process (11 steps), FAT/SAT, documentation, one worked project | control philosophy → Ch 1; I/O list → Lab 1; comms → Ch 2/3; HMI screens → Ch 4 |
+| 4 | Human Machine Interface (Part 1) | HMI in the loop, input/output, architecture under the screen, evolution, industries, the 5 HMI design rules (schematic, colour, layout, values, consistency) | "what is an HMI" → Ch 1.10 |
+| 5 | Human Machine Interface (Part 2) | HMI components, HMI reading/writing PLC addresses, CX-Designer, Tutorial 1 and Tutorial 2 | design rules → Ch 4; serial link → Ch 3; work bits → Lab 2 |
+| 6 | IoT Fundamentals | what IoT is, history, the "thing" (connect/compute/communicate), architecture, communication models, data, security/issues | IP basics → Ch 2 |
+| 7 | IoT Protocols and Zigbee | the single wireless comparison table, MQTT/CoAP, Zigbee in depth (802.15.4, device types, mesh, self-healing) | star topology → Ch 3 |
+| 8 | IoT in Monitoring Systems | ESP32/Pi/Arduino, gateways, cloud platforms, monitoring examples, SCADA vs IIoT | IoT definition/architecture → Ch 6; protocol table → Ch 7 |
+| 9 | Design PLC and SCADA Systems | the design process (11 steps), FAT/SAT, documentation, one worked project | control philosophy → Ch 1; I/O list → Lab 1; comms → Ch 2/3; HMI screens → Ch 4/5 |
 
 ## Style rules
 - Industrial look: grey HMI-style page, Barlow / Barlow Condensed fonts, colour used mainly
@@ -37,8 +39,12 @@ The lecturer's source files use the old numbers in brackets (there is no old cha
   terms where the lecture notes use them.
 - Images: the lecturer's own slide images, freely licensed Wikimedia Commons photos with
   credits, or SVG diagrams. No watermarked or textbook-scanned images.
-- Each page ends with a quiz with instant feedback.
-- Every chapter ends with a last section "Class game: who answers?" after the quiz: the
+- Chapters 1 and 2 end with a quiz. From Chapter 3 on (and in Lab 2) the lecturer chose no
+  quiz: instead a "Jargon buster" section near the end, then the class game.
+- Analogy boxes (`.ana`) give the Bahasa Melayu version after the English, in italics and in brackets.
+- Animations are slow enough to read, step by step with a caption, and start from the button
+  press (drive them from JS, not SVG `begin` times that start at page load).
+- Every chapter ends with a last section "Class game: who answers?": the
   student-name roulette wheel (copy section, CSS and script from chapter1.html). Names are
   shared across chapters in localStorage key `class-names` and are never written into the
   page (the site is public). Each chapter keeps its own `chN-pool` / `chN-picked` keys.

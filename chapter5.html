@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>HMI Part 2: Components and CX-Designer | Monitoring System Integration</title>
+<meta name="description" content="Chapter 5 of EMT30205 (HMI Part 2): HMI components, how the HMI reads and writes PLC addresses, CX-Designer, and interactive versions of Tutorial 1 and Tutorial 2.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side .home-m{display:none}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.ticker{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.lead{max-width:700px;font-size:19px;margin-top:24px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;row-gap:6px}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.ask{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:16px 0;font-size:16px}
+.ask b{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--warn)}
+.ask details{margin-top:6px}.ask summary{cursor:pointer;color:var(--sel);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.threecol{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.threecol{grid-template-columns:repeat(3,1fr)}}
+.twocol ul,.threecol ul{padding-left:20px;margin:0}
+.twocol h3,.threecol h3{margin-top:0;font-size:21px}
+.out{min-height:60px}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.danger{border-color:var(--alarm);color:var(--alarm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+input[type=range]{width:100%;accent-color:var(--sel)}
+
+/* Light diagrams */
+.diagram{margin:14px 0}
+.diagram svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.diagram svg text{fill:var(--ink);font-family:var(--body)}
+.diagram svg .lb{font-family:var(--cond);font-weight:600}
+.diagram svg .dim{fill:var(--ink2)}
+.diagram figcaption{font-size:14px;color:var(--ink2);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.diagram figcaption i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.wide svg{min-width:720px}.pan-hint{display:block}.hmi .pan-hint{color:#8A99A6;background:#172028}}
+
+/* HMI screens (same as Chapter 1) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--kv132:#5AA8FF;--kv33:#F0C04A;--cls:#E5484D;--opn:#3FB950;--val:#7FE3FF;
+  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);margin-top:12px;font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
+.hmi-nav button,.hmi-nav span{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
+.hmi-body{position:relative;min-width:0}
+.hmi svg{display:block;width:100%;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi svg .dim{fill:var(--hd)}
+.hmi svg .lb{font-family:var(--cond);font-weight:600}
+.vbox rect{fill:#000;stroke:var(--hl)}
+.vbox text{font-variant-numeric:tabular-nums;font-weight:600;fill:var(--val)!important}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
+.hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
+.hmi-foot .alm.okk{background:#1F5130;color:#fff}
+.hmi-foot .alm.step{background:#2F6FB5;color:#fff;font-size:14px}
+@keyframes hblink{50%{background:#7E1A1D}}
+.hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
+.hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
+.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer}
+.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}.hbtn.red{background:#9E2A2E;border-color:#C23A3F;color:#fff}
+.hbtn[disabled]{opacity:.4;cursor:not-allowed}
+.hmi .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--hp);border-top:1px solid var(--hl);color:var(--hd)}
+.hmi .ctl label{display:inline-flex;gap:6px;align-items:center}
+.hmi .ctl input[type=range]{width:120px}
+.hlog{list-style:none;margin:0;padding:6px 10px;font:12px/1.5 Consolas,"Courier New",monospace;max-height:120px;overflow-y:auto;border-top:1px solid var(--hl)}
+.hlog li.a{color:#FF8A84}.hlog li.k{color:#7FE3A0}.hlog li.i{color:var(--val)}
+.flowline{stroke-dasharray:10 8;animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.blink{animation:blinkf 1s steps(2) infinite}
+@keyframes blinkf{50%{opacity:.2}}
+.hmi .ln{transition:opacity .3s}
+.netsvg[data-sel] .ln:not(.on){opacity:.12}
+
+/* Flip cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:170px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:26px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+
+/* Class game: name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Key idea, teaching tips, jargon buster */
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.tip{border:1px dashed var(--pipe);border-radius:4px;padding:8px 14px;margin:14px 0;background:var(--panel);max-width:760px}
+.tip summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tip p{margin:8px 0 0;font-size:16px}
+.jargon{margin-top:26px}
+.jargon .flip{height:150px}
+.jargon .flip .f b{font-size:24px}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* ===== Shared with Chapter 3 ===== */
+.diagram svg .wire{stroke:var(--pipe);stroke-width:3;fill:none}
+.diagram svg .box{fill:var(--panel);stroke:var(--pipe);stroke-width:2}
+.diagram svg .thin{stroke:var(--pipe);stroke-width:1.5;fill:none}
+.diagram.flat svg{background:var(--panel2)}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.ctrl label{display:inline-flex;gap:6px;align-items:center;font-size:15px}
+.ctrl input[type=text]{width:64px;font:600 24px var(--cond);text-align:center;padding:2px 4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.say{min-height:52px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px;margin-top:10px}
+.say b{font-weight:600}
+/* Serial frame strip */
+.frame{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.frame span{min-width:46px;text-align:center;border:2px solid var(--sel);border-radius:3px;padding:2px 2px 3px;font:700 20px/1.1 var(--cond);background:var(--panel);transition:background .2s}
+.frame span small{display:block;font:500 11px var(--body);color:var(--ink2)}
+.frame span.st{border-color:var(--warn)}.frame span.sp{border-color:var(--ok)}
+.frame span.on{background:var(--sel);color:var(--sel-ink)}.frame span.on small{color:var(--sel-ink)}
+.frame span.ok{background:var(--sel-soft)}
+/* Analogy box */
+.ana{border-left:4px solid var(--ok);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:14px 0;font-size:16px;max-width:780px}
+.ana>b:first-child{display:block;font-family:var(--cond);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ok)}
+/* Stat strip */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:14px 0}
+.stat div{background:var(--panel);padding:8px 12px}
+.stat .k{font-size:13px;color:var(--ink2)}.stat .v{font-family:var(--cond);font-size:26px;font-weight:600;line-height:1.15}
+/* Why-serial cards */
+.why{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.why{grid-template-columns:repeat(3,1fr)}}
+.why .panel{display:flex;gap:12px;align-items:flex-start}
+.why svg{flex:0 0 52px;width:52px;height:52px}
+.why b{font-family:var(--cond);font-size:20px;font-weight:600;display:block}
+.why p{margin:0;font-size:15px}
+/* Signal vs language */
+.sl{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media (min-width:700px){.sl{grid-template-columns:1fr 1fr}}
+.sl>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:16px}
+.sl>div.me{border:2px solid var(--sel)}
+.sl b.t{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+/* Nodes */
+.nd3 rect{fill:var(--panel);stroke:var(--pipe);stroke-width:2;transition:fill .2s,stroke .2s}
+.nd3.heard rect{stroke:var(--warn);stroke-width:3}
+.nd3.me rect{fill:var(--ok);stroke:var(--ok)}.nd3.me text{fill:#fff!important}
+.quiz1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.quiz1 .item{font-family:var(--cond);font-size:24px;font-weight:600;min-width:240px}
+/* DB9 */
+.db9 .pin{cursor:pointer}
+.db9 .pin circle{fill:#C9CED3;stroke:#6B7680;stroke-width:2}
+.db9 .pin.key circle{fill:#F0C04A;stroke:#7A6420}
+.db9 .pin.on circle{fill:var(--sel);stroke:var(--sel)}
+.db9 .pin text{font-weight:600}
+.pinfo{min-height:96px}
+.pinfo b.big{font-family:var(--cond);font-size:30px;font-weight:700;display:block;line-height:1.1}
+.pinlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* Comparison table */
+.cmp3{width:100%;border-collapse:collapse;font-size:16px;background:var(--panel);min-width:560px}
+.cmp3 th,.cmp3 td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.cmp3 thead th{background:var(--panel2);font-family:var(--cond);font-size:20px;cursor:pointer}
+.cmp3 tbody th{font-weight:600;color:var(--ink2);font-size:15px;width:24%}
+.cmp3 .hl{background:var(--sel-soft)}
+.cmp3 thead th.hl{background:var(--sel);color:var(--sel-ink)}
+/* Topologies */
+.topo svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.topo .ed{stroke:var(--pipe);stroke-width:4;fill:none;stroke-linecap:round}
+.topo .ed.bb{stroke:#D35400;stroke-width:6}
+.topo .ed.brk{stroke:var(--alarm);stroke-dasharray:4 10;opacity:.8}
+.topo .hitl{stroke:transparent;stroke-width:24;cursor:pointer}
+.topo .nd{cursor:pointer}
+.topo .nd rect{fill:var(--panel);stroke:var(--sel);stroke-width:2.5;transition:fill .25s,stroke .25s}
+.topo .nd.hub rect{fill:var(--sel-soft)}
+.topo .nd text{fill:var(--ink);font-size:13px;font-weight:600;font-family:var(--body);pointer-events:none}
+.topo .nd.down rect{stroke:var(--alarm);fill:var(--panel2)}
+.topo .nd.down text{fill:var(--ink2)}
+.topo .nd.brk rect{stroke:var(--alarm);fill:var(--alarm)}.topo .nd.brk text{fill:#fff}
+.topo .nd .x{stroke:#fff;stroke-width:3}
+.topo .nd.ping rect{fill:var(--ok);stroke:var(--ok)}.topo .nd.ping text{fill:#fff}
+.topo .master rect{stroke-width:4}
+.topo text.cut{font-size:20px}
+.tinfo{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+@media (min-width:760px){.tinfo{grid-template-columns:repeat(3,1fr)}}
+.tinfo>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:15px}
+.tinfo b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.tinfo .g b{color:var(--ok)}.tinfo .w b{color:var(--alarm)}
+.tstat{font-family:var(--cond);font-size:22px;font-weight:600;margin-top:10px}
+.tstat.bad{color:var(--alarm)}.tstat.good{color:var(--ok)}
+/* Big picture */
+.big4{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media (min-width:760px){.big4{grid-template-columns:repeat(4,1fr)}}
+.big4 a{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--sel);border-radius:4px;padding:10px 12px;font-size:15px}
+.big4 a:hover{border-color:var(--sel)}
+.big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
+.big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
+/* 3.11 topology per job */
+.pntopo{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:4px;padding:12px 16px;margin-top:14px;font-size:16px}
+@media (min-width:760px){.pntopo{grid-template-columns:210px minmax(0,1fr)}}
+.pntopo .ic b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;color:var(--sel)}
+.pntopo .ic svg{display:block;width:100%;max-width:210px;height:auto;margin:6px 0 2px}
+.pntopo h4{margin:0;font-family:var(--cond);font-size:19px;font-weight:600}
+.pntopo ul{margin:4px 0 0;padding-left:20px}.pntopo li{margin-bottom:6px}
+
+/* ===== Chapter 4 ===== */
+.names{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.names span{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:15px}
+.names b{font-family:var(--cond);font-weight:600}
+.diagram svg .hi>rect:first-child,.diagram svg .hi>circle:first-child{stroke:var(--sel);stroke-width:4}
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+.spin{transform-box:fill-box;transform-origin:center;animation:rot 1.2s linear infinite}
+.spin.rev{animation-direction:reverse}
+@keyframes rot{to{transform:rotate(360deg)}}
+/* Air-con panel */
+.ac{display:inline-grid;grid-template-columns:auto auto;gap:10px 14px;align-items:center;background:#E9EEF2;color:#1D2730;border:2px solid #9AA6B0;border-radius:14px;padding:14px 18px;margin-top:8px}
+.ac .scr{grid-column:1/-1;background:#0E2A3A;color:#7FE3FF;border-radius:8px;padding:8px 14px;font:700 34px var(--cond);text-align:center;transition:box-shadow .2s}
+.ac .scr small{font-size:14px;font-weight:500;display:block;color:#9FC9DA}
+.ac .scr.flash{box-shadow:0 0 0 4px #F0C04A}
+.ac button{background:#fff;border:1px solid #9AA6B0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;color:#1D2730}
+.ac button.flash{outline:4px solid #D35400}
+.io-tag{display:inline-block;font-family:var(--cond);font-weight:600;font-size:13px;padding:1px 8px;border-radius:3px;color:#fff}
+.io-tag.ii{background:#D35400}.io-tag.oo{background:#1B5AA6}
+/* Example controls */
+.exc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;margin-top:10px;min-height:62px}
+.exc input[type=number]{width:90px;font:600 20px var(--cond);padding:4px 6px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel2);color:var(--ink)}
+.exc .sw{width:30px;height:30px;border-radius:50%;border:3px solid var(--pipe);cursor:pointer}
+/* Timeline */
+.tl4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.tl4 button{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--off);border-radius:4px;padding:8px;cursor:pointer;text-align:left}
+.tl4 button b{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+.tl4 button span{font-size:13px;color:var(--ink2)}
+.tl4 button[aria-pressed="true"]{border-top-color:var(--sel);background:var(--sel-soft)}
+.tlcard{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;margin-top:10px;align-items:center}
+@media (min-width:760px){.tlcard{grid-template-columns:300px 1fr}}
+.tlcard svg{width:100%;height:auto;display:block;background:var(--panel2);border-radius:4px}
+.tlcard h3{margin:0 0 6px}
+@media (max-width:600px){.tl4 button b{font-size:16px}.tl4 button span{display:none}}
+/* Industry tiles */
+.ind{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:10px}
+.ind button{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 8px;cursor:pointer;font-weight:600;font-size:15px;text-align:center}
+.ind button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+/* Advantage cards */
+.adv{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:760px){.adv{grid-template-columns:repeat(4,1fr)}}
+.adv div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:4px;padding:10px 12px;font-size:15px}
+.adv b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3 span{background:var(--sel-soft);border:1px solid var(--sel);border-radius:4px;padding:4px 12px}
+/* Rules */
+.rules{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.rnum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--sel);color:var(--sel-ink);font-weight:700;font-size:14px;margin-right:6px}
+.rule-k{display:inline-block;font-family:var(--cond);font-size:15px;font-weight:600;background:var(--sel);color:var(--sel-ink);padding:2px 10px;border-radius:3px;margin-bottom:8px}
+/* Results */
+.res{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:10px;max-width:520px}
+.res div{background:var(--panel);padding:8px 12px}
+.res .k{font-size:13px;color:var(--ink2)}.res .v{font-family:var(--cond);font-size:26px;font-weight:600}
+/* Text-only tag list */
+.taglist{width:100%;border-collapse:collapse;font:14px Consolas,"Courier New",monospace;background:#0D1317;color:#D6DEE4}
+.taglist td{border-bottom:1px solid #222D35;padding:6px 10px}
+.taglist button{font:inherit;background:#2A3843;color:#D6DEE4;border:1px solid #4A5A66;border-radius:2px;padding:2px 8px;cursor:pointer}
+.taglist tr.alm td{color:#FF8A84}
+/* Find the alarm */
+.fgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:12px;border-radius:6px;margin-top:10px}
+.fgrid button{border:0;border-radius:4px;padding:10px 2px;font:600 12px var(--body);cursor:pointer;min-height:44px;color:#fff}
+.fgrid.idle button{opacity:.35;cursor:default}
+@media (max-width:600px){.fgrid{grid-template-columns:repeat(4,1fr)}}
+.bgpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.bgpick button{border:2px solid var(--line);border-radius:6px;padding:0;cursor:pointer;overflow:hidden;background:none}
+.bgpick button[aria-pressed="true"]{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel)}
+.bgpick svg{display:block;width:100%;height:auto}
+.bgpick span{display:block;font-size:14px;font-weight:600;padding:4px;background:var(--panel)}
+/* Poor vs best value box */
+.pvb{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:700px){.pvb{grid-template-columns:1fr 1fr}}
+.pvb>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.pvb .t{font-family:var(--cond);font-weight:600;font-size:18px}
+.pvb .poor .t{color:var(--warn)}.pvb .best .t{color:var(--ok)}
+.pvb .face{background:#fff;border:1px solid #C5CCD2;border-radius:4px;text-align:center;padding:10px;margin:6px 0;color:#1D2730}
+.ovd{display:grid;gap:6px;margin-top:10px}
+.ovd .it{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 10px}
+.ovd .it span{flex:1 1 220px;font-weight:500}
+.ovd .it.good{border-color:var(--ok)}.ovd .it.bad{border-color:var(--alarm)}
+.ovd .it small{flex-basis:100%;font-size:14px;color:var(--ink2)}
+/* Navigation demo */
+.navdemo .hmi-nav{min-height:38px}
+.navscreen{min-height:230px;padding:12px;color:var(--ht)}
+.navscreen .row{margin-top:10px}
+.navscreen h4{margin:0 0 6px;font-family:var(--cond);font-size:20px;font-weight:600}
+.navscreen .eq{display:inline-flex;gap:8px;align-items:center;background:#172028;border:1px solid #34424D;border-radius:4px;padding:8px 12px;margin:4px}
+.navscreen .eq i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.clicks{font-family:var(--cond);font-size:22px;font-weight:600}
+/* ===== Chapter 5 (HMI Part 2) ===== */
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+/* Live HMI widgets (dark panel) */
+.kitw{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:860px){.kitw{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
+.wpanel{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:12px;min-height:250px}
+.wdg{background:#172028;border:2px solid #34424D;border-radius:6px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:#D6DEE4;font-size:13px;text-align:center}
+.wdg.sel{border-color:#F0C04A}
+.wdg .nm{font-family:var(--cond);font-weight:600;font-size:15px;color:#8A99A6}
+.hbit{min-width:96px;min-height:44px;border-radius:6px;border:2px solid #4A5A66;background:#2A3843;color:#fff;font:700 15px var(--cond);cursor:pointer}
+.hbit.on{background:#2E7A39;border-color:#3FB950}
+.hlamp{width:44px;height:44px;border-radius:50%;background:#2A3843;border:3px solid #4A5A66;transition:background .2s,box-shadow .2s}
+.hlamp.on{background:#F0C04A;border-color:#FFE08A;box-shadow:0 0 18px #F0C04A}
+.hlamp.g.on{background:#3FB950;border-color:#9BE8A5;box-shadow:0 0 18px #3FB950}
+.hnum{width:110px;font:700 24px var(--cond);text-align:center;background:#000;color:#7FE3FF;border:1px solid #4A5A66;border-radius:3px;padding:4px}
+.hdisp{min-width:110px;font:700 28px var(--cond);background:#000;color:#7FE3FF;border:1px solid #4A5A66;border-radius:3px;padding:2px 10px;font-variant-numeric:tabular-nums}
+.hslide{width:92px;height:40px;border-radius:20px;background:#2A3843;border:2px solid #4A5A66;position:relative;cursor:pointer;padding:0}
+.hslide i{position:absolute;top:3px;left:4px;width:30px;height:30px;border-radius:50%;background:#D6DEE4;transition:left .25s}
+.hslide.on{background:#2F6FB5;border-color:#5AA8FF}.hslide.on i{left:56px}
+.hword{display:flex;gap:4px}
+.hword button{min-width:42px;min-height:40px;border-radius:4px;border:1px solid #4A5A66;background:#2A3843;color:#fff;font-weight:700;cursor:pointer}
+.hword button.on{background:#2F6FB5}
+.hscr{min-height:40px;padding:0 14px;border-radius:4px;border:1px solid #5AA8FF;background:#172028;color:#7FE3FF;font-weight:700;cursor:pointer}
+/* PLC memory table */
+.mem{width:100%;border-collapse:collapse;font:14px Consolas,"Courier New",monospace;background:var(--panel)}
+.mem th,.mem td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+.mem th{background:var(--panel2);font:600 14px var(--body)}
+.mem tr.flash td{background:#FFE9A8;color:#1D2730}
+.mem td.v{font-weight:700}
+.winfo{min-height:120px}
+.winfo b.big{display:block;font-family:var(--cond);font-size:26px;font-weight:700;line-height:1.1}
+/* CX-Designer mock */
+.cxd{border:1px solid #8A949C;border-radius:4px;overflow:hidden;background:#ECEFF1;color:#1D2730;font-size:13px;margin-top:10px}
+.cxd .tt{background:#2B4C7E;color:#fff;padding:5px 10px;font-weight:600}
+.cxd .mn{background:#F7F8F9;border-bottom:1px solid #C5CCD2;padding:3px 10px;color:#4B5661}
+.cxd .bd{display:grid;grid-template-columns:120px minmax(0,1fr) 150px;min-height:240px}
+.cxd .pal,.cxd .prop{background:#F7F8F9;padding:8px;border-right:1px solid #C5CCD2}
+.cxd .prop{border-right:0;border-left:1px solid #C5CCD2}
+.cxd .cv{background:#9AA6B0;padding:14px;display:flex;align-items:center;justify-content:center}
+.cxd .scr{background:#fff;width:100%;max-width:340px;aspect-ratio:4/3;border:2px solid #4B5661;position:relative}
+.cxd .zone{transition:box-shadow .3s,background .3s;border-radius:3px}
+.cxd .zone.hl{box-shadow:0 0 0 3px #D35400;background:#FFF1E4}
+@media (max-width:600px){.cxd .bd{grid-template-columns:86px minmax(0,1fr)}.cxd .prop{display:none}}
+/* Tutorial 1 builder */
+.tut{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:900px){.tut{grid-template-columns:200px minmax(0,1fr) 230px}}
+.pal2{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.pal2 button{flex:1 1 140px}
+.canvas{border-radius:6px;padding:10px;min-height:260px;position:relative;background:#0D1317;border:4px solid var(--pipe)}
+.canvas.pic{background:#0D1317 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cpath d='M0,70 L30,40 L55,58 L85,25 L120,60 L120,80 L0,80Z' fill='%23233A4A'/%3E%3Ccircle cx='96' cy='16' r='9' fill='%23324E61'/%3E%3C/svg%3E") repeat-x bottom/240px 160px}
+.canvas .stabs{display:flex;gap:4px;margin-bottom:8px}
+.canvas .stabs button{background:#222D35;color:#8A99A6;border:1px solid #34424D;border-radius:3px;padding:3px 10px;font-size:13px;cursor:pointer}
+.canvas .stabs button[aria-pressed="true"]{background:#2F6FB5;color:#fff}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:600px){.slots{grid-template-columns:repeat(2,1fr)}}
+.slot{min-height:104px;border:1px dashed #34424D;border-radius:4px;display:flex;align-items:center;justify-content:center;padding:4px}
+.slot .wdg{width:100%;padding:6px}
+.mode{font-family:var(--cond);font-weight:600;font-size:16px}
+.check li{margin-bottom:6px;list-style:none}
+.check li::before{content:"☐ ";color:var(--ink2)}
+.check li.ok::before{content:"☑ ";color:var(--ok)}
+.check li.ok{color:var(--ok)}
+.check{padding-left:0;margin:6px 0}
+.task{background:var(--sel-soft);border:1px solid var(--sel);border-radius:4px;padding:8px 12px;font-size:15px}
+.propf{display:grid;gap:6px;font-size:14px}
+.propf select,.propf input{font:15px var(--body);padding:4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink);width:100%}
+/* Counter tutorial */
+.cnt{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:860px){.cnt{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.steps4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:10px}
+.steps4 div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--off);border-radius:4px;padding:8px 10px;font-size:14px;transition:border-color .3s,background .3s}
+.steps4 div b{display:block;font-family:var(--cond);font-size:17px;font-weight:600}
+.steps4 div.on{border-top-color:var(--sel);background:var(--sel-soft)}
+.steps4 div.done{border-top-color:var(--ok)}
+/* Batch tracking */
+.trk{display:grid;gap:8px;padding:12px}
+.trk .r{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;background:#172028;border:1px solid #34424D;border-radius:6px;padding:10px 12px;color:#D6DEE4}
+.trk .r b{font-family:var(--cond);font-size:18px}
+.trk .r small{display:block;color:#8A99A6;font-size:13px}
+.trk .st{font-family:var(--cond);font-weight:600;font-size:15px;min-width:92px;text-align:right}
+.trk .bar{height:6px;background:#2A3843;border-radius:3px;overflow:hidden;margin-top:6px}
+.trk .bar i{display:block;height:100%;background:#3FB950;width:0}
+.hlamp.am.on{background:#E3B23F;box-shadow:0 0 14px #E3B23F}
+.hlamp.dn{background:#1B5AA6;border-color:#5AA8FF}
+.clock{font:700 26px var(--cond);color:#7FE3FF;font-variant-numeric:tabular-nums}
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){
+  .panel{padding:14px}main{padding:0 14px 60px}
+  .seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+  .frame span{min-width:38px;font-size:18px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip{min-height:44px}
+  .hbtn,.hmi-nav button{min-height:36px;padding-left:14px;padding-right:14px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .side a{padding:10px 12px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .flip .b{transform:none;display:none}.flip.on .b{display:flex}.flip.on .in{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Chapter sections">
+  <div class="brand"><b>HMI Part 2: Components and CX-Designer</b><span>Monitoring System Integration, Chapter 5</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 9 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">Monitoring System Integration, Chapter 5 · HMI Part 2</div>
+  <h1>Human Machine Interface<small>Part 2: HMI components and CX-Designer</small></h1>
+  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
+  <div class="hmi">
+    <div class="hmi-title"><b>SCREEN 1 · PRODUCTION LINE</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
+    <div class="hmi-body scroll-x wide">
+      <svg viewBox="0 0 1000 220" role="img" aria-label="An HMI screen built from components">
+        <g font-size="12" class="dim"><text x="90" y="40" text-anchor="middle">bit button</text><text x="250" y="40" text-anchor="middle">bit lamp</text><text x="420" y="40" text-anchor="middle">numeric entry</text><text x="600" y="40" text-anchor="middle">numeric display</text><text x="770" y="40" text-anchor="middle">slide switch</text><text x="920" y="40" text-anchor="middle">screen button</text></g>
+        <rect x="40" y="70" width="100" height="56" rx="8" fill="#2E7A39" stroke="#3FB950" stroke-width="2"/><text x="90" y="104" text-anchor="middle" font-size="18" style="font-weight:700">START</text>
+        <circle cx="250" cy="98" r="28" fill="#F0C04A" class="blink"/>
+        <rect x="360" y="76" width="120" height="44" fill="#000" stroke="#4A5A66"/><text x="420" y="106" text-anchor="middle" font-size="24" style="fill:#7FE3FF;font-weight:700">500</text><path d="M466,84 v28" stroke="#7FE3FF" stroke-width="2" class="blink"/>
+        <rect x="540" y="76" width="120" height="44" fill="#000" stroke="#4A5A66"/><text x="600" y="106" text-anchor="middle" font-size="26" style="fill:#7FE3FF;font-weight:700" id="heroCnt">123</text>
+        <rect x="722" y="80" width="96" height="40" rx="20" fill="#2F6FB5"/><circle cx="798" cy="100" r="15" fill="#D6DEE4"/>
+        <rect x="868" y="78" width="104" height="44" rx="4" fill="#172028" stroke="#5AA8FF"/><text x="920" y="106" text-anchor="middle" font-size="15" style="fill:#7FE3FF;font-weight:700">Screen 2 ▸</text>
+        <path d="M60,170 H940" stroke="#34424D" stroke-width="2"/><text x="500" y="200" text-anchor="middle" font-size="14" style="fill:#8A99A6">Every HMI screen is built from a few simple components, each linked to an address in the PLC.</text>
+      </svg>
+    </div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  </div>
+  <p class="lead">In <a href="chapter4.html">Chapter 4 (HMI Part 1)</a> you learned what makes a good HMI. Now you build one. This chapter covers the components on an HMI screen, how they talk to the PLC, and the CX-Designer tutorials from the notes: Tutorial 1 (your first screen) and Tutorial 2 (a production counter and three products).</p>
+  <div class="ticker">
+    <div><div class="k">Components</div><div class="v">7</div></div>
+    <div><div class="k">Software</div><div class="v">CX-Designer</div></div>
+    <div><div class="k">Tutorials</div><div class="v">2</div></div>
+    <div><div class="k">HMI Part 1</div><div class="v"><a href="chapter4.html" style="text-decoration:none">← Design rules</a></div></div>
+  </div>
+</header>
+
+<!-- 5.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">5.1</span>The HMI component toolkit</h2>
+  <div class="key"><b>Key idea</b>Every component on an HMI screen is linked to one address in the PLC. Some components <b>write</b> to the PLC (buttons, entries); others <b>read</b> from it (lamps, displays).</div>
+  <div class="prose"><p>Use the components on this live panel and watch the PLC memory on the right change. Tap a component's name to read about it.</p></div>
+  <div class="kitw">
+    <div class="hmi"><div class="hmi-title"><b id="kScrT">SCREEN 1</b><span class="meta">Run mode</span></div><div class="wpanel" id="kPanel"></div></div>
+    <div><b style="font-family:var(--cond);font-size:20px">PLC memory</b><table class="mem" id="kMem"><thead><tr><th>Address</th><th>Used by</th><th>Value</th></tr></thead><tbody></tbody></table>
+      <div class="panel winfo" id="kInfo" style="margin-top:10px" aria-live="polite"><b class="big">Tap a component name</b>Each one has a job, an address and an everyday twin.</div></div>
+  </div>
+  <div class="ana" id="kAna"><b>Analogy</b>Tap a component name to see its everyday twin.</div>
+</section>
+
+<!-- 5.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">5.2</span>How the HMI talks to the PLC</h2>
+  <div class="key"><b>Key idea</b>The HMI keeps <b>reading</b> the PLC addresses shown on the screen, over and over. When the operator presses something, it <b>writes</b> a new value into the PLC. The PLC program does the rest.</div>
+  <div class="ana"><b>Analogy: lockers with numbers</b>The PLC memory is a wall of numbered lockers. The HMI keeps opening the lockers it shows (read), and when you press a button it puts a new note into a locker (write). The address is the locker number. <i>(Memori PLC ialah dinding loker bernombor. HMI terus membuka loker yang dipaparkannya (baca), dan apabila anda menekan butang ia meletakkan nota baharu ke dalam loker (tulis). Alamat ialah nombor loker.)</i></div>
+  <div class="ctrl"><button class="btn primary" id="tkRead">▶ Show a read cycle</button><button class="btn" id="tkWrite">Press START (write)</button></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0"><svg viewBox="0 0 900 300" id="tkSvg" role="img" aria-label="HMI reading and writing PLC memory over a cable"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="tkSay" aria-live="polite">Press a button to watch the HMI and the PLC talk.</div>
+  <h3>Addresses on an OMRON CPM1A</h3>
+  <div class="scroll-x"><table class="cmp3"><thead><tr><th style="cursor:default">Area</th><th style="cursor:default">Example</th><th style="cursor:default">Kind</th><th style="cursor:default">Typical HMI component</th></tr></thead><tbody>
+    <tr><th>Inputs</th><td>000.00</td><td>Bit</td><td>Bit lamp (show a real switch)</td></tr>
+    <tr><th>Outputs</th><td>010.00</td><td>Bit</td><td>Bit lamp (show a motor or lamp output)</td></tr>
+    <tr><th>Work bits (internal relays, <a href="lab2.html#s4">Lab 2</a>)</th><td>200.00</td><td>Bit</td><td>Bit button, slide switch, bit lamp</td></tr>
+    <tr><th>Data memory (DM)</th><td>DM0100</td><td>Word (a number)</td><td>Numeric entry, numeric display, word button</td></tr>
+    <tr><th>Counter / timer present value</th><td>C000 / T000</td><td>Word</td><td>Numeric display</td></tr>
+  </tbody></table></div>
+  <p class="muted" style="font-size:15px;margin-top:8px">The cable is one of the links from <a href="chapter3.html#s4">Chapter 3</a> (RS-232) or Ethernet, and the reading works like the master polling in <a href="chapter2.html#s8">Chapter 2.8</a>.</p>
+</section>
+
+<!-- 5.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">5.3</span>Building a screen in CX-Designer</h2>
+  <div class="key"><b>Key idea</b>CX-Designer is OMRON's software for drawing HMI screens. You place components on a screen, give each one a PLC address, test it on the PC, then transfer it to the HMI panel.</div>
+  <div class="ctrl"><button class="btn" id="cdBack">◀ Back</button><button class="btn primary" id="cdNext">Next step ▶</button><span class="stepn" id="cdN"></span></div>
+  <div class="cxd" id="cdWin">
+    <div class="tt">CX-Designer · Tutorial1 [Screen 1]</div>
+    <div class="mn zone" id="cdz-menu">File &nbsp; Edit &nbsp; View &nbsp; Object &nbsp; PT &nbsp; Tools &nbsp; Help</div>
+    <div class="bd">
+      <div class="pal zone" id="cdz-pal"><b>Objects</b><div style="margin-top:6px;line-height:1.9">▢ Bit button<br>◯ Bit lamp<br>▤ Numeric<br>⇆ Slide switch<br>▦ Word button<br>▸ Screen button</div></div>
+      <div class="cv"><div class="scr zone" id="cdz-scr"><div id="cdObj" style="position:absolute;left:18%;top:28%;display:none;background:#2E7A39;color:#fff;font-weight:700;border-radius:6px;padding:12px 18px">START</div><div id="cdLamp" style="position:absolute;left:60%;top:30%;width:44px;height:44px;border-radius:50%;background:#C5CCD2;border:3px solid #4B5661;display:none"></div></div></div>
+      <div class="prop zone" id="cdz-prop"><b>Properties</b><div style="margin-top:6px;line-height:1.8" id="cdProp">(select an object)</div></div>
+    </div>
+  </div>
+  <div class="say" id="cdSay" aria-live="polite"></div>
+  <p class="muted" style="font-size:14px">Menu names and screens differ slightly between CX-Designer versions and HMI models. Follow your lab sheet for the exact clicks; the steps are always the same.</p>
+</section>
+
+<!-- 5.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">5.4</span>Tutorial 1: your first HMI screen</h2>
+  <div class="key"><b>Key idea</b>Practise the three questions of Tutorial 1 here before you do them in CX-Designer: add components, give them addresses, then switch to Run mode and test them.</div>
+  <div class="chips" id="t1Q" role="group" aria-label="Question"></div>
+  <div class="task" id="t1Task"></div>
+  <div class="tut">
+    <div><b style="font-family:var(--cond);font-size:18px">Add a component</b><div class="pal2" id="t1Pal"></div></div>
+    <div>
+      <div class="row" style="margin-bottom:6px"><div class="seg" role="group" aria-label="Mode" id="t1Mode"><button aria-pressed="true" data-m="edit">✎ Edit</button><button aria-pressed="false" data-m="run">▶ Run (test)</button></div><span class="mode" id="t1ModeL"></span></div>
+      <div class="canvas" id="t1Cv"></div>
+    </div>
+    <div>
+      <b style="font-family:var(--cond);font-size:18px">Properties</b><div class="panel propf" id="t1Prop" style="margin-top:4px">Select a component on the screen.</div>
+      <b style="font-family:var(--cond);font-size:18px;display:block;margin-top:10px">Checklist</b><ul class="check" id="t1Chk"></ul>
+    </div>
+  </div>
+  <div class="say" id="t1Say" aria-live="polite">Add components in <b>Edit</b> mode, then switch to <b>Run</b> to test.</div>
+</section>
+
+<!-- 5.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">5.5</span>Tutorial 2: the production counter</h2>
+  <div class="key"><b>Key idea</b>The HMI and the PLC work as a team: the operator sets a target on the HMI, the PLC counter does the counting, and the HMI shows the count and lights a lamp when the target is reached.</div>
+  <div class="task"><b>Tutorial 2, Soalan 2:</b> <i>Apabila sejumlah nombor dimasukkan dengan menekan bit button, numeric display akan memaparkan jumlah nombor tersebut. Setelah kiraan nombor tersebut mencapai had yang telah dilaraskan pada numeric entry, bit lamp akan menyala.</i><br>Each press of the bit button adds one to the count shown on the numeric display. When the count reaches the limit set on the numeric entry, the bit lamp lights.</div>
+  <div class="steps4" id="ctSteps">
+    <div><b>Step 1 · Numeric entry</b>The operator types the target into the HMI.</div>
+    <div><b>Step 2 · Bit button</b>Each press (or each product) sends a count pulse.</div>
+    <div><b>Step 3 · PLC counter</b>The PLC counts; the numeric display shows the live total.</div>
+    <div><b>Step 4 · Bit lamp</b>When the count reaches the target, the lamp lights.</div>
+  </div>
+  <div class="cnt">
+    <div class="hmi"><div class="hmi-title"><b>SCREEN 1 · PRODUCTION COUNTER</b><span class="meta">HMI</span></div>
+      <div class="wpanel" style="min-height:0">
+        <div class="wdg"><span class="nm">Target (numeric entry)</span><input class="hnum" id="ctSv" type="number" min="1" max="99" value="5" aria-label="Target"><small>DM0100</small></div>
+        <div class="wdg"><span class="nm">Count (numeric display)</span><span class="hdisp" id="ctCnt">0</span><small>shows SV − PV</small></div>
+        <div class="wdg"><span class="nm">Count +1 (bit button)</span><button class="hbit" id="ctBtn">COUNT</button><small>200.00</small></div>
+        <div class="wdg"><span class="nm">Target reached (bit lamp)</span><span class="hlamp g" id="ctLamp"></span><small>200.02</small></div>
+        <div class="wdg"><span class="nm">Reset (bit button)</span><button class="hbit" id="ctRst">RESET</button><small>200.01</small></div>
+        <div class="wdg"><span class="nm">Product sensor</span><button class="hbit" id="ctAuto">▶ AUTO</button><small>one product every 1.5 s</small></div>
+      </div></div>
+    <div><b style="font-family:var(--cond);font-size:20px">PLC ladder (CX-Programmer)</b><figure class="diagram scroll-x" style="margin:4px 0 0"><svg viewBox="0 0 460 250" id="ctLad" role="img" aria-label="Counter ladder program"></svg></figure></div>
+  </div>
+  <div class="say" id="ctSay" aria-live="polite">Set a target, then press <b>COUNT</b>.</div>
+  <div class="note"><b>Good to know:</b> an OMRON <b>CNT</b> counter counts <b>down</b>. Its present value (PV) starts at the set value (SV, here from DM0100) and drops by 1 at each pulse; when PV reaches 0 the counter turns ON. The HMI shows <b>SV − PV</b> so the operator sees the count going up.</div>
+</section>
+
+<!-- 5.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">5.6</span>Tutorial 2: three products in three hours</h2>
+  <div class="key"><b>Key idea</b>A good HMI puts a complex job on one clear overview screen: which product is running, which is next, and how many have been made.</div>
+  <div class="task"><b>Tutorial 2, Soalan 1:</b> <i>Dalam masa 3 jam, sebuah mesin menghasilkan 3 jenis produk yang berlainan dari segi saiz dan bahan.</i> In 3 hours one machine makes 3 products: <b>Product 1</b> 40 mm × 40 mm (iron), <b>Product 2</b> 30 mm × 30 mm (plastic), <b>Product 3</b> 50 mm × 50 mm (aluminium). Solve it with an HMI.</div>
+  <div class="ctrl"><button class="btn primary" id="bpGo">▶ Start the 3-hour shift</button><button class="btn" id="bpPause">❚❚ Pause</button><button class="btn" id="bpReset">Reset</button><span class="muted" style="font-size:14px">1 hour here = 20 seconds</span></div>
+  <div class="hmi"><div class="hmi-title"><b>MACHINE M-1 · BATCH OVERVIEW</b><span class="meta">Shift time <span class="clock" id="bpClk">0:00</span> / 3:00</span></div><div class="trk" id="bpTrk"></div><div class="hmi-foot"><span class="alm" id="bpAlm">Ready to start</span></div></div>
+  <p class="muted" style="font-size:14px">For this example each product runs for one hour. The real split and rates would come from the production plan.</p>
+  <h3>Which components did this screen use?</h3>
+  <div class="threecol">
+    <div class="panel"><h3>Bit lamps</h3>Green = running now, amber = next (standby), grey = scheduled, blue = finished.</div>
+    <div class="panel"><h3>Numeric displays</h3>The count of each product and the shift clock, read from PLC counters and a timer.</div>
+    <div class="panel"><h3>Word and screen buttons</h3>A word button could select the product number; a screen button could open each product's detail screen.</div>
+  </div>
+</section>
+
+<!-- 5.7 -->
+<section class="topic" id="s7">
+  <h2><span class="n">5.7</span>The complete HMI system</h2>
+  <div class="key"><b>Key idea</b>The HMI is the hub between the person, the PLC logic and the physical plant. Good screen design plus correct PLC logic gives the three goals of industry: safety, uptime and consistent quality.</div>
+  <figure class="diagram scroll-x wide"><svg viewBox="0 0 900 340" role="img" aria-label="Human, HMI, PLC and plant connected">
+    <g fill="none" stroke-width="4"><path d="M450,96 V140" stroke="#1B5AA6" class="flowline"/><path d="M360,200 H230" stroke="#D35400" class="flowline"/><path d="M540,200 H670" stroke="#D35400" class="flowline"/><path d="M150,150 V70 H360" stroke="var(--pipe)" stroke-dasharray="6 6"/><path d="M750,150 V70 H540" stroke="var(--pipe)" stroke-dasharray="6 6"/></g>
+    <rect x="360" y="20" width="180" height="76" rx="8" class="box"/><text x="450" y="52" text-anchor="middle" class="lb" font-size="17">HUMAN</text><text x="450" y="74" text-anchor="middle" font-size="12" class="dim">sees, thinks, decides</text>
+    <rect x="360" y="140" width="180" height="120" rx="10" fill="#172028" stroke="#5AA8FF" stroke-width="3"/><rect x="378" y="156" width="144" height="70" rx="3" fill="#0D1317"/><text x="450" y="198" text-anchor="middle" font-size="18" style="fill:#7FE3FF;font-weight:700">HMI</text><text x="450" y="248" text-anchor="middle" font-size="12" style="fill:#8A99A6">the central hub</text>
+    <rect x="70" y="150" width="160" height="100" rx="8" class="box"/><text x="150" y="190" text-anchor="middle" class="lb" font-size="16">PLANT</text><text x="150" y="212" text-anchor="middle" font-size="12" class="dim">thermocouples, motors,</text><text x="150" y="228" text-anchor="middle" font-size="12" class="dim">actuators</text>
+    <rect x="670" y="150" width="160" height="100" rx="8" fill="#1B5AA6"/><text x="750" y="190" text-anchor="middle" font-size="16" style="fill:#fff;font-weight:700">PLC LOGIC</text><text x="750" y="212" text-anchor="middle" font-size="12" style="fill:#DCE7F5">counters, timers,</text><text x="750" y="228" text-anchor="middle" font-size="12" style="fill:#DCE7F5">ladder program</text>
+    <g font-size="15" style="font-weight:600"><rect x="180" y="290" width="160" height="34" rx="17" fill="#2E7A39"/><text x="260" y="312" text-anchor="middle" style="fill:#fff">Safety</text><rect x="370" y="290" width="160" height="34" rx="17" fill="#1B5AA6"/><text x="450" y="312" text-anchor="middle" style="fill:#fff">Maximum uptime</text><rect x="560" y="290" width="160" height="34" rx="17" fill="#B87F00"/><text x="640" y="312" text-anchor="middle" style="fill:#fff">Consistent quality</text></g>
+  </svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="big4">
+    <a href="chapter4.html#s1"><span class="n">Ch 4.1 to 4.4</span><b>The HMI</b>A two-way window between people and machines, used in every industry.</a>
+    <a href="chapter4.html#s5"><span class="n">Ch 4.5 to 4.10</span><b>Good design</b>Schematic, colour, layout, values and labels, consistency and navigation.</a>
+    <a href="#s1"><span class="n">5.1 to 5.3</span><b>Components</b>Buttons write, lamps and displays read, all through PLC addresses.</a>
+    <a href="#s4"><span class="n">5.4 to 5.6</span><b>Tutorials</b>Your first screen, a production counter and a batch overview.</a>
+  </div>
+  <p style="margin-top:14px">HMIs keep evolving, from the push of a button to touchscreens, and next to AI assistants and virtual reality (<a href="chapter4.html#s3">Chapter 4.3</a>).</p>
+</section>
+
+<!-- A-Z -->
+<section class="topic" id="s8">
+  <h2><span class="n">A–Z</span>Jargon buster</h2>
+  <div class="prose"><p>HMI component words in everyday language. Tap a card to flip it.</p></div>
+  <div class="jargon" style="margin-top:0"><div class="cards" id="jargon"></div></div>
+</section>
+
+<!-- Class game -->
+<section class="topic" id="s9">
+  <h2><span class="n">★</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen ♪</button><button class="btn" id="wMusic" aria-pressed="false">♪ Music off</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Monitoring System Integration, Chapter 5, HMI Part 2: HMI Components and CX-Designer. Content and tutorials from the lecture notes of Mohamad Shukor bin Abdul Rahim. The screens and the CX-Designer window on this page are simplified drawings for learning. OMRON, CX-Designer and CX-Programmer are trademarks of OMRON Corporation.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce?Math.min(ms,150):ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+const NS='http://www.w3.org/2000/svg';
+const bitsOf=ch=>{const c=ch.charCodeAt(0)&255;return [...Array(8)].map((_,i)=>(c>>i)&1)};
+function rng(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];
+const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set((store.get('ch5-seen')||[]).filter(id=>document.getElementById(id)));
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;
+    nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('ch5-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+/* Clocks on HMI title bars */
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
+const vis=new Set();
+
+/* ===== Jargon buster ===== */
+const JG=[['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 200.00 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
+$('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
+$$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
+setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000);
+
+/* ===== 5.1 component toolkit ===== */
+const KM={'200.00':0,'200.01':0,'DM0100':500,'DM0101':52,'DM0102':0};
+const KUSE={'200.00':'bit button + bit lamp','200.01':'slide switch','DM0100':'numeric entry','DM0101':'numeric display','DM0102':'word button'};
+const KW=[['bb','Bit button','200.00','writes','A toggle that sends an ON/OFF signal to one bit in the PLC.','A light switch','Suis lampu: tekan sekali untuk hidup, tekan lagi untuk mati.'],
+ ['bl','Bit lamp','200.00','reads','A light that shows the state of one bit, ON or OFF. Here it shows the same bit as the bit button.','The light on a rice cooker','Lampu penunjuk pada periuk nasi: menyala apabila nasi sedang dimasak.'],
+ ['ne','Numeric entry','DM0100','writes','A box where the operator types a number: a set point, a limit or a recipe value.','Setting the temperature on an aircon remote','Menetapkan suhu pada alat kawalan jauh penghawa dingin.'],
+ ['nd','Numeric display','DM0101','reads','Shows a live number from the PLC, such as a temperature or a count. The operator can only read it.','A car speedometer','Meter kelajuan kereta: anda hanya boleh membacanya, bukan mengubahnya.'],
+ ['ss','Slide switch','200.01','writes','Like a bit button, but you slide it, so its position (AUTO or MANUAL) is always visible.','The on/off slider on a phone','Gelangsar hidup/mati pada skrin telefon.'],
+ ['wb','Word button','DM0102','writes','Writes one fixed number into a PLC word, for example a speed of 25, 50 or 100 %.','Preset station buttons on a car radio','Butang stesen pratetap pada radio kereta: satu tekan, terus ke nombor yang ditetapkan.'],
+ ['sb','Screen button','none','changes the screen','Jumps to another screen. It does not change anything in the PLC.','A tab or link on a website','Tab atau pautan pada laman web.']];
+let kScr=1,kSel=null,kHist=[];
+function kMemDraw(flash){$('#kMem tbody').innerHTML=Object.keys(KM).map(a=>`<tr${a===flash?' class="flash"':''}><td>${a}</td><td>${KUSE[a]}</td><td class="v">${KM[a]}</td></tr>`).join('');if(flash)setTimeout(()=>{const r=$('#kMem tr.flash');if(r)r.classList.remove('flash')},700)}
+function kSet(a,v){KM[a]=v;kMemDraw(a);kPanel()}
+function kPanel(){$('#kScrT').textContent=kScr===1?'SCREEN 1':'SCREEN 2 · TREND';
+  if(kScr===2){const pts=kHist.map((v,i)=>`${10+i*14},${110-(v-40)*4}`).join(' ');$('#kPanel').innerHTML=`<div class="wdg" style="grid-column:1/-1"><span class="nm">Trend of DM0101 (temperature)</span><svg viewBox="0 0 300 120" style="width:100%;max-width:420px;background:#000;border-radius:3px"><polyline points="${pts}" fill="none" stroke="#7FE3FF" stroke-width="2"/></svg><button class="hscr" data-k="sb" id="kBack">◂ Screen 1</button></div>`;
+    $('#kBack').onclick=()=>{kScr=1;kInfo('sb');kPanel()};return}
+  const w=k=>KW.find(x=>x[0]===k);
+  $('#kPanel').innerHTML=KW.map(([k,n,a])=>{let c='';
+    if(k==='bb')c=`<button class="hbit${KM['200.00']?' on':''}" id="k_bb">PUMP ${KM['200.00']?'ON':'OFF'}</button>`;
+    if(k==='bl')c=`<span class="hlamp${KM['200.00']?' on':''}"></span>`;
+    if(k==='ne')c=`<input class="hnum" id="k_ne" type="number" value="${KM.DM0100}" aria-label="Numeric entry">`;
+    if(k==='nd')c=`<span class="hdisp">${KM.DM0101}</span><small>°C</small>`;
+    if(k==='ss')c=`<button class="hslide${KM['200.01']?' on':''}" id="k_ss" aria-label="Slide switch"><i></i></button><small>${KM['200.01']?'AUTO':'MANUAL'}</small>`;
+    if(k==='wb')c=`<div class="hword">${[25,50,100].map(v=>`<button data-v="${v}" class="${KM.DM0102===v?'on':''}">${v}</button>`).join('')}</div><small>speed %</small>`;
+    if(k==='sb')c=`<button class="hscr" id="k_sb">Screen 2 ▸</button>`;
+    return `<div class="wdg${kSel===k?' sel':''}" data-k="${k}"><span class="nm">${n}</span>${c}<small style="color:#5A6A75">${a==='none'?'no address':a}</small></div>`}).join('');
+  $$('#kPanel .wdg').forEach(d=>d.addEventListener('click',()=>kInfo(d.dataset.k)));
+  $('#k_bb').onclick=()=>kSet('200.00',KM['200.00']?0:1);
+  $('#k_ne').onchange=e=>kSet('DM0100',Math.max(0,Math.min(9999,Math.round(+e.target.value||0))));
+  $('#k_ss').onclick=()=>kSet('200.01',KM['200.01']?0:1);
+  $$('#kPanel .hword button').forEach(b=>b.onclick=()=>kSet('DM0102',+b.dataset.v));
+  $('#k_sb').onclick=()=>{kScr=2;kPanel()}}
+function kInfo(k){kSel=k;const w=KW.find(x=>x[0]===k);$('#kInfo').innerHTML=`<b class="big">${w[1]}</b>${w[4]}<br><span class="muted">Address: <b>${w[2]==='none'?'none':w[2]}</b> · it <b>${w[3]}</b>${w[3]==='reads'?' the PLC':w[3]==='writes'?' to the PLC':''}.</span>`;
+  $('#kAna').innerHTML=`<b>Analogy: ${w[5].toLowerCase()}</b>${w[4].split('.')[0]}. <i>(${w[6]})</i>`;$$('#kPanel .wdg').forEach(d=>d.classList.toggle('sel',d.dataset.k===k))}
+setInterval(()=>{KM.DM0101=Math.max(40,Math.min(64,KM.DM0101+Math.round((Math.random()-.5)*4)));kHist.push(KM.DM0101);if(kHist.length>21)kHist.shift();
+  const d=$('#kPanel .wdg[data-k="nd"] .hdisp');if(d)d.textContent=KM.DM0101;else if(kScr===2)kPanel();const r=$$('#kMem tbody tr')[3];if(r)r.lastChild.textContent=KM.DM0101},1500);
+kMemDraw();kPanel();
+
+/* ===== 5.2 how the HMI talks to the PLC ===== */
+const TK={'200.00':['START',0],'010.00':['MOTOR OUT',0],'DM0101':['TEMP',52],'C000':['COUNT',12],'DM0100':['TARGET',500],'200.01':['AUTO',0]};
+const TKP=Object.keys(TK).map((a,i)=>[a,600+(i%2)*140,46+Math.floor(i/2)*72]);
+function tkDraw(hi){$('#tkSvg').innerHTML=`<rect x="30" y="60" width="230" height="190" rx="10" fill="#172028" stroke="#5AA8FF" stroke-width="3"/><text x="145" y="84" text-anchor="middle" font-size="13" style="fill:#8A99A6;font-weight:600">HMI · SCREEN 1</text>
+   <circle cx="80" cy="130" r="20" fill="${TK['010.00'][1]?'#3FB950':'#2A3843'}" stroke="#4A5A66" stroke-width="2"/><text x="80" y="168" text-anchor="middle" font-size="11" style="fill:#8A99A6">motor</text>
+   <text x="170" y="130" text-anchor="middle" font-size="24" style="fill:#7FE3FF;font-weight:700">${TK.DM0101[1]} °C</text><text x="170" y="168" text-anchor="middle" font-size="22" style="fill:#7FE3FF;font-weight:700">${TK.C000[1]} pcs</text>
+   <rect x="60" y="196" width="170" height="38" rx="6" fill="${TK['200.00'][1]?'#2E7A39':'#2A3843'}" stroke="#4A5A66" stroke-width="2"/><text x="145" y="221" text-anchor="middle" font-size="15" style="fill:#fff;font-weight:700">START</text>
+   <path d="M260,150 H580" stroke="var(--pipe)" stroke-width="6"/><text x="420" y="138" text-anchor="middle" font-size="13" class="dim">cable: RS-232 or Ethernet</text>
+   <rect x="580" y="16" width="300" height="250" rx="8" class="box"/><text x="730" y="284" text-anchor="middle" class="lb" font-size="15">PLC memory (the lockers)</text>
+   ${TKP.map(([a,x,y])=>`<g><rect x="${x}" y="${y}" width="128" height="60" rx="4" fill="${hi===a?'#FFE9A8':'var(--panel2)'}" stroke="${hi===a?'#D35400':'var(--pipe)'}" stroke-width="2"/><text x="${x+8}" y="${y+18}" font-size="12" class="dim">${a}</text><text x="${x+8}" y="${y+34}" font-size="11" class="dim">${TK[a][0]}</text><text x="${x+120}" y="${y+50}" text-anchor="end" font-size="20" style="font-weight:700">${TK[a][1]}</text></g>`).join('')}
+   <g id="tkPk" style="display:none"><rect x="-70" y="-15" width="140" height="30" rx="4" fill="#1B5AA6"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700" id="tkPkT"></text></g>`}
+let tkBusy=false;
+const tkMove=async(t,c,x0,x1)=>{const p=$('#tkPk');$('#tkPkT').textContent=t;p.querySelector('rect').setAttribute('fill',c);p.style.display='';await tween(1500,q=>p.setAttribute('transform',`translate(${x0+(x1-x0)*q},150)`));p.style.display='none'};
+$('#tkRead').onclick=async()=>{if(tkBusy)return;tkBusy=true;const say=h=>$('#tkSay').innerHTML=h;
+  for(const a of ['010.00','DM0101','C000']){say(`<b>Read:</b> the HMI asks the PLC "what is in <b>${a}</b>?"`);await tkMove(`read ${a}?`,'#1B5AA6',330,560);tkDraw(a);await sleep(700);
+    if(a==='DM0101')TK.DM0101[1]+=1;if(a==='C000')TK.C000[1]+=1;tkDraw(a);say(`The PLC answers <b>${TK[a][1]}</b>, and the HMI updates the screen.`);await tkMove(`${a} = ${TK[a][1]}`,'#2E7A39',560,330);tkDraw();await sleep(500)}
+  say('One read cycle done. A real HMI repeats this many times a second, for every address on the screen.');tkBusy=false};
+$('#tkWrite').onclick=async()=>{if(tkBusy)return;tkBusy=true;const say=h=>$('#tkSay').innerHTML=h;TK['200.00'][1]=1;tkDraw();
+  say('<b>Write:</b> the operator presses START. The HMI writes <b>1</b> into work bit <b>200.00</b>.');await tkMove('write 200.00 = 1','#D35400',330,560);tkDraw('200.00');await sleep(1200);
+  say('The PLC ladder program sees 200.00 ON and switches output <b>010.00</b> ON: the motor starts.');TK['010.00'][1]=1;tkDraw('010.00');await sleep(1800);
+  say('On the next <b>read</b>, the HMI learns that 010.00 is ON and lights the motor lamp green.');await tkMove('read 010.00?','#1B5AA6',330,560);await tkMove('010.00 = 1','#2E7A39',560,330);tkDraw();
+  await sleep(1500);TK['200.00'][1]=0;TK['010.00'][1]=0;tkDraw();say('Press again to replay, or try a read cycle.');tkBusy=false};
+tkDraw();
+
+/* ===== 5.3 CX-Designer steps ===== */
+const CD=[['menu','<b>Step 1:</b> <b>File ▸ New Project</b>. Choose the HMI model and give the project a name.','Model: NS touch panel'],
+ ['menu','<b>Step 2:</b> set the <b>connection</b>: which port and which PLC (for example a CPM1A on a serial link).','Port: Serial A<br>PLC: CPM1A'],
+ ['pal','<b>Step 3:</b> pick a <b>Bit button</b> from the objects toolbar.',''],
+ ['scr','<b>Step 4:</b> draw it on <b>Screen 1</b>.',''],
+ ['prop','<b>Step 5:</b> double-click it and set its <b>address</b> to <b>200.00</b> and its label to START.','Object: Bit button<br>Address: <b>200.00</b><br>Action: toggle<br>Label: START'],
+ ['scr','<b>Step 6:</b> add a <b>Bit lamp</b> with the <b>same address, 200.00</b>.','Object: Bit lamp<br>Address: <b>200.00</b><br>ON colour: green'],
+ ['menu','<b>Step 7:</b> <b>save</b>, then use <b>Test</b> to try the screen on the PC. Press START: the lamp lights.',''],
+ ['menu','<b>Step 8:</b> <b>transfer</b> the project to the HMI panel, connect it to the PLC and test it for real.','']];
+let cdI=-1,cdT=null;
+function cdShow(i){cdI=i;const s=CD[i];['menu','pal','scr','prop'].forEach(z=>$('#cdz-'+z).classList.toggle('hl',z===s[0]));
+  $('#cdObj').style.display=i>=3?'':'none';$('#cdLamp').style.display=i>=5?'':'none';if(s[2])$('#cdProp').innerHTML=s[2];else if(i<4)$('#cdProp').textContent='(select an object)';
+  clearInterval(cdT);$('#cdLamp').style.background='#C5CCD2';if(i>=6&&!reduce){let on=0;cdT=setInterval(()=>{on^=1;$('#cdLamp').style.background=on?'#3FB950':'#C5CCD2';$('#cdObj').style.outline=on?'3px solid #D35400':''},1200)}
+  $('#cdSay').innerHTML=s[1];$('#cdN').textContent=`Step ${i+1} of ${CD.length}`;$('#cdBack').disabled=i<=0;$('#cdNext').disabled=i>=CD.length-1}
+$('#cdNext').onclick=()=>cdShow(Math.min(CD.length-1,cdI+1));$('#cdBack').onclick=()=>cdShow(Math.max(0,cdI-1));
+$('#cdSay').innerHTML='Press <b>Next step</b> to walk through making a screen with a START button and a lamp.';$('#cdBack').disabled=true;
+
+/* ===== 5.4 Tutorial 1 builder ===== */
+const TT={bb:['Bit button','bit','200.00'],bl:['Bit lamp','bit','200.00'],sb:['Screen button','scr',2],bg:['Background picture','bg'],ss:['Slide switch','bit','200.01'],ne:['Numeric entry','word','DM0100'],nd:['Numeric display','word','DM0100'],wb:['Word button','word','DM0100']};
+const BITS=['200.00','200.01','200.02'],WORDS=['DM0100','DM0101'];
+const T1={1:{bg:false,o:[]},2:{bg:false,o:[]}};let t1S=1,t1M='edit',t1Sel=-1,t1Q=0;const t1Mem={};const t1Done={lamp:false,scr:false,num:false};
+const T1Q=[['Soalan 1','<i>Paparkan pada panel HMI fungsi berikut: a) Bit Button b) Bit Lamp</i><br>Show a bit button and a bit lamp on the HMI panel.'],
+ ['Soalan 2','<i>Pada paparan screen1, anda dikehendaki memasukkan fungsi berikut: a) Bit Button b) Bit Lamp c) Screen Button d) Background picture</i>'],
+ ['Soalan 3','<i>Pada paparan screen1, masukkan fungsi berikut: a) slides switch b) numeric entry c) numeric display d) word button</i>']];
+$('#t1Q').innerHTML=T1Q.map((q,i)=>`<button class="chip" aria-pressed="${!i}" data-i="${i}">${q[0]}</button>`).join('');
+$$('#t1Q .chip').forEach(b=>b.onclick=()=>{press($$('#t1Q .chip'),b);t1Q=+b.dataset.i;t1Chk()});
+$('#t1Pal').innerHTML=Object.entries(TT).map(([k,t])=>`<button class="btn" data-k="${k}">+ ${t[0]}</button>`).join('')+'<button class="btn danger" id="t1Clr">Clear screens</button>';
+$$('#t1Pal [data-k]').forEach(b=>b.onclick=()=>{if(t1M!=='edit'){t1Say('Switch to <b>Edit</b> mode to add components.');return}const k=b.dataset.k,s=T1[t1S];
+  if(k==='bg'){s.bg=!s.bg;t1Say(s.bg?`Background picture added to Screen ${t1S}.`:'Background picture removed.');t1Draw();return}
+  if(s.o.length>=8){t1Say('This screen is full. Delete something first.');return}
+  const t=TT[k];s.o.push({k,a:t[2],l:k==='bb'?'PUMP':k==='wb'?'SET':'' ,v:50});t1Sel=s.o.length-1;t1Say(`${t[0]} added. Set its properties on the right.`);t1Draw()});
+$('#t1Clr').onclick=()=>{T1[1]={bg:false,o:[]};T1[2]={bg:false,o:[]};t1Sel=-1;Object.keys(t1Mem).forEach(k=>delete t1Mem[k]);Object.keys(t1Done).forEach(k=>t1Done[k]=false);t1Draw()};
+$$('#t1Mode button').forEach(b=>b.onclick=()=>{press($$('#t1Mode button'),b);t1M=b.dataset.m;t1Sel=-1;t1Say(t1M==='run'?'<b>Run mode:</b> the screen works like the real HMI. Try every component.':'<b>Edit mode:</b> add and set up components.');t1Draw()});
+const t1Say=h=>$('#t1Say').innerHTML=h;
+function t1W(o,i){const run=t1M==='run',m=t1Mem,t=TT[o.k];let c='';
+  if(o.k==='bb')c=`<button class="hbit${m[o.a]?' on':''}" data-act="bb">${o.l||'BUTTON'}</button>`;
+  if(o.k==='bl')c=`<span class="hlamp${m[o.a]?' on':''}"></span>`;
+  if(o.k==='sb')c=`<button class="hscr" data-act="sb">Screen ${o.a} ▸</button>`;
+  if(o.k==='ss')c=`<button class="hslide${m[o.a]?' on':''}" data-act="ss" aria-label="Slide switch"><i></i></button>`;
+  if(o.k==='ne')c=`<input class="hnum" type="number" data-act="ne" value="${m[o.a]||0}" ${run?'':'disabled'} aria-label="Numeric entry">`;
+  if(o.k==='nd')c=`<span class="hdisp">${m[o.a]||0}</span>`;
+  if(o.k==='wb')c=`<button class="hbit" data-act="wb">= ${o.v}</button>`;
+  return `<div class="wdg${t1Sel===i&&!run?' sel':''}" data-i="${i}" style="${run?'':'cursor:pointer'}"><span class="nm">${t[0]}</span>${c}<small style="color:#5A6A75">${o.k==='sb'?'go to screen '+o.a:o.a}</small></div>`}
+function t1Draw(){const s=T1[t1S],cv=$('#t1Cv');cv.classList.toggle('pic',s.bg);$('#t1ModeL').textContent=t1M==='run'?'Testing':'Designing';
+  cv.innerHTML=`<div class="stabs">${[1,2].map(n=>`<button data-s="${n}" aria-pressed="${n===t1S}">Screen ${n}</button>`).join('')}</div><div class="slots">${[...Array(8)].map((_,i)=>`<div class="slot">${s.o[i]?t1W(s.o[i],i):''}</div>`).join('')}</div>`;
+  $$('#t1Cv .stabs button').forEach(b=>b.onclick=()=>{t1S=+b.dataset.s;t1Sel=-1;t1Draw()});
+  $$('#t1Cv .wdg').forEach(d=>{const i=+d.dataset.i,o=s.o[i];
+    if(t1M==='edit'){d.onclick=()=>{t1Sel=i;t1Draw()};d.querySelectorAll('button,input').forEach(x=>x.style.pointerEvents='none');return}
+    const act=d.querySelector('[data-act]');if(!act)return;
+    if(o.k==='bb'||o.k==='ss')act.onclick=()=>{t1Mem[o.a]=t1Mem[o.a]?0:1;if(t1Mem[o.a]&&T1[t1S].o.some(x=>x.k==='bl'&&x.a===o.a))t1Done.lamp=true;t1Say(`You wrote <b>${t1Mem[o.a]}</b> into <b>${o.a}</b>.`);t1Draw();t1Chk()};
+    if(o.k==='sb')act.onclick=()=>{if(o.a===t1S){t1Say('This button points to the screen you are already on. Set its target to the other screen.');return}t1S=o.a;t1Done.scr=true;t1Say(`The screen button took you to <b>Screen ${o.a}</b>. Add a screen button there to come back.`);t1Draw();t1Chk()};
+    if(o.k==='ne')act.onchange=e=>{t1Mem[o.a]=Math.round(+e.target.value||0);t1Num(o.a);t1Draw();t1Chk()};
+    if(o.k==='wb')act.onclick=()=>{t1Mem[o.a]=o.v;t1Num(o.a);t1Draw();t1Chk()}});
+  t1Prop();t1Chk()}
+function t1Num(a){t1Say(`<b>${a}</b> now holds <b>${t1Mem[a]}</b>.`);if(T1[t1S].o.some(x=>x.k==='nd'&&x.a===a))t1Done.num=true}
+function t1Prop(){const p=$('#t1Prop'),o=T1[t1S].o[t1Sel];if(t1M!=='edit'||!o){p.innerHTML=t1M==='run'?'Run mode: properties are locked.':'Select a component on the screen.';return}const t=TT[o.k];
+  let h=`<b>${t[0]}</b>`;if(t[1]==='bit')h+=`<label>Address<select id="t1A">${BITS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label>`;
+  if(t[1]==='word')h+=`<label>Address<select id="t1A">${WORDS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label>`;
+  if(o.k==='sb')h+=`<label>Go to<select id="t1A">${[1,2].map(n=>`<option value="${n}"${n===o.a?' selected':''}>Screen ${n}</option>`).join('')}</select></label>`;
+  if(o.k==='bb')h+=`<label>Label<input id="t1L" maxlength="8" value="${o.l}"></label>`;if(o.k==='wb')h+=`<label>Value to write<input id="t1V" type="number" value="${o.v}"></label>`;
+  h+=`<button class="btn danger" id="t1Del">Delete</button>`;p.innerHTML=h;
+  const A=$('#t1A');if(A)A.onchange=()=>{o.a=o.k==='sb'?+A.value:A.value;t1Draw()};const L=$('#t1L');if(L)L.oninput=()=>{o.l=L.value.toUpperCase();t1DrawKeep()};const V=$('#t1V');if(V)V.onchange=()=>{o.v=Math.round(+V.value||0);t1Draw()};
+  $('#t1Del').onclick=()=>{T1[t1S].o.splice(t1Sel,1);t1Sel=-1;t1Draw()}}
+function t1DrawKeep(){const s=T1[t1S],slots=$$('#t1Cv .slot');s.o.forEach((o,i)=>{if(o.k==='bb'){const b=slots[i].querySelector('.hbit');if(b)b.textContent=o.l||'BUTTON'}})}
+function t1Chk(){const s1=T1[1].o,has=k=>s1.some(o=>o.k===k);let L=[];
+  if(t1Q===0){const bb=s1.find(o=>o.k==='bb'),bl=s1.find(o=>o.k==='bl');L=[['Bit button on Screen 1',!!bb],['Bit lamp on Screen 1',!!bl],['The lamp uses the same address as the button',!!(bb&&bl&&s1.some(x=>x.k==='bl'&&x.a===bb.a))],['Tested in Run: pressing the button lights the lamp',t1Done.lamp]]}
+  if(t1Q===1)L=[['Bit button on Screen 1',has('bb')],['Bit lamp on Screen 1',has('bl')],['Screen button going to Screen 2',s1.some(o=>o.k==='sb'&&o.a===2)],['Background picture on Screen 1',T1[1].bg],['Tested in Run: the screen button changes screen',t1Done.scr]];
+  if(t1Q===2)L=[['Slide switch',has('ss')],['Numeric entry',has('ne')],['Numeric display',has('nd')],['Word button',has('wb')],['Tested in Run: the display shows a number you typed or wrote (same address)',t1Done.num]];
+  $('#t1Chk').innerHTML=L.map(([t,ok])=>`<li class="${ok?'ok':''}">${t}</li>`).join('');$('#t1Task').innerHTML=`<b>${T1Q[t1Q][0]}:</b> ${T1Q[t1Q][1]}`;
+  if(L.every(x=>x[1]))$('#t1Chk').insertAdjacentHTML('beforeend','<li class="ok"><b>Complete! Now build the same in CX-Designer.</b></li>')}
+t1Draw();
+
+/* ===== 5.5 production counter ===== */
+let ctSv=5,ctPv=5,ctDone=false,ctPulse=false,ctAutoT=null;
+function ctLad(){const on='var(--ok)',off='var(--pipe)',p=ctPulse,cnt=ctSv-ctPv;
+  $('#ctLad').innerHTML=`<path d="M20,20 V230 M440,20 V230" stroke="var(--ink)" stroke-width="3"/>
+   <path d="M20,60 H70 M100,60 H200" stroke="${p?on:off}" stroke-width="3"/><path d="M70,46 V74 M100,46 V74" stroke="${p?on:off}" stroke-width="3"/><text x="85" y="40" text-anchor="middle" font-size="12">200.00</text><text x="85" y="92" text-anchor="middle" font-size="10" class="dim">COUNT</text>
+   <path d="M20,120 H70 M100,120 H200" stroke="${off}" stroke-width="3"/><path d="M70,106 V134 M100,106 V134" stroke="${off}" stroke-width="3"/><text x="85" y="100" text-anchor="middle" font-size="12">200.01</text><text x="85" y="152" text-anchor="middle" font-size="10" class="dim">RESET</text>
+   <rect x="200" y="36" width="160" height="104" rx="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="280" y="62" text-anchor="middle" font-size="15" style="font-weight:700">CNT 000</text><text x="210" y="64" font-size="11" class="dim">CP</text><text x="210" y="124" font-size="11" class="dim">R</text>
+   <text x="280" y="88" text-anchor="middle" font-size="13">SV: DM0100 = ${ctSv}</text><text x="280" y="112" text-anchor="middle" font-size="15" style="font-weight:700;fill:${ctDone?'var(--ok)':'var(--sel)'}">PV: ${ctPv}</text>
+   <path d="M20,195 H90 M120,195 H360" stroke="${ctDone?on:off}" stroke-width="3"/><path d="M90,181 V209 M120,181 V209" stroke="${ctDone?on:off}" stroke-width="3"/><text x="105" y="175" text-anchor="middle" font-size="12">C000</text>
+   <circle cx="380" cy="195" r="16" fill="${ctDone?'#F0C04A':'var(--panel)'}" stroke="var(--ink)" stroke-width="2"/><path d="M396,195 H440" stroke="${off}" stroke-width="3"/><text x="380" y="172" text-anchor="middle" font-size="12">200.02</text><text x="380" y="230" text-anchor="middle" font-size="10" class="dim">LAMP</text>`;
+  $('#ctCnt').textContent=cnt;$('#ctLamp').classList.toggle('on',ctDone);$('#ctBtn').classList.toggle('on',p)}
+function ctStep(n){$$('#ctSteps div').forEach((d,i)=>{d.classList.toggle('on',i===n);d.classList.toggle('done',i<n)})}
+function ctCount(){if(ctDone){$('#ctSay').innerHTML='The target is already reached. Press <b>RESET</b> to start again.';return}
+  ctPulse=true;ctStep(1);ctLad();$('#ctSay').innerHTML='<b>Step 2:</b> a count pulse: work bit 200.00 goes ON for a moment.';
+  setTimeout(()=>{ctPulse=false;ctPv--;if(ctPv<=0){ctPv=0;ctDone=true}ctLad();
+    if(ctDone){ctStep(3);clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';$('#ctSay').innerHTML=`<b>Step 4:</b> the count reached the target (<b>${ctSv}</b>). Counter C000 turns ON, so 200.02 lights the <b>bit lamp</b>.`}
+    else{ctStep(2);$('#ctSay').innerHTML=`<b>Step 3:</b> the PLC counter drops PV to <b>${ctPv}</b>; the numeric display shows <b>${ctSv-ctPv}</b> of ${ctSv}.`}},500)}
+$('#ctBtn').onclick=ctCount;
+$('#ctRst').onclick=()=>{clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';ctPv=ctSv;ctDone=false;ctStep(0);ctLad();$('#ctSay').innerHTML='Reset: 200.01 resets the counter, PV goes back to the set value.'};
+$('#ctSv').onchange=e=>{ctSv=Math.max(1,Math.min(99,Math.round(+e.target.value||1)));e.target.value=ctSv;ctPv=ctSv;ctDone=false;ctStep(0);ctLad();$('#ctSay').innerHTML=`<b>Step 1:</b> the operator typed <b>${ctSv}</b>. The HMI writes it into <b>DM0100</b>, the counter's set value.`};
+$('#ctAuto').onclick=()=>{if(ctAutoT){clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';return}if(ctDone)return;$('#ctAuto').textContent='❚❚ STOP';ctAutoT=setInterval(ctCount,1500)};
+ctLad();
+
+/* ===== 5.6 three products ===== */
+const BP=[['Product 1','40 × 40 mm','Iron',120],['Product 2','30 × 30 mm','Plastic',180],['Product 3','50 × 50 mm','Aluminium',90]];
+let bpT=0,bpRun=null;
+function bpDraw(){const cur=Math.floor(bpT);let tot=0;
+  $('#bpTrk').innerHTML=BP.map(([n,sz,m,rate],i)=>{const f=Math.max(0,Math.min(1,bpT-i)),c=Math.floor(rate*f);tot+=c;
+    const st=bpT>=i+1?['dn','Done','#5AA8FF']:i===cur&&bpT<3?['g on','Active','#3FB950']:i===cur+1?['am on','Standby','#E3B23F']:['','Scheduled','#8A99A6'];
+    return `<div class="r"><span class="hlamp ${st[0]}"></span><div><b>Track ${i+1} · ${n}</b><small>${sz} · ${m} · ${rate} per hour</small><div class="bar"><i style="width:${f*100}%"></i></div></div><div><div class="st" style="color:${st[2]}">${st[1]}</div><div class="hdisp" style="font-size:20px;min-width:0;text-align:right">${c}</div></div></div>`}).join('');
+  const h=Math.floor(bpT),mi=Math.floor((bpT-h)*60);$('#bpClk').textContent=`${h}:${String(mi).padStart(2,'0')}`;
+  const a=$('#bpAlm');if(bpT>=3){a.textContent=`Shift complete: ${tot} products made (120 + 180 + 90)`;a.className='alm okk'}
+  else if(bpT>0&&bpT-cur<0.04&&cur>0){a.textContent=`Changeover: now making ${BP[cur][0]} (${BP[cur][2]})`;a.className='alm on'}
+  else if(bpT>0){a.textContent=`Running ${BP[cur][0]} · ${BP[cur][1]} ${BP[cur][2]}`;a.className='alm okk'}}
+$('#bpGo').onclick=()=>{if(bpRun)return;if(bpT>=3)bpT=0;bpRun=setInterval(()=>{bpT=Math.min(3,bpT+0.005);bpDraw();if(bpT>=3){clearInterval(bpRun);bpRun=null}},100)};
+$('#bpPause').onclick=()=>{clearInterval(bpRun);bpRun=null;$('#bpAlm').textContent='Paused';$('#bpAlm').className='alm'};
+$('#bpReset').onclick=()=>{clearInterval(bpRun);bpRun=null;bpT=0;bpDraw();$('#bpAlm').textContent='Ready to start';$('#bpAlm').className='alm'};
+bpDraw();$('#bpAlm').textContent='Ready to start';$('#bpAlm').className='alm';
+
+/* Class game: name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  /* Game-show music made live with Web Audio: no audio files, no copyright */
+  const Snd=(()=>{let ac,master,mus,timer,on=false,step=0,next=0,noise;
+    const mf=m=>440*Math.pow(2,(m-69)/12),S=60/128/4;
+    const CH=[[48,60,64,67],[43,59,62,67],[45,60,64,69],[41,60,65,69]];
+    function init(){if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();master=ac.createGain();master.gain.value=.3;master.connect(ac.destination);
+        mus=ac.createGain();mus.gain.value=.8;mus.connect(master);noise=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+      if(ac.state==='suspended')ac.resume();return true}
+    function tone(type,f,t,dur,v,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.03)}
+    function kick(t,dest){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(dest);o.start(t);o.stop(t+.3)}
+    function hiss(t,dur,v,freq,type,dest){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;f.type=type;f.frequency.value=freq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.02)}
+    function beat(i,t){const s=i%16,ch=CH[Math.floor(i/16)%4];
+      if(s%4===0)kick(t,mus);
+      if(s===4||s===12){hiss(t,.16,.5,1600,'bandpass',mus);tone('triangle',190,t,.08,.2,mus)}
+      hiss(t,.04,s%2?.12:.22,7000,'highpass',mus);
+      if(s%2===0)tone('square',mf(ch[0]+(s%4===2?12:0)),t,S*1.7,.07,mus);
+      tone('triangle',mf([ch[1],ch[2],ch[3],ch[2]+12][s%4]+12),t,S*.9,.11,mus);
+      if(s===0)[ch[1],ch[2],ch[3]].forEach(m=>tone('sawtooth',mf(m),t,S*14,.018,mus))}
+    function sched(){while(next<ac.currentTime+.12){beat(step,next);next+=S;step++}}
+    return {get on(){return on},
+      start(){if(on||!init())return;on=true;step=0;next=ac.currentTime+.06;timer=setInterval(sched,25)},
+      stop(){on=false;clearInterval(timer);if(mus){mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setValueAtTime(.8,ac.currentTime)}},
+      duck(d){if(!ac)return;mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setTargetAtTime(d?.15:.8,ac.currentTime,.15)},
+      ticks(dur){if(!init())return;const t0=ac.currentTime;let e=0;while(e<dur-.25){const p=e/dur;tone('square',1700,t0+e,.025,.16,master);hiss(t0+e,.02,.15,5000,'highpass',master);e+=.045+.42*p*p*p}},
+      fanfare(){if(!init())return;const t=ac.currentTime+.04;[60,64,67,72].forEach((m,i)=>tone('square',mf(m+12),t+i*.09,.16,.1,master));
+        [60,64,67,72,76].forEach(m=>{tone('triangle',mf(m),t+.4,1.4,.12,master);tone('sawtooth',mf(m),t+.4,1.1,.025,master)});kick(t+.4,master);hiss(t+.4,1.2,.25,6000,'highpass',master)}}})();
+  const mBtn=()=>{const b=$('#wMusic');b.setAttribute('aria-pressed',Snd.on);b.textContent=Snd.on?'♪ Music on':'♪ Music off'};
+  $('#wMusic').onclick=()=>{Snd.on?Snd.stop():Snd.start();mBtn()};
+  addEventListener('pagehide',()=>Snd.stop());
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch5-pool')||names.slice(), picked=store.get('ch5-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch5-pool',pool);store.set('ch5-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');if(Snd.on){Snd.duck(1);Snd.ticks(reduce?0.4:5.5)}
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');if(Snd.on){Snd.fanfare();setTimeout(()=>Snd.duck(0),1800)}picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen()}else{box.requestFullscreen();Snd.start();mBtn()}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&Snd.on){Snd.stop();mBtn()}});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
+})();
+</script>
+</body>
+</html>
