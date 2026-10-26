@@ -156,6 +156,7 @@ input[type=range]{width:100%;accent-color:var(--sel)}
 .hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
 .hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
 .hmi-foot .alm.okk{background:#1F5130;color:#fff}
+.hmi-foot .alm.step{background:#2F6FB5;color:#fff;font-size:14px}
 @keyframes hblink{50%{background:#7E1A1D}}
 .hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
 .hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
@@ -961,23 +962,31 @@ function r5Draw(){let s=`<rect x="20" y="96" width="120" height="96" rx="4" fill
 const r5Alm=(t,c)=>{const a=$('#r5Alm');a.textContent=t;a.className='alm '+c};
 const r5Move=(el,x0,x1,ms)=>{el.style.display='';return tween(ms,k=>el.setAttribute('transform',`translate(${x0+(x1-x0)*k},120)`))};
 function r5Lock(on){r5Busy=on;['#r5Poll','#r5Less','#r5More','#r5Clash','#r5Term'].forEach(s=>$(s).disabled=on)}
-$('#r5Poll').onclick=async()=>{if(r5Busy)return;r5Lock(true);let bad=0;r5Alm('Polling…','');const pk=$('#r5Pk'),gh=$('#r5Gh');
-  for(let k=1;k<=r5N;k++){const x=r5X(k),ms=500+900*(x-140)/820;
-    $('#r5PkT').textContent='Read '+k;pk.querySelector('rect').setAttribute('fill','#2F6FB5');await r5Move(pk,140,x,ms);
-    $('#r5S'+k).querySelector('rect').setAttribute('stroke','#3FB950');
-    const echo=!r5Term&&k%2===1;$('#r5PkT').textContent='Data '+k;pk.querySelector('rect').setAttribute('fill','#1F5130');
+let r5Stop=false;
+$('#r5Poll').onclick=async()=>{if(r5Busy){r5Stop=true;$('#r5Poll').disabled=true;r5Alm('Stopping after this slave…','');return}
+  r5Lock(true);r5Stop=false;const pb=$('#r5Poll');pb.disabled=false;pb.textContent='■ Stop';let bad=0;const pk=$('#r5Pk'),gh=$('#r5Gh');
+  for(let k=1;k<=r5N&&!r5Stop;k++){const x=r5X(k),ms=1800+2600*(x-140)/820;
+    r5Alm(`Step 1: the master asks slave ${k}: "send me your data"`,'step');r5Log(`Master → slave ${k}: read request`,'i');
+    $('#r5PkT').textContent='Ask '+k;pk.querySelector('rect').setAttribute('fill','#2F6FB5');await r5Move(pk,140,x,ms);
+    $('#r5S'+k).querySelector('rect').setAttribute('stroke','#3FB950');$('#r5T'+k).textContent="that's me!";
+    r5Alm(`Step 2: slave ${k} sees its own address, so only slave ${k} answers. The others stay quiet.`,'step');await sleep(1600);
+    const echo=!r5Term&&k%2===1;$('#r5PkT').textContent='Reply '+k;pk.querySelector('rect').setAttribute('fill','#1F5130');
+    r5Alm(echo?`Step 3: slave ${k} replies… but with no termination, the signal echoes off the cable end`:`Step 3: slave ${k} sends its reply back to the master`,echo?'on':'step');
     await Promise.all([r5Move(pk,x,140,ms),echo?(async()=>{await r5Move(gh,x,960,ms*.5);await r5Move(gh,960,300,ms*.5);gh.style.display='none'})():null]);
-    pk.style.display='none';$('#r5S'+k).querySelector('rect').setAttribute('stroke','#34424D');
-    if(echo){bad++;r5Log(`Slave ${k}: reply spoiled by a reflection from the cable end (CRC error)`,'a')}else r5Log(`Slave ${k}: reply OK`,'k')}
-  r5Alm(bad?`${bad} replies corrupted: check the termination resistors`:'Network healthy: all slaves answered',bad?'on':'okk');r5Lock(false)};
+    pk.style.display='none';$('#r5S'+k).querySelector('rect').setAttribute('stroke','#34424D');$('#r5T'+k).textContent='addr '+k;
+    if(echo){bad++;r5Log(`Slave ${k}: reply spoiled by a reflection from the cable end (CRC error)`,'a');r5Alm(`Slave ${k}'s reply was spoiled by the echo (CRC error). The master must ask again.`,'on')}
+    else{r5Log(`Slave ${k}: reply OK`,'k');r5Alm(`Slave ${k}'s reply arrived safely. Next slave…`,'okk')}
+    await sleep(1400)}
+  r5Alm(r5Stop?'Polling stopped.':bad?`${bad} replies corrupted: check the termination resistors`:'Network healthy: all slaves answered',r5Stop?'':bad?'on':'okk');pb.textContent='▶ Poll all slaves';r5Lock(false)};
 $('#r5Less').onclick=()=>{if(r5Busy||r5N<=2)return;r5N--;r5Draw();r5Log(`Slave ${r5N+1} disconnected`)};
 $('#r5More').onclick=()=>{if(r5Busy)return;if(r5N>=8){r5Log('This screen shows up to 8, but RS-485 allows up to 32 devices on one pair.','i');return}r5N++;r5Draw();r5Log(`Slave ${r5N} added with address ${r5N}`)};
 $('#r5Term').onclick=()=>{if(r5Busy)return;r5Term=!r5Term;r5Draw();r5Log('Termination resistors '+(r5Term?'fitted at both ends':'removed'),r5Term?'k':'a');r5Alm(r5Term?'Network healthy':'Warning: bus not terminated',r5Term?'okk':'on')};
 $('#r5Clash').onclick=async()=>{if(r5Busy)return;r5Lock(true);const a=$('#r5Pk'),b=$('#r5Pk2'),x1=r5X(1),x3=r5X(Math.min(3,r5N)),mid=(x1+x3)/2;
   $('#r5PkT').textContent='Data 1';a.querySelector('rect').setAttribute('fill','#1F5130');$('#r5Pk2T').textContent='Data '+Math.min(3,r5N);
-  await Promise.all([r5Move(a,x1,mid-30,900),r5Move(b,x3,mid+30,900)]);const bm=$('#r5Boom');bm.setAttribute('transform',`translate(${mid},120)`);bm.style.display='';
-  r5Log(`Collision: slaves 1 and ${Math.min(3,r5N)} transmitted at the same time. RS-485 is half duplex; only the device the master asks may answer.`,'a');r5Alm('Collision on the bus','on');
-  await sleep(1600);[a,b,bm].forEach(e=>e.style.display='none');r5Alm('Network healthy','okk');r5Lock(false)};
+  r5Alm(`Slave 1 and slave ${Math.min(3,r5N)} both start talking at the same time, without being asked…`,'step');
+  await Promise.all([r5Move(a,x1,mid-30,2800),r5Move(b,x3,mid+30,2800)]);const bm=$('#r5Boom');bm.setAttribute('transform',`translate(${mid},120)`);bm.style.display='';
+  r5Log(`Collision: slaves 1 and ${Math.min(3,r5N)} transmitted at the same time. RS-485 is half duplex; only the device the master asks may answer.`,'a');r5Alm('Collision! Two devices talked at once on the same pair of wires, so both messages are destroyed.','on');
+  await sleep(4500);[a,b,bm].forEach(e=>e.style.display='none');r5Alm('Network healthy','okk');r5Lock(false)};
 r5Draw();r5Log('Master ready. Press Poll all slaves.','i');
 
 /* ===== 3.7 comparison + game ===== */
