@@ -389,7 +389,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <div class="me"><b class="t">The signal: this chapter</b>RS-232, RS-422 and RS-485 decide <b>how the bits travel</b>: the wires, the voltages, the distance and the speed.</div>
     <div><b class="t">The language: Chapter 2</b>Modbus, DNP3 and IEC 61850 decide <b>what the bits mean</b>. See <a href="chapter2.html#s1">Chapter 2</a>.</div>
   </div>
-  <div class="ana"><b>Analogy: two people on walkie-talkies</b>The radio signal is the serial link (for example RS-485). The language they speak, English or Malay, is the protocol (for example Modbus). Without the signal the voice cannot travel; without the language the message has no meaning.</div>
+  <div class="ana"><b>Analogy: two people on walkie-talkies</b>The radio signal is the serial link (for example RS-485). The language they speak, English or Malay, is the protocol (for example Modbus). Without the signal the voice cannot travel; without the language the message has no meaning. <i>(Isyarat radio ialah pautan bersiri, contohnya RS-485. Bahasa yang mereka gunakan, Bahasa Inggeris atau Bahasa Melayu, ialah protokol, contohnya Modbus. Tanpa isyarat, suara tidak dapat sampai; tanpa bahasa, mesej tidak bermakna.)</i></div>
   <div class="ticker">
     <div><div class="k">RS-232 reach</div><div class="v">~15 m</div></div>
     <div><div class="k">RS-485 reach</div><div class="v">1200 m</div></div>
@@ -425,7 +425,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="say" id="serSay" aria-live="polite">Press <b>Send</b> to watch the letter travel.</div>
   <h3>Asynchronous: no shared clock</h3>
   <div class="prose"><p>RS-232 is <b>asynchronous</b>: there is no clock wire telling the receiver when each bit arrives. Instead both sides agree on the speed beforehand (the <b>baud rate</b>, for example 9600 bits per second), and every character is wrapped in a <b>start bit</b> and a <b>stop bit</b>. The timing between bits is fixed, but the gap between characters can be any length.</p></div>
-  <div class="ana"><b>Analogy: knocking before you speak</b>The start bit is a knock on the door: "listen, a letter is coming." The receiver then counts the next 8 bits at the agreed speed. The stop bit is "done". The next knock can come straight away or a minute later.</div>
+  <div class="ana"><b>Analogy: knocking before you speak</b>The start bit is a knock on the door: "listen, a letter is coming." The receiver then counts the next 8 bits at the agreed speed. The stop bit is "done". The next knock can come straight away or a minute later. <i>(Bit mula ialah ketukan pada pintu: "dengar, satu huruf akan datang." Penerima kemudian mengira 8 bit seterusnya pada kelajuan yang dipersetujui. Bit henti bermaksud "selesai". Ketukan seterusnya boleh datang serta-merta atau seminit kemudian.)</i></div>
   <h3>Why serial survives in industry</h3>
   <div class="why">
     <div class="panel"><svg viewBox="0 0 52 52" aria-hidden="true"><path d="M8,40 C20,30 32,22 44,12 M8,44 C20,34 32,26 44,16" stroke="#B87F00" stroke-width="4" fill="none"/></svg><div><b>Simple</b><p>Often just two wires. Cheap and easy to install for basic sensors and meters.</p></div></div>
@@ -439,7 +439,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s2">
   <h2><span class="n">3.2</span>Nodes and addresses</h2>
   <div class="key"><b>Key idea</b>A node is any device on a network that can send, receive or process data: a PLC, an HMI, an RTU or a computer. Each node has its own address.</div>
-  <div class="ana"><b>Analogy: houses on a street</b>The cable is the street and every node is a house with a house number. The postman walks past every house, but only the house whose number is on the envelope opens it.</div>
+  <div class="ana"><b>Analogy: houses on a street</b>The cable is the street and every node is a house with a house number. The postman walks past every house, but only the house whose number is on the envelope opens it. <i>(Kabel ialah jalan, dan setiap nod ialah sebuah rumah yang mempunyai nombor rumah. Posmen berjalan melalui setiap rumah, tetapi hanya rumah yang nombornya tertulis pada sampul surat sahaja yang membukanya.)</i></div>
   <div class="ctrl"><span style="font-weight:600">Send a message to address:</span><div class="chips" id="ndChips" role="group" aria-label="Address"></div></div>
   <figure class="diagram scroll-x wide" style="margin:6px 0 0">
     <svg viewBox="0 0 900 260" id="ndSvg" role="img" aria-label="A master and five nodes on one shared cable"></svg>
@@ -458,8 +458,8 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <h2><span class="n">3.3</span>Half duplex and full duplex</h2>
   <div class="key"><b>Key idea</b>Half duplex: data goes both ways, but only one way at a time. Full duplex: both sides can send at the same time.</div>
   <div class="twocol">
-    <div class="ana" style="margin:0"><b>Half duplex: a walkie-talkie</b>Press to talk, say "over", then listen. If both press at once, nobody hears anything. RS-485 (two wires) works like this.</div>
-    <div class="ana" style="margin:0"><b>Full duplex: a telephone call</b>Both people can talk and listen at the same time, because there is a separate path each way. RS-232 and RS-422 work like this.</div>
+    <div class="ana" style="margin:0"><b>Half duplex: a walkie-talkie</b>Press to talk, say "over", then listen. If both press at once, nobody hears anything. RS-485 (two wires) works like this. <i>(Tekan untuk bercakap, sebut "over", kemudian dengar. Jika kedua-dua pihak menekan serentak, tiada siapa yang dapat mendengar. RS-485 dua wayar berfungsi seperti ini.)</i></div>
+    <div class="ana" style="margin:0"><b>Full duplex: a telephone call</b>Both people can talk and listen at the same time, because there is a separate path each way. RS-232 and RS-422 work like this. <i>(Kedua-dua pihak boleh bercakap dan mendengar pada masa yang sama kerana ada laluan berasingan bagi setiap arah. RS-232 dan RS-422 berfungsi seperti ini.)</i></div>
   </div>
   <div class="ctrl">
     <div class="seg" role="group" aria-label="Duplex mode" id="dxMode"><button aria-pressed="true" data-m="h">Half duplex</button><button aria-pressed="false" data-m="f">Full duplex</button></div>
@@ -541,7 +541,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   </figure>
   <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
   <div class="say" id="rsSay" aria-live="polite"></div>
-  <div class="ana"><b>Analogy: talking to a friend in a noisy factory</b>Standing close, you hear them fine. Walk 50 metres away while a machine roars, and words get lost. RS-232 is one voice against the noise, so keep it short.</div>
+  <div class="ana"><b>Analogy: talking to a friend in a noisy factory</b>Standing close, you hear them fine. Walk 50 metres away while a machine roars, and words get lost. RS-232 is one voice against the noise, so keep it short. <i>(Apabila berdiri dekat, anda boleh mendengar kawan anda dengan jelas. Jika anda berjalan 50 meter jauhnya ketika mesin sedang bising, ada perkataan yang hilang. RS-232 ialah satu suara melawan bunyi bising, jadi kabelnya mesti pendek.)</i></div>
   <p>Typical uses: connecting a PC to a PLC for programming (like the CX-Programmer link in <a href="lab1.html">Lab 1</a>), a PC to a microcontroller, a modem or printer, and debugging industrial devices on the bench.</p>
   <p class="muted" style="font-size:15px">RS-232, RS-422 and RS-485 describe only the wires, plugs and voltages. In the OSI model that is layer 1, the physical layer (<a href="chapter2.html#s5">Chapter 2.5</a>).</p>
 </section>
@@ -550,7 +550,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s5">
   <h2><span class="n">3.5</span>RS-422 and the differential trick</h2>
   <div class="key"><b>Key idea</b>RS-422 sends each signal on a pair of wires carrying opposite copies. The receiver looks only at the difference between them, so noise that hits both wires cancels out.</div>
-  <div class="ana"><b>Analogy: two friends on a bumpy bus</b>When the bus hits a pothole, both friends bounce up together. The gap between their heads stays the same. The receiver measures that gap, not the height, so the bumps (the noise) do not matter.</div>
+  <div class="ana"><b>Analogy: two friends on a bumpy bus</b>When the bus hits a pothole, both friends bounce up together. The gap between their heads stays the same. The receiver measures that gap, not the height, so the bumps (the noise) do not matter. <i>(Apabila bas terlanggar lubang, kedua-dua sahabat melambung bersama-sama. Jarak antara kepala mereka tetap sama. Penerima mengukur jarak itu, bukan ketinggian, jadi hentakan (gangguan) tidak memberi kesan.)</i></div>
   <div class="ctrl"><button class="btn" id="difNoise" aria-pressed="true">Factory noise: ON</button><button class="btn primary" id="difZap">⚡ Big spark now</button></div>
   <figure class="diagram scroll-x wide" style="margin:6px 0 0">
     <svg viewBox="0 0 900 400" id="difSvg" role="img" aria-label="Differential signalling: wire A, wire B, the difference, and a single wire for comparison">
@@ -594,7 +594,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s6">
   <h2><span class="n">3.6</span>RS-485: the industrial workhorse</h2>
   <div class="key"><b>Key idea</b>RS-485 puts up to 32 devices on one twisted pair (multidrop). Only one may talk at a time, so the master calls each address in turn.</div>
-  <div class="ana"><b>Analogy: a lecturer and a class</b>The lecturer (master) calls one student by name (address). Only that student answers. If two students shout at once, nobody understands either of them.</div>
+  <div class="ana"><b>Analogy: a lecturer and a class</b>The lecturer (master) calls one student by name (address). Only that student answers. If two students shout at once, nobody understands either of them. <i>(Pensyarah (master) memanggil seorang pelajar dengan namanya (alamat). Hanya pelajar itu yang menjawab. Jika dua pelajar menjerit serentak, tiada siapa yang faham kedua-duanya.)</i></div>
   <div class="hmi" id="rsHmi">
     <div class="hmi-title"><b>RS-485 MULTIDROP NETWORK · 9600 bps</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
     <div class="hmi-body scroll-x wide"><svg viewBox="0 0 1000 300" id="r5Svg" role="img" aria-label="RS-485 bus with a master and slave devices"></svg></div>
@@ -617,7 +617,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   </div>
   <h3>Termination resistors: stopping the echo</h3>
   <div class="prose"><p>On a long cable, a signal reaching the far end bounces back like an echo and spoils the next bits. A resistor of about <b>100 to 120 Ω</b> (matching the cable) at <b>each end</b> of the bus soaks the signal up. Turn termination OFF above and poll again.</p></div>
-  <div class="ana"><b>Analogy: an empty hall versus a curtained room</b>Shout in an empty hall and your words echo back over the next ones. Hang thick curtains at the ends of the room and the echo disappears. The termination resistors are the curtains.</div>
+  <div class="ana"><b>Analogy: an empty hall versus a curtained room</b>Shout in an empty hall and your words echo back over the next ones. Hang thick curtains at the ends of the room and the echo disappears. The termination resistors are the curtains. <i>(Jika anda menjerit di dalam dewan kosong, suara anda bergema semula dan menindih perkataan seterusnya. Gantung langsir tebal di kedua-dua hujung bilik dan gema itu hilang. Perintang penamat ialah langsir itu.)</i></div>
   <p>RS-485 is the usual road for <b>Modbus RTU</b> (<a href="chapter2.html#s8">Chapter 2.8</a>). Each device needs a <b>unique address</b>, set on the device, so that only one answers each question.</p>
 </section>
 
@@ -653,7 +653,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 <section class="topic" id="s8">
   <h2><span class="n">3.8</span>Converters</h2>
   <div class="key"><b>Key idea</b>A converter is a bridge between two electrical standards, for example from a PC's USB or RS-232 port to an RS-485 network. It changes the signal, not the message.</div>
-  <div class="ana"><b>Analogy: a travel plug adapter</b>Your Malaysian plug does not fit a Japanese socket, so you use an adapter. The electricity is the same; only the shape of the plug changes. A converter changes the wires and voltages, but the Modbus message inside stays exactly the same. (Changing the language itself needs a <b>gateway</b>, Chapter 2.)</div>
+  <div class="ana"><b>Analogy: a travel plug adapter</b>Your Malaysian plug does not fit a Japanese socket, so you use an adapter. The electricity is the same; only the shape of the plug changes. A converter changes the wires and voltages, but the Modbus message inside stays exactly the same. (Changing the language itself needs a <b>gateway</b>, Chapter 2.) <i>(Palam Malaysia anda tidak muat pada soket Jepun, jadi anda menggunakan penyesuai palam. Elektriknya sama; hanya bentuk palam yang berubah. Penukar mengubah wayar dan voltan, tetapi mesej Modbus di dalamnya kekal sama. Untuk menukar bahasa itu sendiri, kita perlukan gateway (Bab 2).)</i></div>
   <div class="ctrl"><div class="chips" id="cvChips" role="group" aria-label="Converter type"></div><button class="btn primary" id="cvGo">Send data ▶</button></div>
   <figure class="diagram scroll-x wide" style="margin:6px 0 0">
     <svg viewBox="0 0 900 300" id="cvSvg" role="img" aria-label="A computer, a converter box and a field device"></svg>
@@ -1034,10 +1034,10 @@ const TOP={
    e=[['d0','tM','drop'],['eL','tL','bb'],['tL','tM','bb'],['tM','tR','bb'],['tR','eR','bb'],['tL','h1','drop'],['tM','h2','drop'],['tR','h3','drop']];
    const A=['Packing','Mixing','Filling'];[180,450,720].forEach((x,j)=>[-85,0,85].forEach((dx,k)=>{const id=`m${j}${k}`;n.push(dv(id,x+dx,315,`${A[j]} ${k+1}`));e.push(['h'+(j+1),id,'link'])}));
    return {n,e,master:'d0',rule:null}})()};
-const TINFO={bus:['Like an LRT line: one track, many stations. Simple and cheap, but cut the track and no train runs anywhere.','One main cable (the backbone). Every device taps into it and hears every message; only the addressed device answers.','Cheap, little cable, easy to install. RS-485 multidrop is a bus.','One break in the backbone stops the whole network, and the fault can be hard to find.'],
- ring:['Like passing a parcel round a circle of friends: each person takes it and hands it to the next.','A closed loop. Each device has exactly two neighbours and repeats every message to the next one, always in the same direction.','Orderly: every device gets its turn, and the signal is refreshed at every device.','One broken cable or device breaks the loop and stops everything.'],
- star:['Like your home Wi-Fi router: every phone and laptop talks through the router, never directly.','Every device has its own cable (usually UTP) to a central hub or switch. Every message passes through the centre.','If one device or cable fails, only that device is lost. Easy to add devices and find faults. The most common layout for Ethernet today.','If the hub or switch fails, the whole network stops. Needs more cable.'],
- tree:['Like a company organisation chart: the director, then the managers, then their teams.','Several stars joined to one main backbone. Each hub is the "root" of its own group of machines.','Grows easily: each area of the plant gets its own branch, and a fault in one branch does not affect the others.','Everything depends on the backbone and the top: if they fail, whole branches are cut off.']};
+const TINFO={bus:['Like an LRT line: one track, many stations. Simple and cheap, but cut the track and no train runs anywhere. <i>(Seperti laluan LRT: satu landasan, banyak stesen. Mudah dan murah, tetapi jika landasan terputus, tiada tren yang boleh bergerak.)</i>','One main cable (the backbone). Every device taps into it and hears every message; only the addressed device answers.','Cheap, little cable, easy to install. RS-485 multidrop is a bus.','One break in the backbone stops the whole network, and the fault can be hard to find.'],
+ ring:['Like passing a parcel round a circle of friends: each person takes it and hands it to the next. <i>(Seperti permainan menghantar bungkusan dalam satu bulatan kawan: setiap orang menerimanya dan menyerahkannya kepada orang seterusnya.)</i>','A closed loop. Each device has exactly two neighbours and repeats every message to the next one, always in the same direction.','Orderly: every device gets its turn, and the signal is refreshed at every device.','One broken cable or device breaks the loop and stops everything.'],
+ star:['Like your home Wi-Fi router: every phone and laptop talks through the router, never directly. <i>(Seperti penghala Wi-Fi di rumah: setiap telefon dan komputer riba berhubung melalui penghala, bukan secara terus.)</i>','Every device has its own cable (usually UTP) to a central hub or switch. Every message passes through the centre.','If one device or cable fails, only that device is lost. Easy to add devices and find faults. The most common layout for Ethernet today.','If the hub or switch fails, the whole network stops. Needs more cable.'],
+ tree:['Like a company organisation chart: the director, then the managers, then their teams. <i>(Seperti carta organisasi syarikat: pengarah, kemudian pengurus, kemudian pasukan mereka.)</i>','Several stars joined to one main backbone. Each hub is the "root" of its own group of machines.','Grows easily: each area of the plant gets its own branch, and a fault in one branch does not affect the others.','Everything depends on the backbone and the top: if they fail, whole branches are cut off.']};
 let tk='bus',brE=new Set(),brN=new Set(),tpBusy=false;
 const T=()=>TOP[tk],NI=()=>Object.fromEntries(T().n.map(n=>[n.id,n]));
 function tpReach(){const t=T();if(brN.has(t.master))return new Set();
@@ -1093,14 +1093,14 @@ const PN={rio:{svg:()=>plc(40,90,'Main PLC','control room')+`<path d="M160,127 H
     <rect x="690" y="92" width="150" height="70" rx="4" fill="#2E7A39"/><text x="765" y="133" text-anchor="middle" style="fill:#fff;font-weight:600" font-size="15">REMOTE I/O</text><text x="765" y="182" text-anchor="middle" font-size="12" class="dim">rack in the field</text>
     ${['Level sensor','Valve','Pump motor'].map((t,i)=>`<path d="M${720+i*45},162 V${226}" stroke="var(--pipe)" stroke-width="2"/><circle cx="${720+i*45}" cy="240" r="13" fill="var(--panel)" stroke="var(--pipe)" stroke-width="2"/><text x="${720+i*45}" y="${272+(i%2)*16}" text-anchor="middle" font-size="12">${t}</text>`).join('')}
     ${reduce?'':dot('M160,127 H690','#D35400',2.4,0)+dot('M690,127 H160','#1B5AA6',2.4,1.2)}`,
-   say:'<b>Remote I/O:</b> the PLC stays in the control room, but its inputs and outputs sit in a rack out in the field, next to the sensors and valves. One network cable replaces dozens of long field wires.',ana:'<b>Analogy</b>An extension cord with a socket box at the far end: the power point stays on the wall, but you can plug things in across the room.'},
+   say:'<b>Remote I/O:</b> the PLC stays in the control room, but its inputs and outputs sit in a rack out in the field, next to the sensors and valves. One network cable replaces dozens of long field wires.',ana:'<b>Analogy</b>An extension cord with a socket box at the far end: the power point stays on the wall, but you can plug things in across the room. <i>(Seperti kord sambungan dengan kotak soket di hujungnya: soket kuasa kekal di dinding, tetapi anda boleh memasang peralatan di seberang bilik.)</i>'},
  p2p:{svg:()=>plc(110,100,'PLC A','conveyor')+plc(670,100,'PLC B','packing machine')+`<path d="M230,128 H670" stroke="var(--pipe)" stroke-width="5"/><path d="M230,146 H670" stroke="var(--pipe)" stroke-width="5"/>
     <g><rect x="-62" y="-14" width="124" height="28" rx="14" fill="#D35400"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">Box coming!</text>${reduce?'<animateMotion dur="1s" fill="freeze" path="M450,100 H450"/>':'<animateMotion dur="3s" repeatCount="indefinite" path="M300,100 H600"/>'}</g>
     <g><rect x="-50" y="-14" width="100" height="28" rx="14" fill="#1B5AA6"/><text y="5" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:600">Ready!</text>${reduce?'<animateMotion dur="1s" fill="freeze" path="M450,178 H450"/>':'<animateMotion dur="3s" begin="1.5s" repeatCount="indefinite" path="M600,178 H300"/>'}</g>`,
-   say:'<b>Peer-to-peer:</b> PLCs exchange data directly with each other for tightly coordinated control, without waiting for a central computer. Here the conveyor PLC warns the packing PLC that a box is coming.',ana:'<b>Analogy</b>Two colleagues at neighbouring desks talking directly, instead of sending every message through the boss.'},
+   say:'<b>Peer-to-peer:</b> PLCs exchange data directly with each other for tightly coordinated control, without waiting for a central computer. Here the conveyor PLC warns the packing PLC that a box is coming.',ana:'<b>Analogy</b>Two colleagues at neighbouring desks talking directly, instead of sending every message through the boss. <i>(Dua rakan sekerja di meja bersebelahan bercakap secara terus, tanpa menghantar setiap mesej melalui bos.)</i>'},
  host:{svg:()=>`<rect x="360" y="14" width="180" height="96" rx="6" fill="#0D1317" stroke="var(--pipe)" stroke-width="3"/><path d="M380,80 L410,56 L440,70 L470,40 L520,52" stroke="#7FE3FF" stroke-width="3" fill="none"/><text x="450" y="130" text-anchor="middle" class="lb" font-size="15">SCADA host computer</text>`+
     [40,250,530,740].map((x,i)=>plc(x,188,'PLC '+(i+1))+`<path d="M${x+60},188 V160 H450 V136" stroke="var(--pipe)" stroke-width="3" fill="none"/>`+(reduce?'':dot(`M${x+60},188 V160 H450 V136`,'#D35400',2.2,i*.55))).join(''),
-   say:'<b>Host computer communication:</b> every PLC runs its own machine, and reports to a central SCADA computer for monitoring, alarms and trends. This is how a whole plant appears on one HMI screen.',ana:'<b>Analogy</b>Branch offices running their own shops, but sending their daily numbers to headquarters.'}};
+   say:'<b>Host computer communication:</b> every PLC runs its own machine, and reports to a central SCADA computer for monitoring, alarms and trends. This is how a whole plant appears on one HMI screen.',ana:'<b>Analogy</b>Branch offices running their own shops, but sending their daily numbers to headquarters. <i>(Cawangan-cawangan menguruskan kedai masing-masing, tetapi menghantar angka harian mereka ke ibu pejabat.)</i>'}};
 const pnb=$$('#pnTabs button');
 function pnShow(k){press(pnb,pnb.find(b=>b.dataset.k===k));$('#pnSvg').innerHTML=PN[k].svg();$('#pnSay').innerHTML=PN[k].say;$('#pnAna').innerHTML=PN[k].ana}
 pnb.forEach(b=>b.onclick=()=>pnShow(b.dataset.k));pnShow('rio');
