@@ -1043,5 +1043,95 @@ nvDraw();$('#nvSay').textContent='Start from the Overview.';
 })();
 })();
 </script>
+<!-- Phone remote (receiver). The same block is in every chapter and lab page and the homepage. -->
+<style>
+.rm-btn{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+.rm-btn.on{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (pointer:coarse){.rm-btn{display:none}}
+.rm-panel{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:flex;align-items:center;justify-content:center;padding:16px}
+.rm-panel[hidden]{display:none}
+.rm-card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;max-width:400px;width:100%;padding:18px;text-align:center;font-size:15px}
+.rm-card h3{margin:0 0 6px;font-size:24px}
+.rm-qr{display:inline-block;background:#fff;padding:8px;border-radius:6px;margin:8px 0;min-height:120px;min-width:120px}
+.rm-qr svg,.rm-qr img{display:block;width:240px;height:240px}
+.rm-code{font:700 26px var(--cond);letter-spacing:.08em}
+.rm-st{margin:6px 0;font-weight:600}
+.rm-st.ok{color:var(--ok)}.rm-st.bad{color:var(--alarm)}
+.rm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1D2730;color:#fff;padding:8px 16px;border-radius:20px;z-index:71;opacity:0;transition:opacity .3s;pointer-events:none;font-weight:600}
+.rm-toast.show{opacity:.94}
+</style>
+<button class="btn rm-btn" id="rmBtn" title="Control this page from your phone">📱 Phone remote</button>
+<div class="rm-panel" id="rmPanel" hidden><div class="rm-card" role="dialog" aria-label="Phone remote">
+  <h3>Phone remote</h3>
+  <div class="rm-st" id="rmSt">Connecting…</div>
+  <div class="rm-qr" id="rmQr"></div>
+  <div>Scan with your phone camera, or open <b id="rmLink"></b> and type:</div>
+  <div class="rm-code" id="rmCode"></div>
+  <p class="muted" style="font-size:13px;margin:8px 0">Only the first phone that connects can control this PC. Tip: pair before the projector shows this box. The remote keeps working when you open another chapter.</p>
+  <div class="row" style="justify-content:center"><button class="btn primary" id="rmClose">Close</button><button class="btn danger" id="rmStop">Stop remote</button></div>
+</div></div>
+<div class="rm-toast" id="rmToast" aria-live="polite"></div>
+<script>
+(function(){
+const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const $=id=>document.getElementById(id);
+const btn=$('rmBtn'),panel=$('rmPanel'),toast=$('rmToast');
+if(!window.crypto||!crypto.subtle){btn.hidden=true;return}
+let cli=null,code=null,key=null,bi=0,lastN=0,phone=false,started=false,stT=null;
+const load=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+const topic=x=>`emt30205/rm/${code.slice(0,4)}/${x}`;
+function say(t){toast.textContent=t;toast.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('show'),1600)}
+const secs=()=>[...document.querySelectorAll('section.topic')];
+function cur(){const a=secs();let c=null;const y=innerHeight*.35;for(const s of a){if(s.getBoundingClientRect().top<=y)c=s}return c}
+function info(s){const h=s.querySelector('h2');if(!h)return [s.id,'',''];const n=h.querySelector('.n');return [s.id,n?n.textContent:'',[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim()]}
+function stepBtn(s){return s?[...s.querySelectorAll('.btn.primary,.hbtn.go')].find(b=>!b.disabled&&b.offsetParent):null}
+let want=null,wantT=0;
+function state(){if(!cli||!cli.connected)return;const s=Date.now()<wantT?want:cur(),b=stepBtn(s);
+  cli.publish(topic('s'),JSON.stringify({t:document.title.split('|')[0].trim(),p:location.pathname.split('/').pop()||'index.html',secs:secs().map(info),cur:s?s.id:'',step:b?b.textContent.trim().slice(0,32):'',wheel:!!$('spinBtn')}),{retain:true})}
+const later=()=>{clearTimeout(stT);stT=setTimeout(state,500)};
+function toY(y){y=Math.max(0,Math.min(y,document.documentElement.scrollHeight-innerHeight));window.scrollTo({top:y});setTimeout(()=>{if(Math.abs(scrollY-y)>40)window.scrollTo({top:y,behavior:'instant'});later()},1200)}
+const go=s=>{if(s){want=s;wantT=Date.now()+1500;toY(s.getBoundingClientRect().top+scrollY-10)}};
+const b64d=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+async function verify(m){try{const o=JSON.parse(m);if(typeof o.n!=='number'||o.n<=lastN)return null;
+  const ok=await crypto.subtle.verify('HMAC',key,b64d(o.g),new TextEncoder().encode(o.n+'|'+o.c));if(!ok)return null;const x=JSON.parse(o.c),own=L('rm-sid');if(own?x.s!==own:x.a!=='hello')return null;lastN=o.n;S('rm-n',String(lastN));return x}catch(e){return null}}
+function run(c){if(!L('rm-sid')&&c.a==='hello'&&c.s)S('rm-sid',c.s);
+  const a=secs(),s=cur(),i=a.indexOf(s);
+  if(c.a==='hello'){phone=true;btn.textContent='📱 Phone connected';$('rmSt').textContent='Phone connected ✓';$('rmSt').className='rm-st ok';say('📱 Phone connected');setTimeout(()=>{panel.hidden=true},1200)}
+  else if(c.a==='next'){if(i<a.length-1){go(a[i+1]);say('Next section ▶')}}
+  else if(c.a==='prev'){if(i>0){go(a[i-1]);say('◀ Previous section')}}
+  else if(c.a==='down')toY(scrollY+innerHeight*.6);
+  else if(c.a==='up')toY(scrollY-innerHeight*.6);
+  else if(c.a==='top'){want=null;wantT=Date.now()+1500;toY(0)}
+  else if(c.a==='go'){const t=document.getElementById(c.id);if(t&&t.matches('section.topic'))go(t)}
+  else if(c.a==='step'){const b=stepBtn(s);if(b){const r=b.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)window.scrollBy({top:r.top-innerHeight*.3});b.click();say('▶ '+b.textContent.trim().slice(0,30))}else say('No step button in this section')}
+  else if(c.a==='spin'){const w=$('spinBtn');if(w){go(w.closest('section'));setTimeout(()=>w.click(),600);say('Spinning the wheel')}}
+  else if(c.a==='theme'){const t=$('themeBtn');if(t)t.click()}
+  else if(c.a==='open'){if(/^[a-z0-9-]+\.html$/.test(c.h||'')){say('Opening '+c.h);location.href=c.h;return}}
+  state();later()}
+function showPairing(){const url=new URL('remote.html',location.href);url.hash=code+'.'+bi;
+  $('rmLink').textContent=url.host+url.pathname;$('rmCode').textContent=code.match(/.{4}/g).join('-');
+  if(window.qrcode){const q=qrcode(0,'M');q.addData(url.href);q.make();$('rmQr').innerHTML=q.createSvgTag(5,2)}}
+function connect(){const c=mqtt.connect(BROKERS[bi],{clientId:'emtpc'+Math.random().toString(16).slice(2,10),connectTimeout:7000,reconnectPeriod:4000});cli=c;let ok=false;
+  c.on('connect',()=>{ok=true;S('rm-b',String(bi));c.subscribe(topic('c'));state();btn.classList.add('on');btn.textContent=phone?'📱 Phone connected':'📱 Remote ready';
+    if(!phone){$('rmSt').textContent='Ready: waiting for your phone';$('rmSt').className='rm-st'}showPairing()});
+  c.on('message',async(t,m)=>{if(t!==topic('c'))return;const x=await verify(m.toString());if(x)run(x)});
+  c.on('offline',()=>{btn.classList.remove('on');btn.textContent='📱 Reconnecting…'});
+  setTimeout(()=>{if(!ok&&cli===c&&bi+1<BROKERS.length){c.end(true);bi++;$('rmSt').textContent='Trying another server…';connect()}else if(!ok&&cli===c){$('rmSt').textContent='Cannot reach the remote server from this network.';$('rmSt').className='rm-st bad'}},8000)}
+async function start(show){if(started){if(show)panel.hidden=false;return}started=true;
+  code=L('rm-code');if(!code||!/^[A-Z2-9]{12}$/.test(code)){code=[...crypto.getRandomValues(new Uint8Array(12))].map(x=>AB[x%AB.length]).join('');S('rm-code',code);S('rm-n',null)}
+  S('rm-on','1');lastN=+L('rm-n')||0;bi=Math.min(+L('rm-b')||0,BROKERS.length-1);if(show)panel.hidden=false;btn.textContent='📱 Connecting…';
+  key=await crypto.subtle.importKey('raw',new TextEncoder().encode(code.slice(4)),{name:'HMAC',hash:'SHA-256'},false,['verify']);
+  try{if(!window.mqtt)await load('https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js');if(!window.qrcode)await load('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js')}
+  catch(e){$('rmSt').textContent='Could not load the remote. Check the internet connection.';$('rmSt').className='rm-st bad';started=false;return}
+  connect()}
+function stop(){S('rm-on',null);S('rm-sid',null);S('rm-code',null);S('rm-n',null);if(cli){try{cli.publish(topic('s'),'',{retain:true});cli.end(true)}catch(e){}}cli=null;started=false;phone=false;panel.hidden=true;btn.classList.remove('on');btn.textContent='📱 Phone remote';$('rmQr').innerHTML='';say('Phone remote stopped')}
+btn.onclick=()=>start(true);$('rmClose').onclick=()=>{panel.hidden=true};$('rmStop').onclick=stop;
+panel.onclick=e=>{if(e.target===panel)panel.hidden=true};
+addEventListener('scroll',later,{passive:true});
+if(L('rm-on')==='1'){if(L('rm-sid'))phone=true;start(false)}
+})();
+</script>
 </body>
 </html>

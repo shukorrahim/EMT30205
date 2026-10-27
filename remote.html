@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D1317">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex">
+<title>Phone Remote | Monitoring System Integration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0D1317;--p:#172028;--p2:#222D35;--ln:#34424D;--ink:#E3E7EA;--ink2:#8A99A6;--sel:#2F6FB5;--ok:#3FB950;--warn:#F0C04A;--alarm:#E5484D;
+  --body:"Barlow","Segoe UI",system-ui,sans-serif;--cond:"Barlow Condensed","Arial Narrow",sans-serif;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--body);padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 20px);min-height:100vh}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:480px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.top b{font-family:var(--cond);font-size:22px;font-weight:700}
+.dot{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--ink2)}
+.dot i{width:10px;height:10px;border-radius:50%;background:var(--alarm)}
+.dot.on i{background:var(--ok)}.dot.wait i{background:var(--warn)}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.page{font-size:14px;color:var(--ink2)}
+.sec{font-family:var(--cond);font-size:24px;font-weight:600;line-height:1.15;margin-top:2px}
+.grid{display:grid;gap:8px;margin-bottom:8px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}
+.b{background:var(--p2);border:1px solid var(--ln);border-radius:10px;min-height:56px;font-weight:600;font-size:17px;cursor:pointer;touch-action:manipulation;padding:6px}
+.b:active{transform:scale(.97);background:#2B3843}
+.b.big{min-height:96px;font-family:var(--cond);font-size:26px}
+.b.pri{background:var(--sel);border-color:var(--sel);color:#fff}
+.b.go{background:#1F5130;border-color:var(--ok);color:#fff}
+.b[disabled]{opacity:.35}
+.lbl{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--ink2);margin:14px 0 6px}
+.list{display:grid;gap:4px}
+.list button{display:flex;gap:10px;align-items:baseline;text-align:left;background:var(--p);border:1px solid var(--ln);border-radius:8px;padding:10px 12px;min-height:44px;cursor:pointer}
+.list button .n{font-family:var(--cond);font-weight:600;color:var(--ink2);min-width:38px}
+.list button.cur{background:var(--sel);border-color:var(--sel);color:#fff}.list button.cur .n{color:#fff}
+.pages{display:flex;flex-wrap:wrap;gap:6px}
+.pages button{background:var(--p);border:1px solid var(--ln);border-radius:20px;padding:8px 14px;min-height:44px;cursor:pointer}
+.pages button.cur{border-color:var(--ok);color:var(--ok)}
+.code{width:100%;font:700 28px var(--cond);letter-spacing:.12em;text-align:center;text-transform:uppercase;background:#000;border:1px solid var(--ln);border-radius:8px;padding:10px;color:#7FE3FF}
+.muted{color:var(--ink2);font-size:14px}
+.err{color:var(--alarm);font-weight:600;min-height:20px;margin-top:6px}
+a{color:#7FB6F2}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><b>📱 EMT30205 Remote</b><span class="dot" id="dot"><i></i><span id="dotT">Not connected</span></span></div>
+
+  <div id="pair" class="card">
+    <div class="sec" style="font-size:22px">Pair with the lecture PC</div>
+    <p class="muted">On the PC, press <b>📱 Phone remote</b> (bottom-left of any chapter) and scan the QR code. Or type the 12-character code shown there:</p>
+    <input class="code" id="code" maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX" aria-label="Pairing code">
+    <div class="grid g2" style="margin-top:10px"><button class="b pri" id="connect">Connect</button><button class="b" id="srv" aria-pressed="false">Server: 1</button></div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div id="ctl" hidden>
+    <div class="card"><div class="page" id="pg">Waiting for the PC…</div><div class="sec" id="sc">–</div></div>
+    <div class="grid g2"><button class="b big" data-a="prev">◀ Prev</button><button class="b big pri" data-a="next">Next ▶</button></div>
+    <div class="grid g2"><button class="b" data-a="up">▲ Scroll up</button><button class="b" data-a="down">▼ Scroll down</button></div>
+    <div class="grid"><button class="b go" data-a="step" id="step" disabled>▶ Next step</button></div>
+    <div class="grid g3"><button class="b" data-a="top">⤒ Top</button><button class="b" data-a="spin" id="spin" disabled>🎡 Wheel</button><button class="b" data-a="theme">◐ Theme</button></div>
+    <div class="lbl">Jump to a section</div>
+    <div class="list" id="list"></div>
+    <div class="lbl">Open on the PC</div>
+    <div class="pages" id="pages"></div>
+    <p class="muted" style="margin-top:18px">Keep this page open. The screen stays awake while the remote is connected. <a href="#" id="unpair">Unpair this phone</a> · <a href="index.html">Course homepage</a></p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+<script>
+(function(){
+const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const PAGES=[['index.html','Home'],['chapter1.html','Ch 1'],['chapter2.html','Ch 2'],['chapter3.html','Ch 3'],['chapter4.html','Ch 4'],['chapter5.html','Ch 5'],['lab1.html','Lab 1'],['lab2.html','Lab 2']];
+const $=id=>document.getElementById(id);
+const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+let cli=null,code=null,key=null,bi=0,lastN=0,sid=null,st=null,lastP='',wake=null;
+const enc=new TextEncoder();
+const b64u=buf=>btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const topic=x=>`emt30205/rm/${code.slice(0,4)}/${x}`;
+function dot(cls,t){$('dot').className='dot '+cls;$('dotT').textContent=t}
+async function send(o){if(!cli||!cli.connected)return;const c=JSON.stringify(Object.assign({},o,{s:sid}));const n=Math.max(Date.now(),lastN+1);lastN=n;
+  const g=b64u(await crypto.subtle.sign('HMAC',key,enc.encode(n+'|'+c)));cli.publish(topic('c'),JSON.stringify({n,c,g}));if(navigator.vibrate)navigator.vibrate(15)}
+function render(){if(!st)return;$('pg').textContent=st.t||st.p;const c=(st.secs||[]).find(s=>s[0]===st.cur);$('sc').textContent=c?`${c[1]} ${c[2]}`:'Top of the page';
+  $('step').disabled=!st.step;$('step').textContent=st.step?'▶ '+st.step.replace(/[▶◀]/g,'').trim():'▶ Next step (none here)';$('spin').disabled=!st.wheel;
+  $('list').innerHTML=(st.secs||[]).map(s=>`<button data-id="${s[0]}" class="${s[0]===st.cur?'cur':''}"><span class="n">${s[1]}</span><span>${s[2].replace(/[<>&]/g,'')}</span></button>`).join('')||'<p class="muted">No sections on this page.</p>';
+  $$('#list button').forEach(b=>b.onclick=()=>send({a:'go',id:b.dataset.id}));
+  $('pages').innerHTML=PAGES.map(([h,n])=>`<button data-h="${h}" class="${h===st.p?'cur':''}">${n}</button>`).join('');
+  $$('#pages button').forEach(b=>b.onclick=()=>{if(b.dataset.h!==st.p)send({a:'open',h:b.dataset.h})})}
+const $$=s=>[...document.querySelectorAll(s)];
+async function keepAwake(){try{if('wakeLock' in navigator&&document.visibilityState==='visible')wake=await navigator.wakeLock.request('screen')}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cli)keepAwake()});
+async function connect(c,b){code=c;bi=b;$('err').textContent='';dot('wait','Connecting…');
+  if(!window.crypto||!crypto.subtle){$('err').textContent='This browser cannot run the remote. Open the page over https.';return}
+  key=await crypto.subtle.importKey('raw',enc.encode(code.slice(4)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  sid=L('rmp-sid:'+code);if(!sid){sid=b64u(crypto.getRandomValues(new Uint8Array(9)));S('rmp-sid:'+code,sid)}
+  if(cli){try{cli.end(true)}catch(e){}}
+  cli=mqtt.connect(BROKERS[bi],{clientId:'emtph'+Math.random().toString(16).slice(2,10),connectTimeout:7000,reconnectPeriod:3000});
+  let ok=false;
+  cli.on('connect',()=>{ok=true;S('rmp-code',code);S('rmp-b',String(bi));dot('on','Connected');$('pair').hidden=true;$('ctl').hidden=false;cli.subscribe(topic('s'));send({a:'hello'});keepAwake()});
+  cli.on('message',(t,m)=>{const s=m.toString();if(!s){st=null;$('pg').textContent='The PC stopped the remote.';$('sc').textContent='Pair again from the PC.';dot('','PC stopped');return}
+    try{st=JSON.parse(s)}catch(e){return}if(st.p!==lastP){lastP=st.p;send({a:'hello'})}render()});
+  cli.on('offline',()=>dot('wait','Reconnecting…'));
+  cli.on('error',()=>{});
+  setTimeout(()=>{if(!ok){$('err').textContent='Cannot reach the server. Check the internet, or try Server 2.';dot('','Not connected')}},8000)}
+function parseCode(v){const c=(v||'').toUpperCase().replace(/[^A-Z2-9]/g,'');return c.length===12?c:null}
+$('connect').onclick=()=>{const c=parseCode($('code').value);if(!c){$('err').textContent='The code has 12 letters and numbers.';return}connect(c,bi)};
+$('srv').onclick=()=>{bi=(bi+1)%BROKERS.length;$('srv').textContent='Server: '+(bi+1)};
+$$('#ctl [data-a]').forEach(b=>b.onclick=()=>send({a:b.dataset.a}));
+$('unpair').onclick=e=>{e.preventDefault();S('rmp-code',null);if(cli)cli.end(true);cli=null;st=null;$('ctl').hidden=true;$('pair').hidden=false;dot('','Not connected');history.replaceState(null,'','remote.html')};
+/* Start: code from the QR link (#CODE.server) or the last pairing */
+const h=location.hash.slice(1).split('.'),hc=parseCode(h[0]);
+if(hc){const b=Math.min(+h[1]||0,BROKERS.length-1);$('code').value=hc.match(/.{4}/g).join('-');$('srv').textContent='Server: '+(b+1);history.replaceState(null,'','remote.html');connect(hc,b)}
+else{const c=L('rmp-code');if(c){const b=+L('rmp-b')||0;$('code').value=c.match(/.{4}/g).join('-');bi=b;$('srv').textContent='Server: '+(b+1);connect(c,b)}}
+})();
+</script>
+</body>
+</html>

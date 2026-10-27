@@ -9,6 +9,10 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
   arrays in its script (marked "Edit here"). Set `href` to publish one.
 - `chapter1.html`, `chapter2.html`, ... — one page per chapter.
 - `lab1.html`, `lab2.html`, ... — Lab 1 is an interactive OMRON CPM1A / CX-Programmer simulation.
+- `remote.html` — the lecturer's phone remote. Every page (homepage, chapters, labs) ends with the
+  same "Phone remote (receiver)" block before `</body>`: copy it into every new page and add the new
+  page to the `PAGES` list in `remote.html`. It uses public MQTT brokers (HiveMQ, EMQX fallback);
+  commands are HMAC-signed with the secret in the QR code and locked to the first paired phone.
 
 Every page is one self-contained HTML file: all CSS and JS inline, no build step.
 `chapter1.html` is the style reference for every new page.
