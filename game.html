@@ -108,7 +108,7 @@ const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{
 const enc=new TextEncoder(),dec=new TextDecoder();
 const b64=u=>btoa(String.fromCharCode(...u)),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 
-/* ===== The 5 questions ===== */
+/* ===== The 10 questions ===== */
 const tile=(x,y,c,t)=>`<rect x="${x}" y="${y}" width="58" height="34" rx="4" fill="${c}"/><text x="${x+29}" y="${y+22}" text-anchor="middle" font-size="12" fill="#fff" font-family="Arial">${t}</text>`;
 const Q=[
  {q:'Which screen lets the operator spot the alarm fastest?',o:['Screen A','Screen B'],c:1,
@@ -137,7 +137,33 @@ const Q=[
    <g transform="translate(40,20)"><rect width="150" height="150" rx="10" fill="#34424D"/><rect x="20" y="16" width="110" height="60" rx="4" fill="#7FE3FF"/><rect x="40" y="96" width="70" height="10" fill="#0D1317"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">ATM</text></g>
    <g transform="translate(240,20)"><rect width="150" height="150" rx="10" fill="#E3E7EA"/><rect x="20" y="16" width="110" height="46" rx="4" fill="#0E2A3A"/><text x="75" y="48" text-anchor="middle" font-size="24" fill="#7FE3FF" font-weight="700">24°</text><circle cx="50" cy="96" r="14" fill="#8A99A6"/><circle cx="100" cy="96" r="14" fill="#8A99A6"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#1D2730">Air-con</text></g>
    <g transform="translate(440,20)"><rect width="150" height="150" rx="10" fill="#222D35"/><circle cx="50" cy="66" r="34" fill="none" stroke="#F0C04A" stroke-width="5"/><circle cx="108" cy="66" r="24" fill="none" stroke="#7FE3FF" stroke-width="5"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">Dashboard</text></g>
-   <g transform="translate(640,20)"><rect width="150" height="150" rx="10" fill="#172028" stroke="#34424D"/><rect x="66" y="12" width="18" height="90" rx="4" fill="#B8BEC4"/><path d="M75,102 V122 M66,122 H84" stroke="#B8BEC4" stroke-width="4"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">Thermocouple</text></g></svg>`}];
+   <g transform="translate(640,20)"><rect width="150" height="150" rx="10" fill="#172028" stroke="#34424D"/><rect x="66" y="12" width="18" height="90" rx="4" fill="#B8BEC4"/><path d="M75,102 V122 M66,122 H84" stroke="#B8BEC4" stroke-width="4"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">Thermocouple</text></g></svg>`},
+ {q:'The operator taps START PUMP on the touchscreen. Is this an input or an output?',o:['Input','Output'],c:0,
+  ex:'Input. The person is telling the machine what to do. The screen showing "Pump running" afterwards is the output. (4.1 The HMI in the loop)',
+  v:`<svg viewBox="0 0 820 230" font-family="Arial"><rect x="200" y="20" width="420" height="200" rx="14" fill="#222D35" stroke="#5AA8FF" stroke-width="4"/><rect x="224" y="42" width="372" height="156" rx="4" fill="#0D1317"/>
+   <rect x="320" y="90" width="180" height="62" rx="10" fill="#2E7A39"/><text x="410" y="130" text-anchor="middle" font-size="24" fill="#fff" font-weight="700">START PUMP</text>
+   <path d="M470,210 C470,170 500,150 520,140 L540,150 C530,170 525,190 528,220 Z" fill="#F0C8A0" stroke="#8A6A4A" stroke-width="2"/><circle cx="512" cy="140" r="16" fill="none" stroke="#F0C04A" stroke-width="4"><animate attributeName="r" values="12;24;12" dur="1.2s" repeatCount="indefinite"/></circle></svg>`},
+ {q:'Which background colour is best for a modern control-room HMI?',o:['Black','White','Grey'],c:2,
+  ex:'Grey. It is calm on the eyes for long shifts, works in a lit room, and red or yellow alarms stand out clearly. Old DCS screens used black. (Rule 2: colour)',
+  v:`<svg viewBox="0 0 820 220" font-family="Arial">${[['#000','#D6DEE4','Black'],['#fff','#1D2730','White'],['#C5CCD2','#1D2730','Grey']].map(([bg,fg,n],i)=>`<g transform="translate(${30+i*265},20)"><rect width="230" height="160" rx="8" fill="${bg}" stroke="#34424D" stroke-width="2"/><rect x="20" y="24" width="50" height="110" fill="none" stroke="${fg}" stroke-width="3"/><rect x="23" y="70" width="44" height="61" fill="#2F6FB5" opacity=".7"/><rect x="100" y="30" width="110" height="34" fill="#C22E29"/><text x="155" y="53" text-anchor="middle" font-size="16" fill="#fff" font-weight="700">ALARM</text><rect x="100" y="80" width="110" height="28" fill="#E3B23F"/><text x="155" y="100" text-anchor="middle" font-size="14" fill="#1D2730">WARNING</text><text x="115" y="196" text-anchor="middle" font-size="20" fill="#E3E7EA" font-weight="700">${n}</text></g>`).join('')}</svg>`},
+ {q:'On a good HMI layout, which way should the process flow?',o:['Left to right','Right to left','Bottom to top','Anywhere it fits'],c:0,
+  ex:'Left to right, like reading a sentence: tank → pump → valve → out. The eye then follows the process without searching. (Rule 3: layout)',
+  v:`<svg viewBox="0 0 820 220" font-family="Arial"><rect x="560" y="30" width="110" height="160" rx="8" fill="#C5CCD2" stroke="#4B5661" stroke-width="3"/><rect x="563" y="90" width="104" height="97" fill="#8DA6BD"/><text x="615" y="214" text-anchor="middle" font-size="18" fill="#E3E7EA">tank</text>
+   <circle cx="150" cy="150" r="34" fill="#4B5661"/><text x="150" y="214" text-anchor="middle" font-size="18" fill="#E3E7EA">pump</text>
+   <path d="M330,40 L390,80 M330,80 L390,40" stroke="#E3E7EA" stroke-width="7"/><text x="360" y="112" text-anchor="middle" font-size="18" fill="#E3E7EA">valve</text>
+   <text x="410" y="180" text-anchor="middle" font-size="70" fill="#F0C04A" font-weight="700">?</text></svg>`},
+ {q:'Which of these came FIRST in control rooms?',o:['Touchscreen tablets','Walls of buttons and dials','VR headsets','CRT computer screens'],c:1,
+  ex:'Walls of buttons, dials and lamps (1970s). Then CRT computer screens (1980s to 1990s), then touch panels and tablets, and now AI and VR. (4.3 How HMIs evolved)',
+  v:`<svg viewBox="0 0 820 200" font-family="Arial">
+   <g transform="translate(30,20)"><rect width="160" height="150" rx="10" fill="#1D2730"/><rect x="14" y="14" width="132" height="104" rx="4" fill="#E7E9EB"/><path d="M28,90 l24,-26 l22,14 l30,-36" stroke="#1B5AA6" stroke-width="4" fill="none"/></g>
+   <g transform="translate(230,20)"><rect width="160" height="150" rx="6" fill="#8A949C"/>${[0,1,2].map(i=>`<circle cx="${32+i*48}" cy="44" r="20" fill="#fff" stroke="#333" stroke-width="2"/>`).join('')}${[0,1,2,3,4].map(i=>`<circle cx="${24+i*28}" cy="110" r="9" fill="${['#2E7A39','#C22E29','#E3B23F','#2E7A39','#C22E29'][i]}"/>`).join('')}</g>
+   <g transform="translate(430,20)"><rect width="160" height="150" rx="10" fill="#172028"/><rect x="20" y="52" width="120" height="46" rx="22" fill="#34424D"/><rect x="32" y="62" width="40" height="26" rx="10" fill="#2F6FB5"/><rect x="88" y="62" width="40" height="26" rx="10" fill="#2F6FB5"/></g>
+   <g transform="translate(630,20)"><rect width="160" height="150" rx="10" fill="#C8CDD2"/><rect x="18" y="16" width="124" height="96" rx="14" fill="#0D1317"/><path d="M34,90 h24 v-24 h30 v16 h30" stroke="#3FB950" stroke-width="3" fill="none"/><rect x="40" y="122" width="80" height="14" fill="#8A949C"/></g></svg>`},
+ {q:'On this HMI, the menu jumps to a different place on every screen. Which rule is broken?',o:['Consistency and navigation','The schematic screen','Process values and labels','Colour'],c:0,
+  ex:'Consistency and navigation. The operator should find the menu, buttons and colours in the same place on every screen, like the lift buttons in a shopping mall. (Rule 5)',
+  v:`<svg viewBox="0 0 820 220" font-family="Arial">${[['top'],['bottom'],['side']].map(([p],i)=>`<g transform="translate(${30+i*265},20)"><rect width="230" height="170" rx="8" fill="#C5CCD2" stroke="#34424D" stroke-width="2"/><text x="115" y="196" text-anchor="middle" font-size="16" fill="#E3E7EA">Screen ${i+1}</text>
+   ${p==='top'?'<rect x="0" y="0" width="230" height="30" fill="#2F6FB5"/><text x="115" y="21" text-anchor="middle" font-size="15" fill="#fff" font-weight="700">MENU</text>':p==='bottom'?'<rect x="0" y="140" width="230" height="30" fill="#2F6FB5"/><text x="115" y="161" text-anchor="middle" font-size="15" fill="#fff" font-weight="700">MENU</text>':'<rect x="190" y="0" width="40" height="170" fill="#2F6FB5"/><text x="210" y="90" text-anchor="middle" font-size="13" fill="#fff" font-weight="700" transform="rotate(90 210 90)">MENU</text>'}
+   <rect x="${p==='side'?40:80}" y="${p==='top'?60:30}" width="70" height="80" rx="4" fill="#8DA6BD" stroke="#4B5661" stroke-width="2"/></g>`).join('')}</svg>`}];
 
 /* ===== Crypto + MQTT ===== */
 let key=null,base='',cli=null,bi=0;
@@ -188,7 +214,7 @@ function hMsg(m){if(!H||!m||!m.id)return;
     H.pl[m.id].ans[H.qi]={a,ok,pts};hCount();if(Object.values(H.pl).every(p=>p.ans[H.qi]))setTimeout(hReveal,600)}}
 function hLobby(){H.t='lobby';const url=new URL('game.html',location.href);url.hash='join='+H.code;
   $('#app').innerHTML=`<div class="lobby"><div class="card" style="text-align:center"><div class="qr" id="qr"></div><div class="muted" style="margin-top:8px">Scan to join, or open</div><b style="font-size:18px">${esc(url.host+url.pathname)}</b><div class="muted">and type the code</div><div class="code">${H.code}</div></div>
-   <div class="card"><h2 style="font-size:34px">Players: <span id="pc">0</span></h2><p class="muted" style="margin:4px 0 0">Use your first name or a nickname. 5 questions, ${DUR} seconds each. Faster correct answers score more points.</p><div class="players" id="pls"></div>
+   <div class="card"><h2 style="font-size:34px">Players: <span id="pc">0</span></h2><p class="muted" style="margin:4px 0 0">Use your first name or a nickname. ${Q.length} questions, ${DUR} seconds each. Faster correct answers score more points.</p><div class="players" id="pls"></div>
    <div class="row" style="margin-top:14px"><button class="btn go" id="hStart" disabled>▶ Start the game</button><button class="btn" id="hNew">New room</button></div></div></div>`;
   const q=qrcode(0,'M');q.addData(url.href);q.make();$('#qr').innerHTML=q.createSvgTag(6,2);hLobbyList();
   $('#hStart').onclick=()=>hQuestion(H.qi>=0&&H.qi<Q.length-1?H.qi+1:0);$('#hNew').onclick=()=>{if(confirm('Start a new room? Players will need to join again.')){pub('/h',{t:'closed'},true);S('game-host',null);location.hash='';location.reload()}};hPub()}
