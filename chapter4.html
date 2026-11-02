@@ -625,7 +625,31 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <div class="best"><span class="t">Best practice</span><div class="face"><div style="font:700 50px/1 var(--cond);color:#1B5AA6">45</div><div style="font-size:14px;color:#4B5661">°C temperature limit</div></div>The value is what the operator needs, so it is the biggest thing.</div>
   </div>
   <h3>Overview screen or detail screen?</h3>
-  <div class="prose"><p>Decide where each value belongs.</p></div>
+  <div class="prose">
+    <p>An HMI is built in <b>levels</b>. The operator starts on the <b>overview screen</b> and taps down to a <b>detail screen</b> only when something needs a closer look.</p>
+  </div>
+  <div class="twocol" style="margin:10px 0">
+    <div class="panel"><h3 style="margin-top:0">Overview screen</h3>
+      <ul><li>The <b>whole plant or area</b> on one screen.</li><li>Only the values the operator needs <b>every minute</b>: main levels, flows, pump running or stopped.</li><li><b>All alarms</b> must be seen here.</li><li>Kept clean and simple, so problems jump out.</li></ul>
+      <p class="muted" style="margin:6px 0 0;font-size:15px">Example: Tank level 78 %, pump P-101 running, outlet flow 118 m³/h.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Detail screen</h3>
+      <ul><li>One <b>machine or unit</b> at a time, opened from the overview.</li><li><b>Reference values</b> that are normal most of the time: motor current, bearing temperature, running hours.</li><li>Used for <b>checking, tuning and maintenance</b>.</li><li>Can hold many numbers, because the operator came here on purpose.</li></ul>
+      <p class="muted" style="margin:6px 0 0;font-size:15px">Example: P-101 motor current 42 A, bearing 55 °C, 8 760 running hours.</p></div>
+  </div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0">
+    <svg viewBox="0 0 900 220" role="img" aria-label="Overview screen at the top, detail screens below it">
+      <rect x="300" y="14" width="300" height="62" rx="6" fill="var(--sel)"/><text x="450" y="40" text-anchor="middle" font-size="18" style="fill:var(--sel-ink);font-weight:700">OVERVIEW SCREEN</text><text x="450" y="62" text-anchor="middle" font-size="13" style="fill:var(--sel-ink)">whole plant · key values · all alarms</text>
+      <path d="M380,76 L180,128 M450,76 V128 M520,76 L720,128" stroke="var(--pipe)" stroke-width="2.5"/>
+      <text x="600" y="104" font-size="12" class="dim">tap a pump or tank to go down</text>
+      <rect x="80" y="128" width="200" height="72" rx="6" class="box"/><text x="180" y="156" text-anchor="middle" font-size="16" class="lb">P-101 detail</text><text x="180" y="178" text-anchor="middle" font-size="12" class="dim">current, bearing temp,</text><text x="180" y="193" text-anchor="middle" font-size="12" class="dim">running hours</text>
+      <rect x="350" y="128" width="200" height="72" rx="6" class="box"/><text x="450" y="156" text-anchor="middle" font-size="16" class="lb">Tank T-101 detail</text><text x="450" y="178" text-anchor="middle" font-size="12" class="dim">level trend, alarm limits,</text><text x="450" y="193" text-anchor="middle" font-size="12" class="dim">valve positions</text>
+      <rect x="620" y="128" width="200" height="72" rx="6" class="box"/><text x="720" y="156" text-anchor="middle" font-size="16" class="lb">Filters detail</text><text x="720" y="178" text-anchor="middle" font-size="12" class="dim">pressure drop,</text><text x="720" y="193" text-anchor="middle" font-size="12" class="dim">backwash timer</text>
+    </svg>
+  </figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="key" style="margin-top:12px"><b>Quick test</b>Ask: <i>"Does the operator need this value to decide something right now?"</i><br><strong>Yes</strong> → overview screen.<br><strong>Only when checking or fixing one machine</strong> → detail screen.<br>The notes' own example: the current of a pump that is running normally belongs on a detail screen, not the overview.</div>
+  <div class="ana"><b>Analogy: a newspaper front page and the inside pages</b>The front page shows the headlines everyone needs today. If one story interests you, you turn to the inside page for all the details. <i>(Muka depan surat khabar menunjukkan tajuk utama yang perlu diketahui semua orang hari ini. Jika satu berita menarik minat anda, anda membuka halaman dalam untuk semua butirannya.)</i></div>
+  <div class="prose"><p><b>Now try it:</b> decide where each value belongs.</p></div>
   <div class="ovd" id="ovd"></div>
   <p class="muted" id="ovdScore" style="font-size:15px;margin-top:8px"></p>
 </section>
