@@ -585,11 +585,17 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="key"><b>Key idea</b>Choose a calm background and save strong colours for things that need attention. If everything is colourful, the alarm cannot stand out.</div>
   <div class="ana"><b>Analogy: a highlighter pen</b>If you highlight every line in your textbook, nothing stands out any more. Highlight only the key sentence and your eye goes straight to it. <i>(Jika anda menyerlahkan setiap baris dalam buku teks, tiada apa yang menonjol lagi. Serlahkan hanya ayat yang penting dan mata anda terus tertumpu padanya.)</i></div>
   <h3>Game: find the alarm</h3>
-  <div class="prose"><p>One piece of equipment is in alarm. Find it and tap it. Play once on the colourful screen and once on the grey screen.</p></div>
+  <div class="prose"><p><b>How to play:</b></p>
+    <ol style="margin:0 0 10px;padding-left:22px">
+      <li>Choose <b>Colourful screen</b> first, then press <b>▶ Start a round</b>.</li>
+      <li>24 pieces of equipment appear. <b>Only one</b> is in alarm: its tile says <b>⚠ ALARM</b>.</li>
+      <li>Find it and <b>tap it</b> as fast as you can. The timer stops when you hit it.</li>
+      <li>Now choose <b>Grey screen</b> and play again. Compare your two times.</li>
+    </ol></div>
   <div class="ctrl"><div class="seg" role="group" aria-label="Colour style" id="faSeg"><button aria-pressed="true" data-v="col">Colourful screen</button><button aria-pressed="false" data-v="grey">Grey screen</button></div><button class="btn primary" id="faGo">▶ Start a round</button></div>
+  <div class="say" id="faSay" aria-live="polite" style="margin-top:0">Choose a screen, then press <b>▶ Start a round</b>.</div>
   <div class="fgrid idle" id="faGrid"></div>
   <div class="res"><div><div class="k">Colourful screen</div><div class="v" id="faR1">–</div></div><div><div class="k">Grey screen</div><div class="v" id="faR2">–</div></div></div>
-  <div class="say" id="faSay" aria-live="polite">Press Start.</div>
   <h3>Choosing the background colour</h3>
   <div class="prose"><p>The first DCS screens had a <b>black</b> background. Black gives good contrast with almost every other colour, but the curved CRT screens reflected light, so control rooms were kept dark. Tap each background to compare.</p></div>
   <div class="bgpick" id="bgPick" role="group" aria-label="Background colour"></div>
@@ -920,15 +926,18 @@ scDraw();
 
 /* ===== 4.7 colour ===== */
 const FN=['P-101','P-102','P-103','P-201','P-202','XV-101','XV-102','XV-103','XV-201','LT-101','LT-201','FT-100','FT-200','PT-101','PT-102','TT-101','M-301','M-302','AT-101','CV-110','CV-120','P-301','XV-301','LT-301'];
-const FS=['RUN','STOP','AUTO','MAN','OPEN','SHUT','HIGH','LOW'],FC=['#C22E29','#D35400','#B87F00','#2E7A39','#1B5AA6','#6C4AB6','#C2306B','#1F7A8C','#00A3A3'];
-let faV='col',faOn=false,faT0=0,faAt=-1,faMiss=0;
+/* Decoy tiles never say ALARM; on the colourful screen many decoys are also red, so colour alone does not help */
+const FS=['RUN','STOP','AUTO','MAN','OPEN','SHUT'],FC=['#C22E29','#D35400','#B87F00','#2E7A39','#1B5AA6','#6C4AB6','#C22E29','#1F7A8C','#C2306B'];
+let faV='col',faOn=false,faT0=0,faAt=-1,faMiss=0,faTick=null;
 function faDraw(){const g=$('#faGrid');g.style.background=faV==='col'?'#000':'#C5CCD2';const r=rng(faAt+7);
-  g.innerHTML=FN.map((n,i)=>{const alm=i===faAt,bg=alm?'#C22E29':faV==='col'?FC[Math.floor(r()*FC.length)]:'#7D8891',st=alm?'HIGH':FS[Math.floor(r()*FS.length)];return `<button data-i="${i}" style="background:${bg}">${n}<br>${st}</button>`}).join('');
-  $$('#faGrid button').forEach(b=>b.onclick=()=>{if(!faOn)return;if(+b.dataset.i!==faAt){faMiss++;$('#faSay').textContent=`Not that one (${faMiss} wrong). Keep looking for the alarm: HIGH, shown in red.`;return}
-    faOn=false;g.classList.add('idle');const t=((performance.now()-faT0)/1000).toFixed(1);$(faV==='col'?'#faR1':'#faR2').textContent=t+' s';
-    $('#faSay').innerHTML=`Found in <b>${t} s</b>${faMiss?` with ${faMiss} wrong tap${faMiss>1?'s':''}`:''}. ${faV==='col'?'Now try the grey screen.':'On the grey screen the red alarm jumps out, because it is the only colour.'}`})}
-$$('#faSeg button').forEach(b=>b.onclick=()=>{if(faOn)return;press($$('#faSeg button'),b);faV=b.dataset.v;faDraw()});
-$('#faGo').onclick=()=>{faAt=Math.floor(Math.random()*FN.length);faMiss=0;faDraw();$('#faGrid').classList.remove('idle');faOn=true;faT0=performance.now();$('#faSay').textContent='Go! One item is in alarm (HIGH). Tap it.'};
+  g.innerHTML=FN.map((n,i)=>{const alm=i===faAt,bg=alm?'#C22E29':faV==='col'?FC[Math.floor(r()*FC.length)]:'#7D8891',st=alm?'⚠ ALARM':FS[Math.floor(r()*FS.length)];return `<button data-i="${i}" style="background:${bg}">${n}<br>${st}</button>`}).join('');
+  $$('#faGrid button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();if(!faOn){$('#faSay').innerHTML='Press <b>▶ Start a round</b> first.';return}
+    if(+b.dataset.i!==faAt){faMiss++;b.style.outline='4px solid #fff';setTimeout(()=>{b.style.outline=''},400);$('#faSay').innerHTML=`<b>Not that one</b> (${faMiss} wrong). It says <b>${b.innerText.split('\n')[1]||''}</b>. Look for the tile that says <b>⚠ ALARM</b>.`;return}
+    faOn=false;clearInterval(faTick);g.classList.add('idle');b.style.outline='4px solid #F0C04A';b.style.opacity='1';const t=((performance.now()-faT0)/1000).toFixed(1);$(faV==='col'?'#faR1':'#faR2').textContent=t+' s';
+    $('#faSay').innerHTML=`<b>Found it in ${t} s</b>${faMiss?` with ${faMiss} wrong tap${faMiss>1?'s':''}`:''}. ${faV==='col'?'Now choose <b>Grey screen</b> and press <b>▶ Play again</b>.':'On the grey screen the red alarm jumps out, because it is the only colour on the screen. That is why good HMIs keep normal equipment grey.'}`;$('#faGo').textContent='▶ Play again'}))}
+$$('#faSeg button').forEach(b=>b.onclick=()=>{if(faOn)return;press($$('#faSeg button'),b);faV=b.dataset.v;faAt=-1;faDraw();$('#faGrid').classList.add('idle');$('#faSay').innerHTML=`<b>${b.textContent}</b> chosen. Press <b>▶ Start a round</b>.`});
+$('#faGo').onclick=()=>{faAt=Math.floor(Math.random()*FN.length);faMiss=0;faDraw();$('#faGrid').classList.remove('idle');faOn=true;faT0=performance.now();clearInterval(faTick);
+  const tick=()=>{$('#faSay').innerHTML=`⏱ <b>${((performance.now()-faT0)/1000).toFixed(1)} s</b> · Find the tile that says <b>⚠ ALARM</b> and tap it.`};tick();faTick=setInterval(()=>{if(faOn)tick()},100)};
 faDraw();
 const BG=[['black','#000','#D6DEE4','Black: strong contrast, the classic DCS look. But it tires the eyes in a bright room and makes reflections worse, so control rooms had to be kept dark.'],['white','#FFFFFF','#1D2730','White: easy to read in a bright room, but very bright for 12-hour shifts, and bright colours on white look washed out.'],['grey','#C5CCD2','#1D2730','Grey: today\'s best practice for most HMIs. Calm on the eyes, works in a lit room, and red or yellow alarms stand out clearly.']];
 $('#bgPick').innerHTML=BG.map((b,i)=>`<button aria-pressed="${i===2}" data-i="${i}"><svg viewBox="0 0 200 110"><rect width="200" height="110" fill="${b[1]}"/><rect x="20" y="20" width="40" height="70" fill="none" stroke="${b[2]}" stroke-width="2"/><rect x="22" y="50" width="36" height="38" fill="#2F6FB5" opacity=".7"/><path d="M60,80 H170" stroke="${b[2]}" stroke-width="4"/><rect x="95" y="20" width="80" height="22" fill="#C22E29"/><text x="135" y="36" text-anchor="middle" font-size="11" fill="#fff">ALARM</text><rect x="95" y="48" width="80" height="18" fill="#E3B23F"/><text x="135" y="61" text-anchor="middle" font-size="10" fill="#1D2730">WARNING</text></svg><span>${b[0]}</span></button>`).join('');
