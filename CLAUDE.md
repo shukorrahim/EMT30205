@@ -9,6 +9,11 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
   arrays in its script (marked "Edit here"). Set `href` to publish one.
 - `chapter1.html`, `chapter2.html`, ... — one page per chapter.
 - `lab1.html`, `lab2.html`, ... — Lab 1 is an interactive OMRON CPM1A / CX-Programmer simulation.
+- `game.html` — "HMI Challenge", a live Kahoot-style class game (5 Chapter 4 questions, linked from
+  the Chapter 4 class game section). The lecturer hosts on the projector; students join on phones with
+  a 6-character room code. Messages go through the same public MQTT brokers, AES-GCM encrypted with a
+  key from the room code; the host connects to BOTH brokers so students on either one reach the game.
+  Results stay only on the host computer (copy to Excel / CSV).
 - `remote.html` — the lecturer's phone remote. Every page (homepage, chapters, labs) ends with the
   same "Phone remote (receiver)" block before `</body>`: copy it into every new page and add the new
   page to the `PAGES` list in `remote.html`. It uses public MQTT brokers (HiveMQ, EMQX fallback);

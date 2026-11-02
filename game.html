@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D1317">
+<meta name="format-detection" content="telephone=no">
+<meta name="robots" content="noindex">
+<title>HMI Challenge | Monitoring System Integration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0D1317;--p:#172028;--p2:#222D35;--ln:#34424D;--ink:#E3E7EA;--ink2:#8A99A6;--sel:#2F6FB5;--ok:#3FB950;--warn:#F0C04A;--alarm:#E5484D;
+  --c0:#E21B3C;--c1:#1368CE;--c2:#B88400;--c3:#26890C;
+  --body:"Barlow","Segoe UI",system-ui,sans-serif;--cond:"Barlow Condensed","Arial Narrow",sans-serif;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.4 var(--body);min-height:100vh;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+button,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--cond);font-weight:700;margin:0;line-height:1.1}
+a{color:#7FB6F2}
+.wrap{max-width:1180px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.top b{font-family:var(--cond);font-size:22px}
+.top .st{font-size:14px;color:var(--ink2)}
+.card{background:var(--p);border:1px solid var(--ln);border-radius:10px;padding:16px}
+.btn{background:var(--p2);border:1px solid var(--ln);border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer;min-height:48px}
+.btn.pri{background:var(--sel);border-color:var(--sel);color:#fff}
+.btn.go{background:var(--ok);border-color:var(--ok);color:#0D1317}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--ink2)}
+.err{color:var(--alarm);font-weight:600;min-height:22px}
+input.big{width:100%;font:700 26px var(--cond);text-align:center;background:#000;border:1px solid var(--ln);border-radius:8px;padding:10px;color:#7FE3FF}
+/* Landing */
+.choose{display:grid;grid-template-columns:1fr;gap:12px;max-width:760px;margin:20px auto}
+@media (min-width:700px){.choose{grid-template-columns:1fr 1fr}}
+.choose button{background:var(--p);border:2px solid var(--ln);border-radius:12px;padding:22px;text-align:left;cursor:pointer}
+.choose button b{display:block;font-family:var(--cond);font-size:30px}
+/* Host lobby */
+.lobby{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:900px){.lobby{grid-template-columns:auto 1fr}}
+.qr{background:#fff;border-radius:10px;padding:10px;display:inline-block}
+.qr svg{display:block;width:260px;height:260px}
+.code{font:700 clamp(46px,8vw,84px)/1 var(--cond);letter-spacing:.12em;color:var(--warn)}
+.players{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-height:44vh;overflow:auto}
+.players span{background:var(--p2);border:1px solid var(--ln);border-radius:20px;padding:6px 14px;font-weight:600;animation:pop .4s}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+/* Question (host) */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.qtext{font:700 clamp(26px,3.6vw,44px)/1.15 var(--cond)}
+.timer{min-width:86px;height:86px;border-radius:50%;background:var(--p2);border:4px solid var(--warn);display:flex;align-items:center;justify-content:center;font:700 40px var(--cond)}
+.timer.low{border-color:var(--alarm);color:var(--alarm)}
+.vis{display:flex;justify-content:center;margin:8px 0 14px}
+.vis svg{width:100%;max-width:820px;height:auto;max-height:42vh}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:center;font:600 clamp(18px,2.4vw,28px) var(--cond);color:#fff;min-height:70px;position:relative}
+.opt .sh{font-size:1.2em}
+.opt.dim{opacity:.25}
+.opt .cnt{margin-left:auto;font-size:1.1em}
+.o0{background:var(--c0)}.o1{background:var(--c1)}.o2{background:var(--c2)}.o3{background:var(--c3)}
+.bar{height:10px;background:var(--p2);border-radius:5px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--warn);width:100%}
+.explain{background:#1F5130;border-radius:10px;padding:12px 16px;margin-top:12px;font-size:clamp(17px,1.8vw,22px)}
+/* Leaderboard */
+.board{display:grid;gap:8px;max-width:760px;margin:10px auto}
+.board div{display:grid;grid-template-columns:50px 1fr auto;gap:12px;align-items:center;background:var(--p);border:1px solid var(--ln);border-radius:8px;padding:10px 14px;font:600 clamp(20px,2.4vw,30px) var(--cond)}
+.board div:first-child{border-color:var(--warn)}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin:16px 0}
+.podium div{width:min(30%,220px);text-align:center;border-radius:10px 10px 0 0;padding:10px 6px;font-family:var(--cond)}
+.podium b{display:block;font-size:clamp(20px,2.6vw,32px);word-break:break-word}
+.podium span{font-size:clamp(16px,2vw,22px)}
+table.res{width:100%;border-collapse:collapse;background:var(--p);margin-top:12px;font-size:16px}
+table.res th,table.res td{border:1px solid var(--ln);padding:7px 10px;text-align:left}
+table.res th{background:var(--p2);font-family:var(--cond);font-size:18px}
+table.res td.n{text-align:right;font-variant-numeric:tabular-nums}
+/* Player */
+.pl{max-width:520px;margin:0 auto}
+.pbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pbtns button{border:0;border-radius:12px;min-height:30vh;font:700 22px var(--cond);color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px}
+.pbtns button .sh{font-size:44px;line-height:1}
+.pbtns.two button{min-height:40vh}
+.big-msg{text-align:center;padding:30px 10px}
+.big-msg b{display:block;font:700 44px/1.1 var(--cond);margin-bottom:8px}
+.good{color:var(--ok)}.bad{color:var(--alarm)}
+.note{font-size:14px;color:var(--ink2);margin-top:10px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><b>🎮 HMI Challenge · Chapter 4</b><span class="st" id="st"></span></div>
+  <div id="app"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+(function(){
+/* Messages go through a free public MQTT server, encrypted (AES-GCM) with a key made from the room code,
+   so only people who can see the room code on the projector can read names and answers. */
+const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',DUR=20,SH=['▲','◆','●','■'];
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>btoa(String.fromCharCode(...u)),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+
+/* ===== The 5 questions ===== */
+const tile=(x,y,c,t)=>`<rect x="${x}" y="${y}" width="58" height="34" rx="4" fill="${c}"/><text x="${x+29}" y="${y+22}" text-anchor="middle" font-size="12" fill="#fff" font-family="Arial">${t}</text>`;
+const Q=[
+ {q:'Which screen lets the operator spot the alarm fastest?',o:['Screen A','Screen B'],c:1,
+  ex:'Screen B. When normal equipment is grey, the one red alarm jumps out. On screen A everything is colourful, so the alarm hides. (Rule 2: colour)',
+  v:`<svg viewBox="0 0 820 260"><text x="200" y="24" text-anchor="middle" font-size="22" fill="#E3E7EA" font-family="Arial" font-weight="700">A</text><rect x="20" y="36" width="360" height="210" rx="8" fill="#000"/>
+   ${[0,1,2,3,4].map(i=>[0,1,2,3].map(j=>tile(36+i*68,52+j*46,['#C22E29','#D35400','#B87F00','#2E7A39','#1B5AA6','#6C4AB6','#C2306B'][(i*3+j*5)%7],i===3&&j===2?'ALARM':['RUN','OPEN','AUTO','STOP'][(i+j)%4])).join('')).join('')}
+   <text x="620" y="24" text-anchor="middle" font-size="22" fill="#E3E7EA" font-family="Arial" font-weight="700">B</text><rect x="440" y="36" width="360" height="210" rx="8" fill="#C5CCD2"/>
+   ${[0,1,2,3,4].map(i=>[0,1,2,3].map(j=>tile(456+i*68,52+j*46,i===1&&j===3?'#C22E29':'#7D8891',i===1&&j===3?'ALARM':['RUN','OPEN','AUTO','STOP'][(i+j)%4])).join('')).join('')}</svg>`},
+ {q:'The tank is almost overflowing! Which valve do you open?',o:['Valve A','Valve B','Valve C'],c:1,
+  ex:'Valve B, the outlet at the bottom of the tank. A schematic screen makes this obvious at a glance: A adds more water, C is the drain to the sump. (Rule 1: the schematic screen)',
+  v:`<svg viewBox="0 0 820 300" font-family="Arial"><path d="M40,60 H330 V90" stroke="#5A6A75" stroke-width="12" fill="none"/><path d="M430,270 H780" stroke="#5A6A75" stroke-width="12" fill="none"/><path d="M380,290 V296 H180" stroke="#5A6A75" stroke-width="8" fill="none"/>
+   <rect x="290" y="90" width="180" height="200" rx="8" fill="none" stroke="#E3E7EA" stroke-width="4"/><rect x="294" y="104" width="172" height="182" fill="#E5484D"/><text x="380" y="200" text-anchor="middle" font-size="40" fill="#fff" font-weight="700">97%</text>
+   ${[['A',170,60],['B',600,270],['C',230,296]].map(([l,x,y])=>`<path d="M${x-22},${y-13} L${x+22},${y+13} L${x+22},${y-13} L${x-22},${y+13} Z" fill="#F0C04A" stroke="#0D1317" stroke-width="2"/><circle cx="${x}" cy="${y-38}" r="20" fill="#2F6FB5"/><text x="${x}" y="${y-31}" text-anchor="middle" font-size="22" fill="#fff" font-weight="700">${l}</text>`).join('')}
+   <text x="60" y="44" font-size="18" fill="#8A99A6">water in</text><text x="780" y="256" text-anchor="end" font-size="18" fill="#8A99A6">to town</text></svg>`},
+ {q:'Which display shows the temperature limit better?',o:['Display A','Display B'],c:1,
+  ex:'Display B. The live value is what the operator needs, so it should be the biggest thing; the label and unit stay small. (Rule 4: process values and labels)',
+  v:`<svg viewBox="0 0 820 230" font-family="Arial"><text x="200" y="26" text-anchor="middle" font-size="22" fill="#E3E7EA" font-weight="700">A</text><rect x="20" y="40" width="360" height="180" rx="10" fill="#fff"/><text x="200" y="120" text-anchor="middle" font-size="40" fill="#1D2730" font-weight="700">TEMPERATURE</text><text x="200" y="164" text-anchor="middle" font-size="40" fill="#1D2730" font-weight="700">LIMIT</text><text x="200" y="200" text-anchor="middle" font-size="16" fill="#1D2730">45 °C</text>
+   <text x="620" y="26" text-anchor="middle" font-size="22" fill="#E3E7EA" font-weight="700">B</text><rect x="440" y="40" width="360" height="180" rx="10" fill="#fff"/><text x="620" y="160" text-anchor="middle" font-size="110" fill="#1B5AA6" font-weight="700">45</text><text x="620" y="200" text-anchor="middle" font-size="18" fill="#4B5661">°C temperature limit</text></svg>`},
+ {q:'Which one belongs on the OVERVIEW screen?',o:['Pump bearing temperature (normal)','Tank level and alarms','Pump running hours','Motor current (normal)'],c:1,
+  ex:'Tank level and alarms: the operator needs them every minute. The others are normal reference values, so they go on a detail screen. (Overview or detail screen?)',
+  v:`<svg viewBox="0 0 820 220" font-family="Arial"><rect x="250" y="10" width="320" height="70" rx="8" fill="#2F6FB5"/><text x="410" y="52" text-anchor="middle" font-size="26" fill="#fff" font-weight="700">OVERVIEW SCREEN</text><path d="M330,80 L160,140 M410,80 V140 M490,80 L660,140" stroke="#8A99A6" stroke-width="3"/>
+   ${[160,410,660].map(x=>`<rect x="${x-110}" y="140" width="220" height="64" rx="8" fill="#222D35" stroke="#34424D" stroke-width="2"/><text x="${x}" y="180" text-anchor="middle" font-size="20" fill="#E3E7EA">detail screen</text>`).join('')}<text x="410" y="124" text-anchor="middle" font-size="44" fill="#F0C04A" font-weight="700">?</text></svg>`},
+ {q:'Which of these is NOT an HMI?',o:['ATM machine','Air-con control panel','Car dashboard','Thermocouple'],c:3,
+  ex:'The thermocouple! It is a sensor that measures temperature. It has no screen or buttons for a person to use, so it is not an HMI.',
+  v:`<svg viewBox="0 0 820 200" font-family="Arial">
+   <g transform="translate(40,20)"><rect width="150" height="150" rx="10" fill="#34424D"/><rect x="20" y="16" width="110" height="60" rx="4" fill="#7FE3FF"/><rect x="40" y="96" width="70" height="10" fill="#0D1317"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">ATM</text></g>
+   <g transform="translate(240,20)"><rect width="150" height="150" rx="10" fill="#E3E7EA"/><rect x="20" y="16" width="110" height="46" rx="4" fill="#0E2A3A"/><text x="75" y="48" text-anchor="middle" font-size="24" fill="#7FE3FF" font-weight="700">24°</text><circle cx="50" cy="96" r="14" fill="#8A99A6"/><circle cx="100" cy="96" r="14" fill="#8A99A6"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#1D2730">Air-con</text></g>
+   <g transform="translate(440,20)"><rect width="150" height="150" rx="10" fill="#222D35"/><circle cx="50" cy="66" r="34" fill="none" stroke="#F0C04A" stroke-width="5"/><circle cx="108" cy="66" r="24" fill="none" stroke="#7FE3FF" stroke-width="5"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">Dashboard</text></g>
+   <g transform="translate(640,20)"><rect width="150" height="150" rx="10" fill="#172028" stroke="#34424D"/><rect x="66" y="12" width="18" height="90" rx="4" fill="#B8BEC4"/><path d="M75,102 V122 M66,122 H84" stroke="#B8BEC4" stroke-width="4"/><text x="75" y="140" text-anchor="middle" font-size="16" fill="#fff">Thermocouple</text></g></svg>`}];
+
+/* ===== Crypto + MQTT ===== */
+let key=null,base='',cli=null,bi=0;
+async function room(code){const d=await crypto.subtle.digest('SHA-256',enc.encode('emt30205-game:'+code));key=await crypto.subtle.importKey('raw',d,'AES-GCM',false,['encrypt','decrypt']);
+  const t=new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode('topic:'+code)));base='emt30205/g/'+[...t.slice(0,8)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function seal(o){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(JSON.stringify(o))));const b=new Uint8Array(12+ct.length);b.set(iv);b.set(ct,12);return b64(b)}
+async function unseal(s){try{const b=unb64(s);return JSON.parse(dec.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(0,12)},key,b.slice(12))))}catch(e){return null}}
+function connect(sub,onMsg,onUp){return new Promise(res=>{let ok=false;const c=mqtt.connect(BROKERS[bi],{clientId:'emtg'+Math.random().toString(16).slice(2,10),connectTimeout:7000,reconnectPeriod:3000});cli=c;
+  c.on('connect',()=>{ok=true;c.subscribe(base+sub);$('#st').textContent='● connected';onUp&&onUp();res(true)});
+  c.on('message',async(t,m)=>{const s=m.toString();if(!s){onMsg(null);return}const o=await unseal(s);if(o)onMsg(o)});
+  c.on('offline',()=>{$('#st').textContent='○ reconnecting…'});
+  setTimeout(()=>{if(!ok&&cli===c){c.end(true);if(bi+1<BROKERS.length){bi++;$('#st').textContent='trying server 2…';connect(sub,onMsg,onUp).then(res)}else{$('#st').textContent='cannot reach the game server';res(false)}}},8000)})}
+/* The host listens and sends on BOTH servers, so a student reaches the game whichever server their phone connects to */
+let hosts=[];
+function connectAll(sub,onMsg,onUp){return new Promise(res=>{let done=false;
+  BROKERS.forEach((url,i)=>{const c=mqtt.connect(url,{clientId:'emth'+i+Math.random().toString(16).slice(2,10),connectTimeout:8000,reconnectPeriod:3000});hosts.push(c);
+    c.on('connect',()=>{c.subscribe(base+sub);const n=hosts.filter(x=>x.connected).length;$('#st').textContent=`● connected (${n} of ${BROKERS.length} servers)`;onUp&&onUp();if(!done){done=true;res(true)}});
+    c.on('message',async(t,m)=>{const s=m.toString();if(!s)return;const o=await unseal(s);if(o)onMsg(o)});
+    c.on('offline',()=>{const n=hosts.filter(x=>x.connected).length;$('#st').textContent=n?`● connected (${n} of ${BROKERS.length} servers)`:'○ reconnecting…'})});
+  setTimeout(()=>{if(!done){done=true;$('#st').textContent='cannot reach the game server';res(false)}},10000)})}
+const pub=async(sub,o,retain)=>{const m=await seal(o);if(hosts.length)hosts.forEach(c=>{if(c.connected)c.publish(base+sub,m,{retain:!!retain})});else if(cli&&cli.connected)cli.publish(base+sub,m,{retain:!!retain})};
+
+/* ===== Landing ===== */
+function landing(){$('#app').innerHTML=`<div class="choose">
+  <button id="asHost"><b>🖥 I am the lecturer</b>Host the game on the projector. Students join with their phones.</button>
+  <button id="asPlayer"><b>📱 I am a student</b>Join the game with the code on the projector.</button></div>
+  <p class="muted" style="text-align:center"><a href="chapter4.html">← Back to Chapter 4</a></p>`;
+  $('#asHost').onclick=host;$('#asPlayer').onclick=()=>player('')}
+
+/* ===== HOST ===== */
+let H=null,hT=null,hPubT=null;
+const ranked=()=>Object.entries(H.pl).sort((a,b)=>b[1].tot-a[1].tot||a[1].nm.localeCompare(b[1].nm));
+function snapshot(){const r={};ranked().forEach(([id,p],i)=>{const a=p.ans[H.qi];r[id]={c:a?a.ok:false,pts:a?a.pts:0,tot:p.tot,rk:i+1,cor:p.cor}});return r}
+function hState(){const s={t:H.t,qi:H.qi,n:Q.length,p:Object.fromEntries(Object.entries(H.pl).map(([id,p])=>[id,p.nm]))};
+  if(H.t==='q'){s.o=Q[H.qi].o;s.q=Q[H.qi].q;s.dur=DUR;s.sent=H.sent}
+  if(H.t==='reveal'||H.t==='board'||H.t==='end'){s.c=Q[H.qi].c;s.o=Q[H.qi].o;s.r=snapshot()}return s}
+function hPub(){clearTimeout(hPubT);hPubT=setTimeout(()=>{pub('/h',hState(),true);S('game-host',JSON.stringify({code:H.code,bi,pl:H.pl,qi:H.qi,t:H.t}))},150)}
+async function host(){let code=null,saved=null;try{saved=JSON.parse(L('game-host')||'null')}catch(e){}
+  if(saved&&saved.code&&saved.t!=='end'&&confirm('Continue the last game (room '+saved.code+')?')){code=saved.code;bi=saved.bi||0}
+  else code=[...crypto.getRandomValues(new Uint8Array(6))].map(x=>AB[x%AB.length]).join('');
+  H={code,pl:(saved&&saved.code===code)?saved.pl:{},qi:(saved&&saved.code===code)?saved.qi:-1,t:'lobby',sent:0};
+  await room(code);$('#app').innerHTML='<div class="card">Connecting to the game server…</div>';
+  const ok=await connectAll('/p',hMsg,()=>hPub());if(!ok){$('#app').innerHTML='<div class="card err">Cannot reach the game server from this network. Try another network (e.g. a phone hotspot).</div>';return}
+  hLobby()}
+function hMsg(m){if(!H||!m||!m.id)return;
+  if(m.t==='join'){const nm=String(m.nm||'').replace(/\s+/g,' ').trim().slice(0,20);if(!nm)return;if(!H.pl[m.id]){if(Object.keys(H.pl).length>=150)return;H.pl[m.id]={nm,tot:0,cor:0,ans:{}}}else H.pl[m.id].nm=nm;if(H.t==='lobby')hLobbyList();hPub()}
+  if(m.t==='ans'&&H.t==='q'&&m.qi===H.qi&&H.pl[m.id]&&!H.pl[m.id].ans[H.qi]){const a=Math.max(0,Math.min(3,m.a|0)),ms=Math.max(0,Math.min(DUR*1000,+m.ms||DUR*1000)),ok=a===Q[H.qi].c,pts=ok?500+Math.round(500*(1-ms/(DUR*1000))):0;
+    H.pl[m.id].ans[H.qi]={a,ok,pts};hCount();if(Object.values(H.pl).every(p=>p.ans[H.qi]))setTimeout(hReveal,600)}}
+function hLobby(){H.t='lobby';const url=new URL('game.html',location.href);url.hash='join='+H.code;
+  $('#app').innerHTML=`<div class="lobby"><div class="card" style="text-align:center"><div class="qr" id="qr"></div><div class="muted" style="margin-top:8px">Scan to join, or open</div><b style="font-size:18px">${esc(url.host+url.pathname)}</b><div class="muted">and type the code</div><div class="code">${H.code}</div></div>
+   <div class="card"><h2 style="font-size:34px">Players: <span id="pc">0</span></h2><p class="muted" style="margin:4px 0 0">Use your first name or a nickname. 5 questions, ${DUR} seconds each. Faster correct answers score more points.</p><div class="players" id="pls"></div>
+   <div class="row" style="margin-top:14px"><button class="btn go" id="hStart" disabled>▶ Start the game</button><button class="btn" id="hNew">New room</button></div></div></div>`;
+  const q=qrcode(0,'M');q.addData(url.href);q.make();$('#qr').innerHTML=q.createSvgTag(6,2);hLobbyList();
+  $('#hStart').onclick=()=>hQuestion(H.qi>=0&&H.qi<Q.length-1?H.qi+1:0);$('#hNew').onclick=()=>{if(confirm('Start a new room? Players will need to join again.')){pub('/h',{t:'closed'},true);S('game-host',null);location.hash='';location.reload()}};hPub()}
+function hLobbyList(){const n=Object.keys(H.pl).length;$('#pc').textContent=n;$('#pls').innerHTML=Object.values(H.pl).map(p=>`<span>${esc(p.nm)}</span>`).join('')||'<span class="muted" style="animation:none;background:none;border:0">Waiting for players…</span>';$('#hStart').disabled=!n}
+function hQuestion(i){H.qi=i;H.t='q';H.sent=Date.now();const q=Q[i];let left=DUR;
+  $('#app').innerHTML=`<div class="qhead"><div><div class="muted">Question ${i+1} of ${Q.length}</div><div class="qtext">${q.q}</div></div><div class="timer" id="tm">${left}</div></div>
+   <div class="vis">${q.v}</div><div class="opts">${q.o.map((o,k)=>`<div class="opt o${k}"><span class="sh">${SH[k]}</span>${o}</div>`).join('')}</div>
+   <div class="bar"><i id="tb"></i></div><div class="row" style="justify-content:space-between;margin-top:10px"><span class="muted" id="ac">0 answered</span><button class="btn" id="hSkip">Show answer now ▶</button></div>`;
+  $('#hSkip').onclick=hReveal;hCount();hPub();clearInterval(hT);
+  hT=setInterval(()=>{left=Math.max(0,DUR-Math.floor((Date.now()-H.sent)/1000));const t=$('#tm');if(!t){clearInterval(hT);return}t.textContent=left;t.classList.toggle('low',left<=5);$('#tb').style.width=(100*(DUR*1000-(Date.now()-H.sent))/(DUR*1000))+'%';if(left<=0)hReveal()},200)}
+function hCount(){const n=Object.values(H.pl).filter(p=>p.ans[H.qi]).length,e=$('#ac');if(e)e.textContent=`${n} of ${Object.keys(H.pl).length} answered`}
+function hReveal(){if(H.t!=='q')return;clearInterval(hT);const q=Q[H.qi];Object.values(H.pl).forEach(p=>{const a=p.ans[H.qi];if(a){p.tot+=a.pts;if(a.ok)p.cor++}});
+  H.t='reveal';const cnt=q.o.map((_,k)=>Object.values(H.pl).filter(p=>p.ans[H.qi]&&p.ans[H.qi].a===k).length);
+  $('#app').innerHTML=`<div class="qhead"><div><div class="muted">Question ${H.qi+1} of ${Q.length}</div><div class="qtext">${q.q}</div></div></div>
+   <div class="opts">${q.o.map((o,k)=>`<div class="opt o${k}${k===q.c?'':' dim'}"><span class="sh">${k===q.c?'✔':SH[k]}</span>${o}<span class="cnt">${cnt[k]}</span></div>`).join('')}</div>
+   <div class="explain">${q.ex}</div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn pri" id="hNext">Leaderboard ▶</button></div>`;
+  $('#hNext').onclick=hBoard;hPub()}
+function hBoard(){H.t='board';const last=H.qi>=Q.length-1;
+  $('#app').innerHTML=`<h2 style="text-align:center;font-size:40px">Leaderboard</h2><div class="board">${ranked().slice(0,5).map(([id,p],i)=>`<div><span>${i+1}</span><span>${esc(p.nm)}</span><span>${p.tot}</span></div>`).join('')||'<p class="muted">No players.</p>'}</div>
+   <div class="row" style="justify-content:center;margin-top:14px"><button class="btn pri" id="hNext">${last?'Final results ▶':'Next question ▶'}</button></div>`;
+  $('#hNext').onclick=()=>last?hEnd():hQuestion(H.qi+1);hPub()}
+function hEnd(){H.t='end';const R=ranked();const col=['#B88400','#8A99A6','#A0522D'],ht=[200,150,110];
+  const pod=[1,0,2].filter(i=>R[i]).map(i=>`<div style="background:${col[i]};height:${ht[i]}px"><b>${esc(R[i][1].nm)}</b><span>${['1st','2nd','3rd'][i]} · ${R[i][1].tot}</span></div>`).join('');
+  $('#app').innerHTML=`<h2 style="text-align:center;font-size:44px">🏆 Final results</h2><div class="podium">${pod}</div>
+   <div class="row"><button class="btn pri" id="hCopy">Copy results (paste into Excel)</button><button class="btn" id="hCsv">Download CSV</button><button class="btn" id="hNew2">New game</button><span class="muted" id="cpMsg"></span></div>
+   <div style="overflow-x:auto"><table class="res"><thead><tr><th>Rank</th><th>Name</th><th>Correct (of ${Q.length})</th><th>Points</th>${Q.map((_,i)=>`<th>Q${i+1}</th>`).join('')}</tr></thead><tbody>
+   ${R.map(([id,p],i)=>`<tr><td class="n">${i+1}</td><td>${esc(p.nm)}</td><td class="n">${p.cor}</td><td class="n">${p.tot}</td>${Q.map((_,k)=>{const a=p.ans[k];return `<td>${a?(a.ok?'✔':'✘'):'–'}</td>`}).join('')}</tr>`).join('')}</tbody></table></div>
+   <p class="note">Results are kept only on this computer until you start a new game. Copy or download them now.</p>`;
+  const rows=()=>[['Rank','Name','Correct','Points',...Q.map((_,i)=>'Q'+(i+1))],...R.map(([id,p],i)=>[i+1,p.nm,p.cor,p.tot,...Q.map((_,k)=>{const a=p.ans[k];return a?(a.ok?'correct':'wrong'):'no answer'})])];
+  $('#hCopy').onclick=async()=>{const t=rows().map(r=>r.join('\t')).join('\n');try{await navigator.clipboard.writeText(t);$('#cpMsg').textContent='Copied. Paste into Excel.'}catch(e){$('#cpMsg').textContent='Copy failed: use Download CSV.'}};
+  $('#hCsv').onclick=()=>{const csv=rows().map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='HMI-challenge-results-'+new Date().toISOString().slice(0,10)+'.csv';a.click()};
+  $('#hNew2').onclick=()=>{pub('/h',{t:'closed'},true);S('game-host',null);location.hash='';location.reload()};hPub()}
+
+/* ===== PLAYER ===== */
+let P={id:null,nm:'',code:'',joined:false,qi:-1,got:0,answered:-1,last:null},pJoinT=null;
+function player(pre){const saved=pre||sessionStorage.getItem('game-code')||'';
+  $('#app').innerHTML=`<div class="pl card"><h2 style="font-size:32px">Join the game</h2><p class="muted" style="margin:4px 0 12px">Type the code on the projector and your name.</p>
+   <label class="muted" for="pc">Game code</label><input class="big" id="pc" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(saved.split('.')[0])}" placeholder="ABC234">
+   <label class="muted" for="pn" style="display:block;margin-top:10px">Your name</label><input class="big" id="pn" maxlength="20" autocomplete="off" value="${esc(sessionStorage.getItem('game-name')||'')}" placeholder="First name or nickname">
+   <button class="btn pri" id="pGo" style="width:100%;margin-top:14px;font-size:22px">Join ▶</button><div class="err" id="pErr"></div>
+   <p class="note">Use your first name or a nickname, not your matric number.</p></div>`;
+  if(saved.includes('.'))bi=Math.min(+saved.split('.')[1]||0,BROKERS.length-1);
+  $('#pGo').onclick=pJoin;$('#pn').onkeydown=e=>{if(e.key==='Enter')pJoin()};if(saved)$('#pn').focus()}
+async function pJoin(){const code=$('#pc').value.toUpperCase().replace(/[^A-Z2-9]/g,''),nm=$('#pn').value.replace(/\s+/g,' ').trim().slice(0,20);
+  if(code.length!==6){$('#pErr').textContent='The code has 6 letters and numbers.';return}if(!nm){$('#pErr').textContent='Please type your name.';return}
+  P.code=code;P.nm=nm;sessionStorage.setItem('game-code',code+'.'+bi);sessionStorage.setItem('game-name',nm);
+  P.id=sessionStorage.getItem('game-id:'+code);if(!P.id){P.id=b64(crypto.getRandomValues(new Uint8Array(9))).replace(/[+/=]/g,'');sessionStorage.setItem('game-id:'+code,P.id)}
+  await room(code);pMsg2('Connecting…','');const ok=await connect('/h',pState,()=>pSendJoin());if(!ok){player(code);$('#pErr').textContent='Cannot reach the game server. Check your internet and try again.';return}
+  pMsg2('Joining…','Looking for the game on the projector.');clearInterval(pJoinT);pJoinT=setInterval(()=>{if(!P.joined)pSendJoin()},3000)}
+const pSendJoin=()=>pub('/p',{t:'join',id:P.id,nm:P.nm});
+function pMsg2(a,b){$('#app').innerHTML=`<div class="pl card big-msg"><b>${a}</b><div class="muted">${b}</div><div class="note">Playing as <b>${esc(P.nm)}</b></div></div>`}
+function pState(s){if(!s||s.t==='closed'){pMsg2('Game closed','The lecturer has closed this game.');return}
+  P.last=s;const inGame=s.p&&s.p[P.id];if(inGame&&!P.joined){P.joined=true;clearInterval(pJoinT)}if(!inGame){P.joined=false;pSendJoin();return}
+  if(s.t==='lobby'){pMsg2('You are in! 🎉','Look at the projector. The game starts soon.');return}
+  if(s.t==='q'){if(P.answered===s.qi){pMsg2('Answer locked in 🔒','Wait for everyone to answer.');return}
+    if(P.qi!==s.qi){P.qi=s.qi;P.got=Date.now()}const two=s.o.length===2;
+    $('#app').innerHTML=`<div class="pl"><div class="muted">Question ${s.qi+1} of ${s.n}</div><div style="font:700 22px/1.2 var(--cond);margin-top:4px">${esc(s.q)}</div><div class="pbtns${two?' two':''}">${s.o.map((o,k)=>`<button class="o${k}" data-k="${k}"><span class="sh">${SH[k]}</span>${esc(o)}</button>`).join('')}</div><p class="note">Look at the projector for the picture.</p></div>`;
+    $$('.pbtns button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();if(P.answered===s.qi)return;P.answered=s.qi;pub('/p',{t:'ans',id:P.id,qi:s.qi,a:+b.dataset.k,ms:Date.now()-P.got});if(navigator.vibrate)navigator.vibrate(30);pMsg2('Answer locked in 🔒','Wait for everyone to answer.')}));return}
+  if(s.t==='reveal'||s.t==='board'){const r=s.r&&s.r[P.id];if(!r)return;const right=r.c;
+    $('#app').innerHTML=`<div class="pl card big-msg"><b class="${right?'good':'bad'}">${right?'✔ Correct!':P.answered===s.qi?'✘ Not quite':'⏱ Time up'}</b>
+     <div style="font-size:22px">${right?'+'+r.pts+' points':'The answer was <b>'+SH[s.c]+' '+esc(s.o[s.c])+'</b>'}</div><div style="font:700 30px var(--cond);margin-top:14px">Total ${r.tot} · Rank ${r.rk}</div><div class="note">Playing as <b>${esc(P.nm)}</b></div></div>`;return}
+  if(s.t==='end'){const r=s.r&&s.r[P.id];if(!r)return;$('#app').innerHTML=`<div class="pl card big-msg"><b>${r.rk<=3?['🥇','🥈','🥉'][r.rk-1]:'🏁'} Rank ${r.rk}</b><div style="font:700 30px var(--cond)">${r.tot} points</div><div style="font-size:20px;margin-top:6px">${r.cor} of ${s.n} correct</div><div class="note">Well done, ${esc(P.nm)}! Look at the projector for the final results.</div></div>`}}
+
+/* ===== Start ===== */
+if(!window.crypto||!crypto.subtle){$('#app').innerHTML='<div class="card err">This browser cannot run the game. Open it over https in Chrome or Safari.</div>';return}
+const h=location.hash.match(/join=([A-Z2-9]{6})(?:\.(\d))?/);
+if(h)player(h[1]+'.'+(h[2]||0));else landing();
+})();
+</script>
+</body>
+</html>
