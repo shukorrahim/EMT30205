@@ -137,6 +137,49 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 @media (max-width:600px){main{padding:0 16px 60px}.panel{padding:14px}.stations{grid-template-columns:repeat(2,1fr)}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
+/* Assessment */
+:root{--bar:#1B5AA6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bar:#5B95DE}}
+:root[data-theme="dark"]{--bar:#5B95DE}
+.as-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:10px;margin:14px 0}
+.as-tiles>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px}
+.as-tiles .v{font-family:var(--cond);font-size:34px;font-weight:700;line-height:1.1}
+.as-tiles .k{font-size:14px;color:var(--ink2)}
+.as-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:6px;align-items:start}
+@media (min-width:860px){.as-grid{grid-template-columns:1.1fr 1fr}}
+.as-bars{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px}
+.as-bars h3,.as-cal h3{font-size:20px;margin:0 0 6px}
+.as-row{display:grid;grid-template-columns:minmax(120px,38%) 1fr 46px;gap:10px;align-items:center;width:100%;background:none;border:0;border-radius:4px;padding:8px 6px;cursor:pointer;text-align:left;min-height:44px}
+.as-row:hover{background:var(--panel2)}
+.as-row[aria-pressed="true"]{background:var(--sel-soft)}
+.as-row .nm{font-weight:600;font-size:15px;line-height:1.25}
+.as-row .nm small{display:block;font-weight:400;font-size:13px;color:var(--ink2)}
+.as-row .tr{height:14px;background:var(--panel2);border-radius:0 4px 4px 0}
+.as-row .tr i{display:block;height:100%;background:var(--bar);border-radius:0 4px 4px 0}
+.as-row .pc{font-family:var(--cond);font-size:22px;font-weight:600;text-align:right;color:var(--ink)}
+.as-detail{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--bar);border-radius:4px;padding:14px 16px;min-height:220px}
+.as-detail h3{font-size:24px;margin:0 0 4px}
+.as-detail dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:10px 0;font-size:15px}
+.as-detail dt{color:var(--ink2)}.as-detail dd{margin:0;font-weight:500}
+.as-detail .parts{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.as-detail .parts span{border:1px solid var(--line);border-radius:3px;padding:2px 8px;font-size:14px}
+.as-detail .prep{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.as-detail .prep a{font-size:14px;border:1px solid var(--sel);border-radius:20px;padding:4px 12px;text-decoration:none}
+.as-cal{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px;margin-top:14px}
+.as-weeks{display:grid;grid-template-columns:repeat(15,minmax(44px,1fr));gap:3px;min-width:690px;margin-top:6px}
+.as-wk{background:var(--panel2);border-radius:3px;padding:4px 2px;text-align:center;font-size:12px;color:var(--ink2);min-height:84px;display:flex;flex-direction:column;gap:3px;align-items:stretch}
+.as-wk b{font-family:var(--cond);font-size:15px;color:var(--ink)}
+.as-wk.brk{background:repeating-linear-gradient(135deg,var(--panel2) 0 6px,var(--panel) 6px 12px)}
+.as-wk button{border:1px solid var(--bar);background:var(--panel);color:var(--ink);border-radius:3px;font-size:11px;font-weight:600;line-height:1.15;padding:3px 1px;cursor:pointer;min-height:36px}
+.as-wk button[aria-pressed="true"]{background:var(--bar);color:#fff}
+.as-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.as-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding-top:4px}
+@media (max-width:760px){.as-hint{display:block}}
+.as-co{width:100%;border-collapse:collapse;background:var(--panel);font-size:15px;margin-top:14px;min-width:520px}
+.as-co th,.as-co td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+.as-co th{background:var(--panel2);font-family:var(--cond);font-size:17px}
+.as-co td.n{font-family:var(--cond);font-size:20px;font-weight:600;text-align:right;white-space:nowrap}
+
 /* Phones and tablets (iOS and Android) */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button,a,[role=button]{touch-action:manipulation}
@@ -166,7 +209,7 @@ button,a,[role=button]{touch-action:manipulation}
       <ul class="facts">
         <li><b>Read:</b> each chapter is one page of notes in plain English, with analogies and real Malaysian examples.</li>
         <li><b>Try:</b> every section has something to click, switch or simulate.</li>
-        <li><b>Check:</b> each chapter ends with a quiz that marks your answers straight away.</li>
+        <li><b>Check:</b> games, quizzes and a jargon buster in every chapter help you check what you have learned.</li>
       </ul>
     </div>
 
@@ -208,12 +251,45 @@ button,a,[role=button]{touch-action:manipulation}
   <ol class="chapters" id="labList"></ol>
 </section>
 
+<section class="topic" id="assessment">
+  <h2>Assessment</h2>
+  <div class="intro"><p>EMT30205 is <b>100 % continuous assessment</b>: there is no final exam. Every mark comes from work you do during the semester. Tap an assessment to see what it is, when it happens and which notes help you prepare.</p></div>
+  <div class="as-tiles">
+    <div><div class="v">100 %</div><div class="k">continuous assessment</div></div>
+    <div><div class="v">0 %</div><div class="k">final exam</div></div>
+    <div><div class="v">70 / 30</div><div class="k">individual / group work (%)</div></div>
+  </div>
+  <div class="as-grid">
+    <div class="as-bars" role="group" aria-label="Assessment weights">
+      <h3>Weight of each assessment</h3>
+      <div id="asBars"></div>
+    </div>
+    <div class="as-detail" id="asDetail" aria-live="polite"></div>
+  </div>
+  <div class="as-cal">
+    <h3>Semester calendar</h3>
+    <div class="as-scroll"><div class="as-weeks" id="asWeeks"></div></div>
+    <div class="as-hint">↔ Swipe sideways to see all 15 weeks</div>
+  </div>
+  <div class="as-scroll">
+    <table class="as-co">
+      <thead><tr><th>Course outcome</th><th>Assessed by</th><th style="text-align:right">Weight</th></tr></thead>
+      <tbody>
+        <tr><td><b>CO1</b> Apply the concepts used in SCADA system development (C4, analysing)</td><td>Theory test 10 %, project report 15 %, quiz 5 %</td><td class="n">30 %</td></tr>
+        <tr><td><b>CO2</b> Construct an HMI in a SCADA system and its network communication (P4, mechanism)</td><td>Lab test 15 %, Lab Assessments 1 to 4 (10 % each), project demo 10 %</td><td class="n">65 %</td></tr>
+        <tr><td><b>CO3</b> Show teamwork and leadership in group tasks</td><td>Project peer review 5 %</td><td class="n">5 %</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="font-size:14px;margin-top:10px">Weeks are the planned weeks from the course teaching plan (Semester 1, 2026/2027). Your lecturer confirms the exact date of each assessment in class.</p>
+</section>
+
 <section class="topic" id="how">
   <h2>How to use these notes</h2>
   <ol class="steps">
     <li><b>1. Read with the slides</b>Each page follows the lecture slides. Read it before class, or after if something was unclear.</li>
     <li><b>2. Play with the screens</b>The dark screens copy a real SCADA HMI. Breaking things in a simulator is free; breaking them at a substation is not.</li>
-    <li><b>3. Do the quiz</b>Every chapter ends with a quiz. Your best score is kept on this device, so you can try again before the test.</li>
+    <li><b>3. Check yourself</b>Chapters 1 and 2 end with a quiz, and every chapter has games and a jargon buster. Your best quiz score is kept on this device, so you can try again before the test.</li>
   </ol>
   <div class="note"><b>Progress stays on your device.</b> Nothing is sent anywhere. If you switch phone or browser, you start fresh. <button class="btn" id="resetProg" style="margin-left:6px;padding:3px 10px;font-size:14px">Reset my progress</button></div>
 </section>
@@ -335,6 +411,38 @@ $('#resetProg').onclick=()=>{
 /* Refresh when coming back from a chapter page */
 addEventListener('pageshow',()=>{renderLists();renderHmi()});
 renderLists();renderHmi();
+})();
+</script>
+<script>
+/* Assessment: weights from the Teaching and Learning Plan, Semester 1 2026/2027 */
+(function(){
+const AS=[
+ {k:'lab',n:'Lab assessments',s:'4 labs × 10 %',w:40,who:'Individual',when:'Weeks 3, 5, 11 and 13',wk:{3:'Lab 1',5:'Lab 2',11:'Lab 3',13:'Lab 4'},co:'CO2 (P4)',
+  what:'Four hands-on assessments during lab sessions, 10 % each. You build and test real control and monitoring tasks on the lab equipment.',
+  prep:[['Lab 1: CX-Programmer','lab1.html'],['Lab 2: Ladder and mnemonic','lab2.html'],['Chapter 5: HMI components','chapter5.html']]},
+ {k:'proj',n:'Mini project',s:'group project',w:30,who:'Group',when:'Week 14 (progress check midway)',wk:{14:'Project'},co:'CO1, CO2 and CO3',
+  what:'In a group, design an automation system with a complete ladder diagram and an interactive HMI. You hand in a report, demonstrate the system, and review your teammates. You present your progress in the middle of the project.',
+  parts:['Report 15 %','Demo 10 %','Peer review 5 %'],
+  prep:[['Chapter 4: HMI design','chapter4.html'],['Chapter 5: HMI components','chapter5.html'],['Lab 2: Ladder','lab2.html']]},
+ {k:'lt',n:'Lab test',s:'individual',w:15,who:'Individual',when:'Week 4',wk:{4:'Lab test'},co:'CO2 (P4)',
+  what:'Design one control and monitoring system of your choice: sketch its ladder diagram, build its HMI on the computer, and explain the advantages of your system.',
+  prep:[['Lab 1','lab1.html'],['Lab 2','lab2.html'],['Chapter 1.8: Advantages','chapter1.html#s8'],['Chapter 4: HMI design','chapter4.html']]},
+ {k:'tt',n:'Theory test',s:'individual',w:10,who:'Individual',when:'Week 7',wk:{7:'Theory test'},co:'CO1 (C4, analysing)',
+  what:'A written test on SCADA, communication and HMI. Expect questions that ask you to analyse a situation, not only to recall facts.',
+  prep:[['Chapter 1','chapter1.html'],['Chapter 2','chapter2.html'],['Chapter 3','chapter3.html'],['Chapter 4','chapter4.html'],['Chapter 5','chapter5.html']]},
+ {k:'qz',n:'Quiz',s:'individual',w:5,who:'Individual',when:'Announced in class',wk:{},co:'CO1',
+  what:'A short quiz on SCADA concepts.',
+  prep:[['Chapter 1 quiz','chapter1.html'],['Chapter 2 quiz','chapter2.html']]}];
+const $=s=>document.querySelector(s);let sel='lab';
+function draw(){
+  $('#asBars').innerHTML=AS.map(a=>`<button class="as-row" data-k="${a.k}" aria-pressed="${a.k===sel}" aria-label="${a.n}, ${a.w} percent"><span class="nm">${a.n}<small>${a.s}</small></span><span class="tr"><i style="width:${a.w/40*100}%"></i></span><span class="pc">${a.w}%</span></button>`).join('');
+  const a=AS.find(x=>x.k===sel);
+  $('#asDetail').innerHTML=`<h3>${a.n}: ${a.w} %</h3><p style="margin:0">${a.what}</p>${a.parts?`<div class="parts">${a.parts.map(p=>`<span>${p}</span>`).join('')}</div>`:''}
+    <dl><dt>When</dt><dd>${a.when}</dd><dt>Who</dt><dd>${a.who}</dd><dt>Outcome</dt><dd>${a.co}</dd></dl><div class="muted" style="font-size:14px">Prepare with:</div><div class="prep">${a.prep.map(p=>`<a href="${p[1]}">${p[0]}</a>`).join('')}</div>`;
+  $('#asWeeks').innerHTML=[...Array(15)].map((_,i)=>{const w=i+1;const items=AS.filter(x=>x.wk[w]);
+    return `<div class="as-wk${w===9?' brk':''}"><b>W${w}</b>${w===9?'<span>break</span>':''}${items.map(x=>`<button data-k="${x.k}" aria-pressed="${x.k===sel}">${x.wk[w]}</button>`).join('')}</div>`}).join('');
+  document.querySelectorAll('#asBars .as-row,#asWeeks button').forEach(b=>b.onclick=()=>{sel=b.dataset.k;draw()})}
+draw();
 })();
 </script>
 <!-- Phone remote (receiver). The same block is in every chapter and lab page and the homepage. -->
