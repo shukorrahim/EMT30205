@@ -78,7 +78,7 @@ a{color:#7FB6F2}
 <script>
 (function(){
 const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
-const PAGES=[['index.html','Home'],['chapter1.html','Ch 1'],['chapter2.html','Ch 2'],['chapter3.html','Ch 3'],['chapter4.html','Ch 4'],['chapter5.html','Ch 5'],['lab1.html','Lab 1'],['lab2.html','Lab 2']];
+const PAGES=[['index.html','Home'],['chapter1.html','Ch 1'],['chapter2.html','Ch 2'],['chapter3.html','Ch 3'],['chapter4.html','Ch 4'],['chapter5.html','Ch 5'],['lab1.html','Lab 1'],['lab2.html','Lab 2'],['lab3.html','Lab 3']];
 const $=id=>document.getElementById(id);
 const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
 let cli=null,code=null,key=null,bi=0,lastN=0,sid=null,st=null,lastP='',wake=null;
