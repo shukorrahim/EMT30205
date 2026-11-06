@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>Introduction to the Internet of Things | Monitoring System Integration</title>
+<meta name="description" content="Chapter 6 of EMT30205: what the Internet of Things is, its history, how an IoT device senses, thinks, acts and shares, why IoT matters for monitoring systems, examples, advantages and disadvantages, and IoT vs IIoT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side .home-m{display:none}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.ticker{margin-top:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.lead{max-width:700px;font-size:19px;margin-top:24px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;row-gap:6px}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.ask{border-left:4px solid var(--warn);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:16px 0;font-size:16px}
+.ask b{font-family:var(--cond);font-size:18px;font-weight:600;color:var(--warn)}
+.ask details{margin-top:6px}.ask summary{cursor:pointer;color:var(--sel);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.threecol{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.threecol{grid-template-columns:repeat(3,1fr)}}
+.twocol ul,.threecol ul{padding-left:20px;margin:0}
+.twocol h3,.threecol h3{margin-top:0;font-size:21px}
+.out{min-height:60px}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.danger{border-color:var(--alarm);color:var(--alarm)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+input[type=range]{width:100%;accent-color:var(--sel)}
+
+/* Light diagrams */
+.diagram{margin:14px 0}
+.diagram svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.diagram svg text{fill:var(--ink);font-family:var(--body)}
+.diagram svg .lb{font-family:var(--cond);font-weight:600}
+.diagram svg .dim{fill:var(--ink2)}
+.diagram figcaption{font-size:14px;color:var(--ink2);margin-top:8px;display:flex;gap:16px;flex-wrap:wrap}
+.diagram figcaption i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.wide svg{min-width:720px}.pan-hint{display:block}.hmi .pan-hint{color:#8A99A6;background:#172028}}
+
+/* HMI screens (same as Chapter 1) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--kv132:#5AA8FF;--kv33:#F0C04A;--cls:#E5484D;--opn:#3FB950;--val:#7FE3FF;
+  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);margin-top:12px;font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
+.hmi-nav button,.hmi-nav span{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
+.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
+.hmi-body{position:relative;min-width:0}
+.hmi svg{display:block;width:100%;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi svg .dim{fill:var(--hd)}
+.hmi svg .lb{font-family:var(--cond);font-weight:600}
+.vbox rect{fill:#000;stroke:var(--hl)}
+.vbox text{font-variant-numeric:tabular-nums;font-weight:600;fill:var(--val)!important}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
+.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
+.hmi-foot .alm.on{background:var(--cls);color:#fff;animation:hblink 1s steps(2) infinite}
+.hmi-foot .alm.okk{background:#1F5130;color:#fff}
+.hmi-foot .alm.step{background:#2F6FB5;color:#fff;font-size:14px}
+@keyframes hblink{50%{background:#7E1A1D}}
+.hmi-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--hd);font-size:12px;padding:4px 10px 8px}
+.hmi-legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:50%}
+.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer}
+.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}.hbtn.red{background:#9E2A2E;border-color:#C23A3F;color:#fff}
+.hbtn[disabled]{opacity:.4;cursor:not-allowed}
+.hmi .ctl{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 10px;background:var(--hp);border-top:1px solid var(--hl);color:var(--hd)}
+.hmi .ctl label{display:inline-flex;gap:6px;align-items:center}
+.hmi .ctl input[type=range]{width:120px}
+.hlog{list-style:none;margin:0;padding:6px 10px;font:12px/1.5 Consolas,"Courier New",monospace;max-height:120px;overflow-y:auto;border-top:1px solid var(--hl)}
+.hlog li.a{color:#FF8A84}.hlog li.k{color:#7FE3A0}.hlog li.i{color:var(--val)}
+.flowline{stroke-dasharray:10 8;animation:flow .9s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+.blink{animation:blinkf 1s steps(2) infinite}
+@keyframes blinkf{50%{opacity:.2}}
+.hmi .ln{transition:opacity .3s}
+.netsvg[data-sel] .ln:not(.on){opacity:.12}
+
+/* Flip cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:170px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:26px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+
+/* Class game: name wheel */
+.wheelbox{display:grid;grid-template-columns:1fr;gap:20px;align-items:center;margin-top:10px}
+@media (min-width:860px){.wheelbox{grid-template-columns:1.1fr 1fr}}
+.wheelbox:fullscreen{background:var(--canvas);padding:30px;overflow:auto}
+.wheelbox:fullscreen .wheel{max-width:min(80vh,620px)}
+.wheel{position:relative;width:100%;max-width:480px;margin:0 auto;padding-top:14px}
+.wheel canvas{display:block;width:100%;height:auto;border-radius:50%;box-shadow:0 0 0 6px var(--pipe),0 8px 22px rgba(0,0,0,.25)}
+.wheel .ptr{position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid var(--alarm);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.wheel .spin{position:absolute;left:50%;top:calc(50% + 7px);transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;border:4px solid #fff;background:#1D2730;color:#fff;font:700 clamp(16px,3vw,22px) var(--cond);letter-spacing:.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.wheel .spin:hover{background:#2F3B46}
+.wheel .spin[disabled]{opacity:.7;cursor:wait}
+.winbox{text-align:center}
+.winner{font-family:var(--cond);font-size:clamp(38px,7vw,64px);font-weight:700;line-height:1.1;margin-top:4px;word-break:break-word}
+.winner.go{animation:win .7s ease-out}
+@keyframes win{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+#wNames{width:100%;margin-top:6px;font:16px/1.5 var(--body);padding:8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+/* Key idea, teaching tips, jargon buster */
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.tip{border:1px dashed var(--pipe);border-radius:4px;padding:8px 14px;margin:14px 0;background:var(--panel);max-width:760px}
+.tip summary{cursor:pointer;font-weight:600;min-height:28px;display:flex;align-items:center}
+.tip p{margin:8px 0 0;font-size:16px}
+.jargon{margin-top:26px}
+.jargon .flip{height:150px}
+.jargon .flip .f b{font-size:24px}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* ===== Shared with Chapter 3 ===== */
+.diagram svg .wire{stroke:var(--pipe);stroke-width:3;fill:none}
+.diagram svg .box{fill:var(--panel);stroke:var(--pipe);stroke-width:2}
+.diagram svg .thin{stroke:var(--pipe);stroke-width:1.5;fill:none}
+.diagram.flat svg{background:var(--panel2)}
+.ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.ctrl label{display:inline-flex;gap:6px;align-items:center;font-size:15px}
+.ctrl input[type=text]{width:64px;font:600 24px var(--cond);text-align:center;padding:2px 4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.say{min-height:52px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px;margin-top:10px}
+.say b{font-weight:600}
+/* Serial frame strip */
+.frame{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.frame span{min-width:46px;text-align:center;border:2px solid var(--sel);border-radius:3px;padding:2px 2px 3px;font:700 20px/1.1 var(--cond);background:var(--panel);transition:background .2s}
+.frame span small{display:block;font:500 11px var(--body);color:var(--ink2)}
+.frame span.st{border-color:var(--warn)}.frame span.sp{border-color:var(--ok)}
+.frame span.on{background:var(--sel);color:var(--sel-ink)}.frame span.on small{color:var(--sel-ink)}
+.frame span.ok{background:var(--sel-soft)}
+/* Analogy box */
+.ana{border-left:4px solid var(--ok);background:var(--panel);padding:10px 14px;border-radius:0 4px 4px 0;margin:14px 0;font-size:16px;max-width:780px}
+.ana>b:first-child{display:block;font-family:var(--cond);font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ok)}
+/* Stat strip */
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:14px 0}
+.stat div{background:var(--panel);padding:8px 12px}
+.stat .k{font-size:13px;color:var(--ink2)}.stat .v{font-family:var(--cond);font-size:26px;font-weight:600;line-height:1.15}
+/* Why-serial cards */
+.why{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+@media (min-width:760px){.why{grid-template-columns:repeat(3,1fr)}}
+.why .panel{display:flex;gap:12px;align-items:flex-start}
+.why svg{flex:0 0 52px;width:52px;height:52px}
+.why b{font-family:var(--cond);font-size:20px;font-weight:600;display:block}
+.why p{margin:0;font-size:15px}
+/* Signal vs language */
+.sl{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media (min-width:700px){.sl{grid-template-columns:1fr 1fr}}
+.sl>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:16px}
+.sl>div.me{border:2px solid var(--sel)}
+.sl b.t{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+/* Nodes */
+.nd3 rect{fill:var(--panel);stroke:var(--pipe);stroke-width:2;transition:fill .2s,stroke .2s}
+.nd3.heard rect{stroke:var(--warn);stroke-width:3}
+.nd3.me rect{fill:var(--ok);stroke:var(--ok)}.nd3.me text{fill:#fff!important}
+.quiz1{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.quiz1 .item{font-family:var(--cond);font-size:24px;font-weight:600;min-width:240px}
+/* DB9 */
+.db9 .pin{cursor:pointer}
+.db9 .pin circle{fill:#C9CED3;stroke:#6B7680;stroke-width:2}
+.db9 .pin.key circle{fill:#F0C04A;stroke:#7A6420}
+.db9 .pin.on circle{fill:var(--sel);stroke:var(--sel)}
+.db9 .pin text{font-weight:600}
+.pinfo{min-height:96px}
+.pinfo b.big{font-family:var(--cond);font-size:30px;font-weight:700;display:block;line-height:1.1}
+.pinlist{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* Comparison table */
+.cmp3{width:100%;border-collapse:collapse;font-size:16px;background:var(--panel);min-width:560px}
+.cmp3 th,.cmp3 td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.cmp3 thead th{background:var(--panel2);font-family:var(--cond);font-size:20px;cursor:pointer}
+.cmp3 tbody th{font-weight:600;color:var(--ink2);font-size:15px;width:24%}
+.cmp3 .hl{background:var(--sel-soft)}
+.cmp3 thead th.hl{background:var(--sel);color:var(--sel-ink)}
+/* Topologies */
+.topo svg{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.topo .ed{stroke:var(--pipe);stroke-width:4;fill:none;stroke-linecap:round}
+.topo .ed.bb{stroke:#D35400;stroke-width:6}
+.topo .ed.brk{stroke:var(--alarm);stroke-dasharray:4 10;opacity:.8}
+.topo .hitl{stroke:transparent;stroke-width:24;cursor:pointer}
+.topo .nd{cursor:pointer}
+.topo .nd rect{fill:var(--panel);stroke:var(--sel);stroke-width:2.5;transition:fill .25s,stroke .25s}
+.topo .nd.hub rect{fill:var(--sel-soft)}
+.topo .nd text{fill:var(--ink);font-size:13px;font-weight:600;font-family:var(--body);pointer-events:none}
+.topo .nd.down rect{stroke:var(--alarm);fill:var(--panel2)}
+.topo .nd.down text{fill:var(--ink2)}
+.topo .nd.brk rect{stroke:var(--alarm);fill:var(--alarm)}.topo .nd.brk text{fill:#fff}
+.topo .nd .x{stroke:#fff;stroke-width:3}
+.topo .nd.ping rect{fill:var(--ok);stroke:var(--ok)}.topo .nd.ping text{fill:#fff}
+.topo .master rect{stroke-width:4}
+.topo text.cut{font-size:20px}
+.tinfo{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+@media (min-width:760px){.tinfo{grid-template-columns:repeat(3,1fr)}}
+.tinfo>div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:15px}
+.tinfo b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.tinfo .g b{color:var(--ok)}.tinfo .w b{color:var(--alarm)}
+.tstat{font-family:var(--cond);font-size:22px;font-weight:600;margin-top:10px}
+.tstat.bad{color:var(--alarm)}.tstat.good{color:var(--ok)}
+/* Big picture */
+.big4{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media (min-width:760px){.big4{grid-template-columns:repeat(4,1fr)}}
+.big4 a{display:block;text-decoration:none;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--sel);border-radius:4px;padding:10px 12px;font-size:15px}
+.big4 a:hover{border-color:var(--sel)}
+.big4 b{display:block;font-family:var(--cond);font-size:21px;font-weight:600}
+.big4 span.n{font-family:var(--cond);color:var(--sel);font-weight:600}
+/* 3.11 topology per job */
+.pntopo{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:4px;padding:12px 16px;margin-top:14px;font-size:16px}
+@media (min-width:760px){.pntopo{grid-template-columns:210px minmax(0,1fr)}}
+.pntopo .ic b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;color:var(--sel)}
+.pntopo .ic svg{display:block;width:100%;max-width:210px;height:auto;margin:6px 0 2px}
+.pntopo h4{margin:0;font-family:var(--cond);font-size:19px;font-weight:600}
+.pntopo ul{margin:4px 0 0;padding-left:20px}.pntopo li{margin-bottom:6px}
+
+/* ===== Chapter 4 ===== */
+.names{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.names span{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:15px}
+.names b{font-family:var(--cond);font-weight:600}
+.diagram svg .hi>rect:first-child,.diagram svg .hi>circle:first-child{stroke:var(--sel);stroke-width:4}
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+.spin{transform-box:fill-box;transform-origin:center;animation:rot 1.2s linear infinite}
+.spin.rev{animation-direction:reverse}
+@keyframes rot{to{transform:rotate(360deg)}}
+/* Air-con panel */
+.ac{display:inline-grid;grid-template-columns:auto auto;gap:10px 14px;align-items:center;background:#E9EEF2;color:#1D2730;border:2px solid #9AA6B0;border-radius:14px;padding:14px 18px;margin-top:8px}
+.ac .scr{grid-column:1/-1;background:#0E2A3A;color:#7FE3FF;border-radius:8px;padding:8px 14px;font:700 34px var(--cond);text-align:center;transition:box-shadow .2s}
+.ac .scr small{font-size:14px;font-weight:500;display:block;color:#9FC9DA}
+.ac .scr.flash{box-shadow:0 0 0 4px #F0C04A}
+.ac button{background:#fff;border:1px solid #9AA6B0;border-radius:8px;padding:8px 14px;font-weight:600;cursor:pointer;color:#1D2730}
+.ac button.flash{outline:4px solid #D35400}
+.io-tag{display:inline-block;font-family:var(--cond);font-weight:600;font-size:13px;padding:1px 8px;border-radius:3px;color:#fff}
+.io-tag.ii{background:#D35400}.io-tag.oo{background:#1B5AA6}
+/* Example controls */
+.exc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;margin-top:10px;min-height:62px}
+.exc input[type=number]{width:90px;font:600 20px var(--cond);padding:4px 6px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel2);color:var(--ink)}
+.exc .sw{width:30px;height:30px;border-radius:50%;border:3px solid var(--pipe);cursor:pointer}
+/* Timeline */
+.tl4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.tl4 button{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--off);border-radius:4px;padding:8px;cursor:pointer;text-align:left}
+.tl4 button b{display:block;font-family:var(--cond);font-size:20px;font-weight:600}
+.tl4 button span{font-size:13px;color:var(--ink2)}
+.tl4 button[aria-pressed="true"]{border-top-color:var(--sel);background:var(--sel-soft)}
+.tlcard{display:grid;grid-template-columns:1fr;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;margin-top:10px;align-items:center}
+@media (min-width:760px){.tlcard{grid-template-columns:300px 1fr}}
+.tlcard svg{width:100%;height:auto;display:block;background:var(--panel2);border-radius:4px}
+.tlcard h3{margin:0 0 6px}
+@media (max-width:600px){.tl4 button b{font-size:16px}.tl4 button span{display:none}}
+/* Industry tiles */
+.ind{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:10px}
+.ind button{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 8px;cursor:pointer;font-weight:600;font-size:15px;text-align:center}
+.ind button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+/* Advantage cards */
+.adv{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:760px){.adv{grid-template-columns:repeat(4,1fr)}}
+.adv div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:4px;padding:10px 12px;font-size:15px}
+.adv b{display:block;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;font-family:var(--cond);font-size:19px;font-weight:600}
+.goal3 span{background:var(--sel-soft);border:1px solid var(--sel);border-radius:4px;padding:4px 12px}
+/* Rules */
+.rules{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.rnum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--sel);color:var(--sel-ink);font-weight:700;font-size:14px;margin-right:6px}
+.rule-k{display:inline-block;font-family:var(--cond);font-size:15px;font-weight:600;background:var(--sel);color:var(--sel-ink);padding:2px 10px;border-radius:3px;margin-bottom:8px}
+/* Results */
+.res{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:10px;max-width:520px}
+.res div{background:var(--panel);padding:8px 12px}
+.res .k{font-size:13px;color:var(--ink2)}.res .v{font-family:var(--cond);font-size:26px;font-weight:600}
+/* Text-only tag list */
+.taglist{width:100%;border-collapse:collapse;font:14px Consolas,"Courier New",monospace;background:#0D1317;color:#D6DEE4}
+.taglist td{border-bottom:1px solid #222D35;padding:6px 10px}
+.taglist button{font:inherit;background:#2A3843;color:#D6DEE4;border:1px solid #4A5A66;border-radius:2px;padding:2px 8px;cursor:pointer}
+.taglist tr.alm td{color:#FF8A84}
+/* Find the alarm */
+.fgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:12px;border-radius:6px;margin-top:10px}
+.fgrid button{border:0;border-radius:4px;padding:10px 2px;font:600 12px var(--body);cursor:pointer;min-height:44px;color:#fff}
+.fgrid.idle button{opacity:.35;cursor:default}
+@media (max-width:600px){.fgrid{grid-template-columns:repeat(4,1fr)}}
+.bgpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.bgpick button{border:2px solid var(--line);border-radius:6px;padding:0;cursor:pointer;overflow:hidden;background:none}
+.bgpick button[aria-pressed="true"]{border-color:var(--sel);box-shadow:0 0 0 2px var(--sel)}
+.bgpick svg{display:block;width:100%;height:auto}
+.bgpick span{display:block;font-size:14px;font-weight:600;padding:4px;background:var(--panel)}
+/* Poor vs best value box */
+.pvb{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+@media (min-width:700px){.pvb{grid-template-columns:1fr 1fr}}
+.pvb>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.pvb .t{font-family:var(--cond);font-weight:600;font-size:18px}
+.pvb .poor .t{color:var(--warn)}.pvb .best .t{color:var(--ok)}
+.pvb .face{background:#fff;border:1px solid #C5CCD2;border-radius:4px;text-align:center;padding:10px;margin:6px 0;color:#1D2730}
+.ovd{display:grid;gap:6px;margin-top:10px}
+.ovd .it{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 10px}
+.ovd .it span{flex:1 1 220px;font-weight:500}
+.ovd .it.good{border-color:var(--ok)}.ovd .it.bad{border-color:var(--alarm)}
+.ovd .it small{flex-basis:100%;font-size:14px;color:var(--ink2)}
+/* Navigation demo */
+.navdemo .hmi-nav{min-height:38px}
+.navscreen{min-height:230px;padding:12px;color:var(--ht)}
+.navscreen .row{margin-top:10px}
+.navscreen h4{margin:0 0 6px;font-family:var(--cond);font-size:20px;font-weight:600}
+.navscreen .eq{display:inline-flex;gap:8px;align-items:center;background:#172028;border:1px solid #34424D;border-radius:4px;padding:8px 12px;margin:4px}
+.navscreen .eq i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.clicks{font-family:var(--cond);font-size:22px;font-weight:600}
+/* ===== Chapter 5 (HMI Part 2) ===== */
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+/* Live HMI widgets (dark panel) */
+.kitw{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:860px){.kitw{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
+.wpanel{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:12px;min-height:250px}
+.wdg{background:#172028;border:2px solid #34424D;border-radius:6px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:#D6DEE4;font-size:13px;text-align:center}
+.wdg.sel{border-color:#F0C04A}
+.wdg .nm{font-family:var(--cond);font-weight:600;font-size:15px;color:#8A99A6}
+.hbit{min-width:96px;min-height:44px;border-radius:6px;border:2px solid #4A5A66;background:#2A3843;color:#fff;font:700 15px var(--cond);cursor:pointer}
+.hbit.on{background:#2E7A39;border-color:#3FB950}
+.hlamp{width:44px;height:44px;border-radius:50%;background:#2A3843;border:3px solid #4A5A66;transition:background .2s,box-shadow .2s}
+.hlamp.on{background:#F0C04A;border-color:#FFE08A;box-shadow:0 0 18px #F0C04A}
+.hlamp.g.on{background:#3FB950;border-color:#9BE8A5;box-shadow:0 0 18px #3FB950}
+.hnum{width:110px;font:700 24px var(--cond);text-align:center;background:#000;color:#7FE3FF;border:1px solid #4A5A66;border-radius:3px;padding:4px}
+.hdisp{min-width:110px;font:700 28px var(--cond);background:#000;color:#7FE3FF;border:1px solid #4A5A66;border-radius:3px;padding:2px 10px;font-variant-numeric:tabular-nums}
+.hslide{width:92px;height:40px;border-radius:20px;background:#2A3843;border:2px solid #4A5A66;position:relative;cursor:pointer;padding:0}
+.hslide i{position:absolute;top:3px;left:4px;width:30px;height:30px;border-radius:50%;background:#D6DEE4;transition:left .25s}
+.hslide.on{background:#2F6FB5;border-color:#5AA8FF}.hslide.on i{left:56px}
+.hword{display:flex;gap:4px}
+.hword button{min-width:42px;min-height:40px;border-radius:4px;border:1px solid #4A5A66;background:#2A3843;color:#fff;font-weight:700;cursor:pointer}
+.hword button.on{background:#2F6FB5}
+.hscr{min-height:40px;padding:0 14px;border-radius:4px;border:1px solid #5AA8FF;background:#172028;color:#7FE3FF;font-weight:700;cursor:pointer}
+/* PLC memory table */
+.mem{width:100%;border-collapse:collapse;font:14px Consolas,"Courier New",monospace;background:var(--panel)}
+.mem th,.mem td{border:1px solid var(--line);padding:5px 8px;text-align:left}
+.mem th{background:var(--panel2);font:600 14px var(--body)}
+.mem tr.flash td{background:#FFE9A8;color:#1D2730}
+.mem td.v{font-weight:700}
+.winfo{min-height:120px}
+.winfo b.big{display:block;font-family:var(--cond);font-size:26px;font-weight:700;line-height:1.1}
+/* CX-Designer mock */
+.cxd{border:1px solid #8A949C;border-radius:4px;overflow:hidden;background:#ECEFF1;color:#1D2730;font-size:13px;margin-top:10px}
+.cxd .tt{background:#2B4C7E;color:#fff;padding:5px 10px;font-weight:600}
+.cxd .mn{background:#F7F8F9;border-bottom:1px solid #C5CCD2;padding:3px 10px;color:#4B5661}
+.cxd .bd{display:grid;grid-template-columns:120px minmax(0,1fr) 150px;min-height:240px}
+.cxd .pal,.cxd .prop{background:#F7F8F9;padding:8px;border-right:1px solid #C5CCD2}
+.cxd .prop{border-right:0;border-left:1px solid #C5CCD2}
+.cxd .cv{background:#9AA6B0;padding:14px;display:flex;align-items:center;justify-content:center}
+.cxd .scr{background:#fff;width:100%;max-width:340px;aspect-ratio:4/3;border:2px solid #4B5661;position:relative}
+.cxd .zone{transition:box-shadow .3s,background .3s;border-radius:3px}
+.cxd .zone.hl{box-shadow:0 0 0 3px #D35400;background:#FFF1E4}
+@media (max-width:600px){.cxd .bd{grid-template-columns:86px minmax(0,1fr)}.cxd .prop{display:none}}
+/* Tutorial 1 builder */
+.tut{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:900px){.tut{grid-template-columns:200px minmax(0,1fr) 230px}}
+.pal2{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start}
+.pal2 button{flex:1 1 140px}
+.canvas{border-radius:6px;padding:10px;min-height:260px;position:relative;background:#0D1317;border:4px solid var(--pipe)}
+.canvas.pic{background:#0D1317 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='80'%3E%3Cpath d='M0,70 L30,40 L55,58 L85,25 L120,60 L120,80 L0,80Z' fill='%23233A4A'/%3E%3Ccircle cx='96' cy='16' r='9' fill='%23324E61'/%3E%3C/svg%3E") repeat-x bottom/240px 160px}
+.canvas .stabs{display:flex;gap:4px;margin-bottom:8px}
+.canvas .stabs button{background:#222D35;color:#8A99A6;border:1px solid #34424D;border-radius:3px;padding:3px 10px;font-size:13px;cursor:pointer}
+.canvas .stabs button[aria-pressed="true"]{background:#2F6FB5;color:#fff}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:600px){.slots{grid-template-columns:repeat(2,1fr)}}
+.slot{min-height:104px;border:1px dashed #34424D;border-radius:4px;display:flex;align-items:center;justify-content:center;padding:4px}
+.slot .wdg{width:100%;padding:6px}
+.mode{font-family:var(--cond);font-weight:600;font-size:16px}
+.check li{margin-bottom:6px;list-style:none}
+.check li::before{content:"☐ ";color:var(--ink2)}
+.check li.ok::before{content:"☑ ";color:var(--ok)}
+.check li.ok{color:var(--ok)}
+.check{padding-left:0;margin:6px 0}
+.task{background:var(--sel-soft);border:1px solid var(--sel);border-radius:4px;padding:8px 12px;font-size:15px}
+.propf{display:grid;gap:6px;font-size:14px}
+.propf select,.propf input{font:15px var(--body);padding:4px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink);width:100%}
+/* Counter tutorial */
+.cnt{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:860px){.cnt{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.steps4{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:10px}
+.steps4 div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--off);border-radius:4px;padding:8px 10px;font-size:14px;transition:border-color .3s,background .3s}
+.steps4 div b{display:block;font-family:var(--cond);font-size:17px;font-weight:600}
+.steps4 div.on{border-top-color:var(--sel);background:var(--sel-soft)}
+.steps4 div.done{border-top-color:var(--ok)}
+/* Batch tracking */
+.trk{display:grid;gap:8px;padding:12px}
+.trk .r{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;background:#172028;border:1px solid #34424D;border-radius:6px;padding:10px 12px;color:#D6DEE4}
+.trk .r b{font-family:var(--cond);font-size:18px}
+.trk .r small{display:block;color:#8A99A6;font-size:13px}
+.trk .st{font-family:var(--cond);font-weight:600;font-size:15px;min-width:92px;text-align:right}
+.trk .bar{height:6px;background:#2A3843;border-radius:3px;overflow:hidden;margin-top:6px}
+.trk .bar i{display:block;height:100%;background:#3FB950;width:0}
+.hlamp.am.on{background:#E3B23F;box-shadow:0 0 14px #E3B23F}
+.hlamp.dn{background:#1B5AA6;border-color:#5AA8FF}
+.clock{font:700 26px var(--cond);color:#7FE3FF;font-variant-numeric:tabular-nums}
+/* 5.1 PLC and HMI: ladder ↔ address ↔ HMI */
+.pvh{display:grid;grid-template-columns:1fr;gap:10px;align-items:stretch;margin:12px 0 6px;max-width:900px}
+@media (min-width:760px){.pvh{grid-template-columns:1fr auto 1fr}}
+.pvh ul{margin:6px 0 0;padding-left:20px;font-size:16px}
+.pvh-t{font-family:var(--cond);font-size:22px}
+.pvh-link{display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 30px var(--cond);color:var(--sel)}
+.pvh-link span{font:600 13px var(--body);text-transform:uppercase;letter-spacing:.08em}
+.lk{display:grid;grid-template-columns:1fr;gap:12px}
+.lk-a{order:1}.lk-b{order:2}.lk-c{order:3}
+@media (min-width:900px){.lk{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:"a c" "b b"}.lk-a{grid-area:a}.lk-b{grid-area:b}.lk-c{grid-area:c}}
+.lk-pane{min-width:0}
+.lk-h{font-family:var(--cond);font-weight:600;font-size:19px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.lk-no{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--sel);color:var(--sel-ink);align-items:center;justify-content:center;font-size:15px}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px}
+.board svg{display:block;min-width:520px;width:100%;height:auto}
+.board text{font-family:var(--body);fill:var(--ink)}
+.lad .w{stroke:var(--ink);stroke-width:2;fill:none}
+.lad .w.p{stroke:#16A34A;stroke-width:3.5;stroke-dasharray:9 6;animation:flow .7s linear infinite}
+.lad .ct{stroke:var(--ink);stroke-width:2.4;fill:none}
+.lad .ct.p{stroke:#16A34A}
+.lad .cbg{fill:transparent}.lad .cbg.p{fill:rgba(22,163,74,.22)}
+.lad .coil{fill:var(--panel);stroke:var(--ink);stroke-width:2.2}.lad .coil.on{fill:rgba(22,163,74,.35)}
+.lad .tbox{fill:var(--panel);stroke:var(--ink);stroke-width:2}.lad .tbox.p{stroke:#16A34A;stroke-width:3}.lad .tbox.done{fill:rgba(22,163,74,.18)}
+.lad .rail{stroke:var(--ink);stroke-width:3}
+.lad .nm{font-size:11px;fill:var(--ink2)}
+.lad .pvt{font:700 12px Consolas,monospace;fill:#16A34A}
+.lad .hit{fill:transparent;cursor:pointer}
+.lad .ring{fill:none;stroke-width:3;opacity:0;transition:opacity .2s}
+.lad .ring.on{opacity:1}
+.adr{display:inline-block;font:700 12px Consolas,monospace;color:#fff;border-radius:10px;padding:2px 8px;cursor:pointer;border:0;line-height:1.4;white-space:nowrap}
+.lk-scr{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px}
+.lk-obj{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border:2px solid transparent;border-radius:6px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.lk-obj.hl{background:rgba(255,255,255,.08)}
+.lk-cap{font-size:12px;color:#8A99A6;line-height:1.3}
+.lk-stop{background:#9E2A2E;border-color:#C23A3F}.lk-stop.on{background:#5E1215}
+.lk-start.on{background:#1C5A26}
+.hbit{user-select:none;-webkit-user-select:none;touch-action:none}
+.lk-tab td,.lk-tab th{font:14px/1.35 var(--body)}
+.lk-tab td:nth-child(2){font-family:Consolas,monospace}
+.lk-tab td.v{white-space:nowrap;font:700 14px Consolas,monospace}
+.lk-tab tbody tr{cursor:pointer}
+.lk-tab tr.hl td{background:var(--sel-soft)}
+.lk-tab td.v.on{color:var(--ok)}
+@media (max-width:600px){.lk-scr{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* ===== Chapter 6 (Introduction to IoT) ===== */
+.stepn{font-family:var(--cond);font-weight:600;color:var(--sel);font-size:15px;margin-left:4px}
+.sw-ink{fill:var(--ink)}
+/* 6.1 four ingredients */
+.ing{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:12px 0}
+.ing div{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:4px;padding:10px 12px;font-size:15px}
+.ing b{display:block;font-family:var(--cond);font-size:20px;color:var(--c)}
+.ing i{font-style:normal;color:var(--ink2);font-size:14px}
+/* Make it smart */
+.ms{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:860px){.ms{grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}}
+.ms-stage svg{display:block;width:100%;max-width:440px;height:auto;margin:0 auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.ms-stage text{fill:var(--ink);font-family:var(--body)}
+.ms-tog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ms-tog button{display:flex;gap:8px;align-items:center;text-align:left;background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;font-size:15px;min-height:48px}
+.ms-tog button i{width:22px;height:22px;border-radius:4px;border:2px solid var(--pipe);flex:none;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:700;color:#fff}
+.ms-tog button[aria-pressed="true"]{border-color:var(--c);background:var(--sel-soft)}
+.ms-tog button[aria-pressed="true"] i{background:var(--c);border-color:var(--c)}
+.ms-tog button[aria-pressed="true"] i::after{content:"✓"}
+.ms-svg-on{transition:opacity .4s}
+/* sorters */
+.sorter{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.sorter .it{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.sorter .it p{margin:0;font-size:16px}
+.sorter .it .row{gap:6px}
+.sorter .it.right{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
+.sorter .it.wrong{border-color:var(--alarm);box-shadow:inset 4px 0 0 var(--alarm)}
+.sorter .why{font-size:14px;color:var(--ink2)}
+.fb.good{color:var(--ok)}
+/* 6.2 timeline */
+.tl{display:flex;gap:0;margin:12px 0;overflow-x:auto;padding-bottom:4px}
+.tl button{flex:1 1 0;min-width:110px;background:none;border:0;border-top:4px solid var(--line);padding:10px 6px 4px;cursor:pointer;text-align:left;position:relative;color:var(--ink)}
+.tl button::before{content:"";position:absolute;top:-10px;left:6px;width:14px;height:14px;border-radius:50%;background:var(--panel);border:3px solid var(--pipe)}
+.tl button b{display:block;font-family:var(--cond);font-size:26px;line-height:1}
+.tl button span{font-size:13px;color:var(--ink2)}
+.tl button[aria-pressed="true"]{border-top-color:var(--sel)}
+.tl button[aria-pressed="true"]::before{background:var(--sel);border-color:var(--sel)}
+.tl button[aria-pressed="true"] b{color:var(--sel)}
+.hs{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:900px){.hs{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.hs-stage svg{display:block;width:100%;height:auto;background:#0D1317;border:4px solid var(--pipe);border-radius:6px}
+.hs-stage text{font-family:var(--body);fill:#D6DEE4}
+@media (max-width:700px){.hs-stage{overflow-x:auto;-webkit-overflow-scrolling:touch}.hs-stage svg{min-width:560px}}
+.hs-txt h3{margin:0 0 6px}
+.hs-txt ul{margin:6px 0;padding-left:20px}
+/* 6.3 loop */
+.lp-on{transition:opacity .4s}
+/* 6.4 benefits */
+.bn{min-height:300px;margin-top:6px}
+.bn h3{margin:0 0 6px}
+.bn-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px}
+.bn-tiles div{background:#0D1317;border:1px solid #34424D;border-radius:4px;padding:8px 10px;color:#D6DEE4}
+.bn-tiles .k{font-size:12px;color:#8A99A6}
+.bn-tiles .v{font:700 24px var(--cond);color:#7FE3FF;font-variant-numeric:tabular-nums;transition:color .3s}
+.bn-tiles .v.fl{color:#FFE08A}
+.bn-where{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.bn-scr{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px}
+@media (min-width:760px){.bn-scr{grid-template-columns:1fr 1fr}}
+.bn-stat{font:700 34px var(--cond);color:var(--sel)}
+.room{display:block;width:100%;max-width:520px;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px;margin-top:8px}
+.room text{fill:var(--ink);font-family:var(--body)}
+.fan-b{transform-origin:0 0}
+.chart{display:block;width:100%;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px;margin-top:8px}
+.chart text{fill:var(--ink2);font-family:var(--body)}
+/* 6.5 examples */
+.ex{display:grid;grid-template-columns:1fr;gap:12px;align-items:start;margin-top:8px}
+@media (min-width:900px){.ex{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}}
+.ex-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;padding:12px}
+.ex-tiles div{background:#000;border:1px solid #34424D;border-radius:3px;padding:6px 8px}
+.ex-tiles .k{color:#8A99A6;font-size:12px}
+.ex-tiles .v{font:700 24px var(--cond);color:#7FE3FF;font-variant-numeric:tabular-nums}
+.ex-tiles .v.w{color:#F0C04A}.ex-tiles .v.a{color:#FF8A84}.ex-tiles .v.g{color:#3FB950}
+.ex-ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-top:1px solid #34424D;color:#D6DEE4;font-size:14px}
+.ex-ctl input{width:180px;vertical-align:middle}
+.ex-ctl b{font:700 18px var(--cond);color:#7FE3FF}
+#exInfo h3{margin:0 0 6px}
+#exInfo dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:8px 0 0;font-size:15px}
+#exInfo dt{font-weight:600;color:var(--ink2)}#exInfo dd{margin:0}
+/* 6.6 advantages */
+.ad2{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:860px){.ad2{grid-template-columns:1fr 1fr}}
+.ad-h{font-family:var(--cond);font-size:22px}.ad-h.ok{color:var(--ok)}.ad-h.bad{color:var(--alarm)}
+.adl{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.adl button{width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:8px 12px;cursor:pointer;font-size:16px;font-weight:600;min-height:44px}
+.adl button[aria-expanded="true"]{border-color:var(--sel)}
+.adl .more{font-weight:400;font-size:15px;margin-top:6px;color:var(--ink2)}
+.adl .more b{color:var(--ink)}
+.scn{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.scn p{margin:0 0 8px;font-weight:600}
+.scn .exp{font-size:15px;color:var(--ink2);margin-top:6px}
+/* 6.7 IoT vs IIoT */
+.vs td:first-child,.vs th:first-child{font-weight:600;width:22%}
+.vs tbody td:nth-child(2){background:var(--sel-soft)}
+@media (pointer:coarse){.sorter .it .chip,.scn .chip{min-height:44px}.tl button{min-height:64px}}
+.lp-spin{animation:rot .6s linear infinite}
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){
+  .panel{padding:14px}main{padding:0 14px 60px}
+  .seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}
+  .frame span{min-width:38px;font-size:18px}
+}
+@media (pointer:coarse){
+  .btn,.seg button,.chip{min-height:44px}
+  .hbtn,.hmi-nav button{min-height:36px;padding-left:14px;padding-right:14px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .side a{padding:10px 12px}
+  input[type=range]{height:36px}
+  input[type=checkbox]{width:22px;height:22px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .flip .b{transform:none;display:none}.flip.on .b{display:flex}.flip.on .in{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Chapter sections">
+  <div class="brand"><b>Introduction to the Internet of Things</b><span>Monitoring System Integration, Chapter 6</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 8 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">Monitoring System Integration, Chapter 6</div>
+  <h1>Introduction to the Internet of Things<small>When everyday objects go online</small></h1>
+  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
+  <div class="hmi">
+    <div class="hmi-title"><b>MY IOT DASHBOARD</b><span class="meta">Live · <span class="clk">--:--:--</span></span></div>
+    <div class="hmi-body scroll-x wide"><svg viewBox="0 0 1000 250" id="heroSvg" role="img" aria-label="Things such as a watch, a CCTV camera, a traffic light, a smart meter and a solar panel send data over the internet to a phone dashboard"></svg></div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  </div>
+  <p class="lead">A watch that counts your heartbeat, a meter that sends its reading to TNB, a solar panel that reports its own temperature: these are all <b>things</b> on the <b>internet</b>. This chapter explains what IoT is, where it came from, how an IoT device works, and why it matters so much for monitoring systems.</p>
+  <div class="ticker">
+    <div><div class="k">First connected device</div><div class="v">1982</div></div>
+    <div><div class="k">Ingredients of an IoT device</div><div class="v">4</div></div>
+    <div><div class="k">Monitoring examples</div><div class="v">5</div></div>
+    <div><div class="k">Next</div><div class="v" style="font-size:20px">Ch 7: Architecture</div></div>
+  </div>
+</header>
+
+<!-- 6.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">6.1</span>What is IoT?</h2>
+  <div class="key"><b>In one sentence</b>IoT is when everyday objects become smart by connecting to the internet to <strong>send</strong>, <strong>receive</strong> and <strong>act on</strong> data.</div>
+  <div class="prose"><p>The <b>Internet of Things (IoT)</b> is a network of physical devices that each have four ingredients built in. Together they collect information, communicate, and respond to conditions automatically, without a person having to step in.</p></div>
+  <div class="ing" id="ingList"></div>
+  <div class="ana"><b>Analogy: giving an object senses, a brain, hands and a phone</b>An ordinary fan is "dumb". Give it a thermometer (senses), a small chip that decides (a brain), a motor it can switch itself (hands) and Wi-Fi (a phone to call you), and it becomes a smart fan that turns itself on when the room is hot and tells you about it. <i>(Analogi: memberi objek deria, otak, tangan dan telefon. Kipas biasa adalah "bodoh". Berikan ia termometer (deria), cip kecil yang membuat keputusan (otak), motor yang boleh dihidupkan sendiri (tangan) dan Wi-Fi (telefon untuk menghubungi anda), maka ia menjadi kipas pintar yang hidup sendiri apabila bilik panas dan memberitahu anda.)</i></div>
+  <h3>Make it smart</h3>
+  <div class="prose"><p>Pick an everyday object from the notes, then add the four ingredients one by one. Watch what the object can do after each one.</p></div>
+  <div class="chips" id="msObj" role="group" aria-label="Object"></div>
+  <div class="ms">
+    <div class="ms-stage"><svg viewBox="0 0 320 220" id="msSvg" role="img" aria-label="The object you are making smart"></svg></div>
+    <div>
+      <div class="ms-tog" id="msTog"></div>
+      <div class="say" id="msSay" aria-live="polite"></div>
+    </div>
+  </div>
+  <h3>IoT or not?</h3>
+  <div class="prose"><p>Decide whether each one is an IoT device. Look for the network: can it send or receive data over the internet?</p></div>
+  <div class="sorter" id="ioNot"></div>
+  <div class="fb" id="ioNotFb" aria-live="polite"></div>
+</section>
+
+<!-- 6.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">6.2</span>History of IoT</h2>
+  <div class="key"><b>In one sentence</b>IoT started with a drinks machine that could report its own stock in 1982, and grew into cars that drive themselves using sensors and live data.</div>
+  <div class="tl" id="hsTl" role="group" aria-label="Timeline"></div>
+  <div class="hs">
+    <div><div class="hs-stage"><svg viewBox="0 0 640 300" id="hsSvg" role="img" aria-label="Scene from the history of IoT"></svg></div><div class="pan-hint">↔ Swipe sideways to see the whole picture</div></div>
+    <div>
+      <div class="hs-txt" id="hsTxt"></div>
+      <div class="ctrl" id="hsCtrl"></div>
+      <div class="say" id="hsSay" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">6.3</span>Sense, think, act, share</h2>
+  <div class="key"><b>In one sentence</b>Every IoT device repeats the same loop: a sensor measures, the processor decides, an actuator acts, and the communication module tells the world.</div>
+  <div class="prose"><p>Here is a smart fan in a lab. Its rule is simple: <b>if the temperature is above 30 °C, turn the fan ON</b>. Set the room temperature, then press <b>Run one loop</b> and follow the four steps.</p></div>
+  <div class="ctrl"><label>Room temperature <input type="range" id="lpT" min="22" max="38" value="33"> <b id="lpTv">33 °C</b></label><button class="btn primary" id="lpRun">▶ Run one loop</button><button class="btn" id="lpNext" hidden>Next step ▶</button></div>
+  <figure class="diagram scroll-x wide" style="margin:6px 0 0"><svg viewBox="0 0 900 300" id="lpSvg" role="img" aria-label="Sensor, processor, fan and phone in a loop"></svg></figure>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="say" id="lpSay" aria-live="polite">Press <b>Run one loop</b>.</div>
+  <p class="muted" style="font-size:15px">In <b>Chapter 7: IoT Architecture and Components</b> you meet each part properly: sensors, devices such as the ESP32, gateways and the cloud.</p>
+</section>
+
+<!-- 6.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">6.4</span>Why IoT in monitoring systems?</h2>
+  <div class="key"><b>In one sentence</b>IoT makes monitoring more efficient, more accurate and more automatic. The notes list five benefits; try each one.</div>
+  <div class="chips" id="bnTabs" role="group" aria-label="Benefit"></div>
+  <div class="panel bn" id="bnBox"></div>
+  <div class="ana"><b>Analogy: a security guard who never sleeps</b>Without IoT, someone must walk around and check every machine, like a guard doing rounds every few hours. With IoT, every machine reports by itself all the time, and only phones the guard when something is wrong. <i>(Analogi: pengawal keselamatan yang tidak pernah tidur. Tanpa IoT, seseorang perlu berjalan dan memeriksa setiap mesin, seperti pengawal yang membuat rondaan setiap beberapa jam. Dengan IoT, setiap mesin melapor sendiri sepanjang masa, dan hanya menelefon pengawal apabila ada masalah.)</i></div>
+</section>
+
+<!-- 6.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">6.5</span>Examples in monitoring system integration</h2>
+  <div class="key"><b>In one sentence</b>The same idea, sensors plus a connection plus rules, fits offices, solar farms, pantries, factories and weather stations.</div>
+  <div class="prose"><p>Pick an example. Move the slider to change the conditions and watch the dashboard and the automatic action.</p></div>
+  <div class="chips" id="exTabs" role="group" aria-label="Example"></div>
+  <div class="ex">
+    <div class="hmi"><div class="hmi-title"><b id="exTitle"></b><span class="meta">Cloud dashboard · <span class="clk">--:--:--</span></span></div>
+      <div class="ex-tiles" id="exTiles"></div>
+      <div class="ex-ctl"><label><span id="exCtlL"></span> <input type="range" id="exCtl"></label><b id="exCtlV"></b></div>
+      <div class="hmi-foot"><span class="alm" id="exAlm"></span></div>
+    </div>
+    <div class="panel" id="exInfo"></div>
+  </div>
+</section>
+
+<!-- 6.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">6.6</span>Advantages and disadvantages</h2>
+  <div class="key"><b>In one sentence</b>IoT saves time, energy and money and lets you see everything from anywhere, but it can be hacked, it collects personal data, it costs money to set up, and it needs a working internet connection.</div>
+  <div class="ad2">
+    <div class="panel"><b class="ad-h ok">✔ Advantages</b><ol class="adl" id="adGood"></ol></div>
+    <div class="panel"><b class="ad-h bad">✘ Disadvantages</b><ol class="adl" id="adBad"></ol></div>
+  </div>
+  <h3>Which disadvantage matters most here?</h3>
+  <div class="prose"><p>Every real project has to deal with the disadvantages. Choose the one that worries you most in each situation.</p></div>
+  <div id="adScn"></div>
+</section>
+
+<!-- 6.7 -->
+<section class="topic" id="s7">
+  <h2><span class="n">6.7</span>IoT vs IIoT</h2>
+  <div class="key"><b>In one sentence</b>IIoT (the Industrial Internet of Things) is IoT used in plants, power grids and factories, where a failure can stop production or hurt someone, so it must be more reliable and more secure.</div>
+  <div class="ana"><b>Analogy: a home kitchen and a hospital kitchen</b>Both cook food. At home, if dinner is 20 minutes late, nobody is hurt. In a hospital kitchen, meals must be on time, clean and exactly right for every patient, every day. IoT is the home kitchen; IIoT is the hospital kitchen. <i>(Analogi: dapur rumah dan dapur hospital. Kedua-duanya memasak makanan. Di rumah, jika makan malam lewat 20 minit, tiada siapa yang tercedera. Di dapur hospital, makanan mesti tepat pada masanya, bersih dan betul untuk setiap pesakit, setiap hari. IoT ialah dapur rumah; IIoT ialah dapur hospital.)</i></div>
+  <div class="scroll-x"><table class="cmp3 vs" id="vsTab"><thead><tr><th>Aspect</th><th>IoT (consumer)</th><th>IIoT (industrial)</th></tr></thead><tbody></tbody></table></div>
+  <p class="muted" style="font-size:15px;margin-top:8px">IIoT does not replace SCADA (<a href="chapter1.html">Chapter 1</a>). It adds to it: SCADA keeps controlling the plant in real time, while IIoT sensors and cloud analytics watch machine health, energy and trends.</p>
+  <h3>Home or plant?</h3>
+  <div class="prose"><p>Sort each device: consumer IoT or industrial IIoT?</p></div>
+  <div class="sorter" id="vsSort"></div>
+  <div class="fb" id="vsFb" aria-live="polite"></div>
+  <div class="note">Next: <b>Chapter 7: IoT Architecture and Components</b>. The four parts of every IoT system: sensors, devices (ESP32, Raspberry Pi, Arduino), gateways and the cloud.</div>
+</section>
+
+<!-- Class game -->
+
+<section class="topic" id="s8">
+  <h2><span class="n">★</span>Class game: who answers?</h2>
+  <div class="prose"><p>Spin the wheel to pick a student to answer the lecturer's question. Once a name is picked it leaves the wheel, so everyone gets a turn.</p></div>
+  <div class="wheelbox" id="wheelBox">
+    <div class="wheel">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wheelCv" width="800" height="800" role="img" aria-label="Wheel of student names"></canvas>
+      <button class="spin" id="spinBtn">SPIN</button>
+    </div>
+    <div>
+      <div class="panel winbox" aria-live="polite">
+        <div class="muted" style="font-size:15px" id="winLbl">Press SPIN to pick a student</div>
+        <div class="winner" id="winner">?</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <label class="row" style="gap:6px;font-size:15px"><input type="checkbox" id="wRemove" checked> Remove a name once picked</label>
+      </div>
+      <p class="muted" style="font-size:15px;margin:8px 0" id="wCount"></p>
+      <div class="row">
+        <button class="btn" id="wReset">Put everyone back</button>
+        <button class="btn" id="wEdit">Edit names</button>
+        <button class="btn" id="wFull">Full screen ♪</button><button class="btn" id="wMusic" aria-pressed="false">♪ Music off</button>
+      </div>
+      <div class="panel" id="wEditor" hidden style="margin-top:12px">
+        <label for="wNames" style="font-weight:600">Student names, one per line</label>
+        <textarea id="wNames" rows="10"></textarea>
+        <p class="muted" style="font-size:13px;margin:6px 0">Names are saved only in this browser on this device. They are not put on the website, so students cannot see the list online.</p>
+        <div class="row"><button class="btn primary" id="wSave">Save names</button><button class="btn" id="wCancel">Cancel</button></div>
+      </div>
+      <details style="margin-top:12px;font-size:15px"><summary>Picked so far</summary><ol id="wPicked" style="margin:6px 0 0;padding-left:22px"></ol></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Monitoring System Integration, Chapter 6: Introduction to the Internet of Things. Content from the lecture notes of Mohamad Shukor bin Abdul Rahim. All drawings and dashboards on this page are simplified illustrations for learning; the values are simulated.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce?Math.min(ms,150):ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+const NS='http://www.w3.org/2000/svg';
+const bitsOf=ch=>{const c=ch.charCodeAt(0)&255;return [...Array(8)].map((_,i)=>(c>>i)&1)};
+function rng(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];
+const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set((store.get('ch6-seen')||[]).filter(id=>document.getElementById(id)));
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){
+    const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;
+    nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('ch6-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+/* Clocks on HMI title bars */
+setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
+const vis=new Set();
+
+/* ===== Chapter 6 helpers ===== */
+const svgEl=(p,tag,a)=>{const e=document.createElementNS(NS,tag);Object.entries(a||{}).forEach(([k,v])=>e.setAttribute(k,v));p.appendChild(e);return e};
+/* Sorting game: items [[text, key, why]], options [[key, label]] */
+function sorter(el,fb,items,opts){let ok=0,done=0;
+  el.innerHTML=items.map((s,i)=>`<div class="it" data-i="${i}"><p>${s[0]}</p><div class="row">${opts.map(o=>`<button class="chip" data-v="${o[0]}">${o[1]}</button>`).join('')}</div><div class="why" hidden></div></div>`).join('');
+  el.querySelectorAll('.it').forEach(it=>it.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(it.dataset.done)return;it.dataset.done=1;const s=items[+it.dataset.i],good=c.dataset.v===s[1];
+    c.classList.add(good?'right':'wrong');if(!good)it.querySelector(`.chip[data-v="${s[1]}"]`).classList.add('right');it.classList.add(good?'right':'wrong');
+    const w=it.querySelector('.why');w.hidden=false;w.textContent=(good?'Correct. ':'Not quite. ')+s[2];done++;if(good)ok++;
+    fb.className='fb'+(done===items.length?' good':'');fb.textContent=`${ok} of ${done} correct`+(done===items.length?'. All done!':'')}))}
+/* Small drawings used in several places */
+const ICON={
+  watch:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-14" y="-42" width="28" height="84" rx="8" fill="#4B5661"/><rect x="-26" y="-26" width="52" height="52" rx="12" fill="#1D2730" stroke="#8A99A6" stroke-width="3"/><text x="0" y="6" text-anchor="middle" font-size="15" style="fill:#7FE3FF;font-weight:700">72♥</text></g>`,
+  aircon:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-60" y="-22" width="120" height="44" rx="8" fill="#E7EAEE" stroke="#8A99A6" stroke-width="2"/><path d="M-50,12 H50" stroke="#8A99A6" stroke-width="2"/><circle cx="44" cy="-8" r="3" fill="#3FB950"/><path d="M-40,30 q6,8 0,16 M-10,30 q6,8 0,16 M20,30 q6,8 0,16" stroke="#5AA8FF" stroke-width="2" fill="none"/></g>`,
+  traffic:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-4" y="30" width="8" height="40" fill="#4B5661"/><rect x="-18" y="-50" width="36" height="84" rx="6" fill="#1D2730"/><circle cy="-32" r="9" fill="#E5484D"/><circle cy="-8" r="9" fill="#5A4A1A"/><circle cy="16" r="9" fill="#1C4A26"/></g>`,
+  health:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-44" y="-34" width="88" height="68" rx="8" fill="#E7EAEE" stroke="#8A99A6" stroke-width="2"/><rect x="-36" y="-26" width="72" height="34" fill="#1D2730"/><path d="M-32,-8 h14 l5,-12 l7,22 l5,-10 h33" stroke="#3FB950" stroke-width="2" fill="none"/><text x="0" y="26" text-anchor="middle" font-size="11" style="fill:#1D2730;font-weight:700">120/80</text></g>`,
+  cctv:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-6" y="-6" width="12" height="40" fill="#4B5661"/><g transform="rotate(-12)"><rect x="-46" y="-30" width="78" height="30" rx="6" fill="#E7EAEE" stroke="#8A99A6" stroke-width="2"/><circle cx="-46" cy="-15" r="11" fill="#1D2730"/><circle cx="-46" cy="-15" r="5" fill="#2F6FB5"/></g></g>`,
+  meter:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><rect x="-30" y="-38" width="60" height="76" rx="6" fill="#E7EAEE" stroke="#8A99A6" stroke-width="2"/><rect x="-22" y="-28" width="44" height="18" fill="#1D2730"/><text x="0" y="-15" text-anchor="middle" font-size="10" style="fill:#7FE3FF;font-weight:700">0482 kWh</text><circle cx="0" cy="14" r="9" fill="none" stroke="#8A99A6" stroke-width="2"/></g>`,
+  pv:(x,y,s=1)=>`<g transform="translate(${x},${y}) scale(${s})"><path d="M-50,10 L-30,-34 L50,-34 L30,10 Z" fill="#1B3A6B" stroke="#8A99A6" stroke-width="2"/><path d="M-43,-5 L37,-5 M-36,-20 L44,-20 M-10,10 L10,-34 M10,10 L30,-34 M-30,10 L-10,-34" stroke="#5AA8FF" stroke-width="1"/><path d="M0,10 V34 M-16,34 H16" stroke="#8A99A6" stroke-width="3"/></g>`};
+
+/* ===== Hero: things online ===== */
+(function(){const s=$('#heroSvg');
+  const things=[['watch',100,80,'Smart watch'],['cctv',110,190,'CCTV camera'],['traffic',300,170,'Traffic light'],['meter',700,170,'Smart meter'],['pv',890,90,'Solar panel']];
+  let h=`<g class="dim" font-size="12">`;things.forEach(t=>h+=`<path class="flowline" d="M${t[1]},${t[2]} Q${(t[1]+500)/2},${Math.min(t[2],60)-20} 500,55" stroke="#5AA8FF" stroke-width="2" fill="none" opacity=".7"/>`);
+  h+=`</g><path class="flowline" d="M500,80 V128" stroke="#3FB950" stroke-width="3" fill="none"/>`;
+  h+=`<g transform="translate(500,50)"><path d="M-46,18 a22,22 0 0 1 8,-40 a30,30 0 0 1 56,-6 a20,20 0 0 1 22,28 a16,16 0 0 1 -6,18 Z" fill="#223A55" stroke="#5AA8FF" stroke-width="2"/><text x="0" y="6" text-anchor="middle" font-size="14" class="lb">Internet / cloud</text></g>`;
+  h+=`<g transform="translate(500,185)"><rect x="-52" y="-56" width="104" height="112" rx="12" fill="#1D2730" stroke="#8A99A6" stroke-width="3"/><text x="0" y="-36" text-anchor="middle" font-size="11" class="dim">My phone</text>
+    <text x="-40" y="-14" font-size="11" class="dim">Heart</text><text x="40" y="-14" font-size="13" text-anchor="end" style="fill:#7FE3FF;font-weight:700" id="hv1">72</text>
+    <text x="-40" y="6" font-size="11" class="dim">Meter</text><text x="40" y="6" font-size="13" text-anchor="end" style="fill:#7FE3FF;font-weight:700" id="hv2">482</text>
+    <text x="-40" y="26" font-size="11" class="dim">PV °C</text><text x="40" y="26" font-size="13" text-anchor="end" style="fill:#7FE3FF;font-weight:700" id="hv3">41</text>
+    <text x="0" y="46" text-anchor="middle" font-size="10" style="fill:#3FB950">● all online</text></g>`;
+  things.forEach(t=>{h+=ICON[t[0]](t[1],t[2],.8)+`<text x="${t[1]}" y="${t[2]+(t[0]==='traffic'?70:52)}" text-anchor="middle" font-size="13" class="dim">${t[3]}</text>`});
+  s.innerHTML=h;
+  setInterval(()=>{if(document.hidden)return;const e=$('#hv1');if(!e)return;e.textContent=70+Math.round(Math.random()*6);$('#hv2').textContent=+$('#hv2').textContent+1;$('#hv3').textContent=39+Math.round(Math.random()*4)},2000)})();
+
+/* ===== 6.1 What is IoT ===== */
+const ING=[['s','Sensors','measure real-world data','the eyes and ears','#2F6FB5'],['p','Processing','makes decisions locally','the brain','#B87F00'],['a','Actuators','perform physical actions','the hands','#2E7A39'],['c','Communication','sends and receives data via the internet','the phone','#7B3FB5']];
+$('#ingList').innerHTML=ING.map(g=>`<div style="--c:${g[4]}"><b>${g[1]}</b>${g[2]}<br><i>Like ${g[3]}</i></div>`).join('');
+const OBJ={
+ watch:['Watch','An ordinary watch only shows the time.',
+  'A heart-rate and step sensor on the back measures your pulse and your steps.','A small chip counts your steps and spots an unusual heartbeat.','It vibrates on your wrist to warn you.','Bluetooth or Wi-Fi sends your data to the phone app and brings messages in.',
+  'Now it is a <b>smart watch</b>: it measures, decides, buzzes you and shares your health data by itself.'],
+ aircon:['Home appliance (air-con)','An ordinary air-conditioner only does what the remote control tells it.',
+  'A temperature sensor and a motion (PIR) sensor watch the room.','It decides: "nobody here for 15 minutes, so save energy".','It switches its own compressor and fan.','Wi-Fi lets you switch it on from your phone before you reach home.',
+  'Now it is a <b>smart home appliance</b>: it keeps the room cool only when someone is there and you can control it from anywhere.'],
+ traffic:['Traffic light','An ordinary traffic light changes on a fixed timer, even when no cars are waiting.',
+  'A camera or a loop in the road counts the cars waiting.','It gives the busy road a longer green.','It switches its own lamps.','It shares traffic data with the city control centre and the next junction.',
+  'Now it is a <b>smart traffic light</b>: it reacts to real traffic and the whole city can see the jams.'],
+ health:['Health monitor','An ordinary blood-pressure meter shows a number only to the person holding it.',
+  'It measures blood pressure, pulse and oxygen.','It flags a reading that is too high.','It sounds an alarm at the bedside.','It sends every reading to the clinic, so the doctor sees it without a visit.',
+  'Now it is a <b>health monitoring device</b>: the doctor watches the patient from the clinic.'],
+ cctv:['CCTV camera','An ordinary CCTV only records to a box; someone must sit and watch it.',
+  'The camera image and a motion sensor see movement.','It recognises a person at night.','It switches on a floodlight and turns to follow.','It sends a video clip to the guard\'s phone straight away.',
+  'Now it is an <b>IoT-enabled CCTV</b>: it watches, decides and warns the guard by itself.']};
+let msObj='watch';const msOn={s:0,p:0,a:0,c:0};
+$('#msObj').innerHTML=Object.keys(OBJ).map((k,i)=>`<button class="chip" aria-pressed="${i===0}" data-k="${k}">${OBJ[k][0]}</button>`).join('');
+$('#msTog').innerHTML=ING.map(g=>`<button aria-pressed="false" data-k="${g[0]}" style="--c:${g[4]}"><i></i>${g[1]}</button>`).join('');
+function msDraw(){const o=OBJ[msObj],n=ING.filter(g=>msOn[g[0]]).length,all=n===4;
+  const show=k=>msOn[k]?1:0;
+  $('#msSvg').innerHTML=`<text x="160" y="24" text-anchor="middle" font-size="15" style="font-weight:700">${o[0]}</text>${ICON[msObj](160,120,1.3)}
+   <g opacity="${show('s')}" class="ms-svg-on"><path d="M44,96 q-14,24 0,48 M30,86 q-22,34 0,68" stroke="#2F6FB5" stroke-width="4" fill="none"/><text x="38" y="178" text-anchor="middle" font-size="12" style="fill:#2F6FB5;font-weight:700">sensor</text></g>
+   <g opacity="${show('p')}" class="ms-svg-on" transform="translate(-20,16)"><rect x="66" y="34" width="34" height="34" rx="4" fill="#B87F00"/><path d="M70,30v-6M83,30v-6M96,30v-6M70,72v6M83,72v6M96,72v6" stroke="#B87F00" stroke-width="3"/><text x="83" y="56" text-anchor="middle" font-size="11" style="fill:#fff;font-weight:700">CPU</text></g>
+   <g opacity="${show('a')}" class="ms-svg-on"><path d="M262,100 l14,-8 M266,120 h18 M262,140 l14,8" stroke="#2E7A39" stroke-width="4"/><text x="284" y="178" text-anchor="middle" font-size="12" style="fill:#2E7A39;font-weight:700">acts</text></g>
+   <g opacity="${show('c')}" class="ms-svg-on"><path d="M246,58 a26,26 0 0 1 40,0 M253,66 a16,16 0 0 1 26,0" stroke="#7B3FB5" stroke-width="4" fill="none"/><circle cx="266" cy="74" r="4" fill="#7B3FB5"/><text x="266" y="40" text-anchor="middle" font-size="12" style="fill:#7B3FB5;font-weight:700">internet</text></g>
+   <rect x="80" y="192" width="160" height="22" rx="11" fill="${all?'#2E7A39':'#8A949C'}"/><text x="160" y="207" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:700">${all?'IoT device ✓':n+' of 4 ingredients'}</text>`;
+  const lines=ING.filter(g=>msOn[g[0]]).map(g=>`<b style="color:${g[4]}">${g[1]}:</b> ${o[2+ING.indexOf(g)]}`);
+  $('#msSay').innerHTML=(lines.length?lines.join('<br>'):o[1]+' Add the ingredients.')+(all?`<br><br>✔ ${o[6]}`:'')}
+$$('#msObj .chip').forEach(b=>b.onclick=()=>{press($$('#msObj .chip'),b);msObj=b.dataset.k;msDraw()});
+$$('#msTog button').forEach(b=>b.onclick=()=>{const k=b.dataset.k;msOn[k]=msOn[k]?0:1;b.setAttribute('aria-pressed',!!msOn[k]);msDraw()});
+msDraw();
+sorter($('#ioNot'),$('#ioNotFb'),[
+ ['A smart meter that sends your electricity reading to TNB every 30 minutes','iot','It measures and sends data over a network by itself.'],
+ ['A normal wall clock','not','No sensor and no network: it only shows the time.'],
+ ['A car-park sensor that shows the free bays in a phone app','iot','It senses a car and shares it over the internet.'],
+ ['A calculator','not','It processes numbers, but it does not sense the world or connect to anything.'],
+ ['A water tank level sensor that sends an SMS when the tank is low','iot','A sensor, a rule and communication, all automatic.'],
+ ['A PLC running a machine, with no network connection','not','It senses, decides and acts, but it is not on the internet. Connect it to the cloud and it becomes part of the IIoT (6.7).'],
+ ['A torchlight','not','No sensor, no processing and no network.'],
+ ['A smart plug that you can switch off from your phone','iot','It receives commands over the internet and acts on them.']],[['iot','IoT'],['not','Not IoT']]);
+
+/* ===== 6.2 History ===== */
+const HS=[
+ {y:'1982',t:'Coke machine',h:'1982: the first "IoT-like" device',txt:'<p>The Coca-Cola machine at <b>Carnegie Mellon University</b> became the first connected appliance. It could report:</p><ul><li>whether the drinks were <b>stocked</b></li><li>whether they were <b>cold</b></li></ul><p>This was the earliest practical example of <b>remote device monitoring</b>.</p>',btn:'Ask the machine from my desk'},
+ {y:'1990',t:'Internet toaster',h:'1990: the Internet toaster',txt:'<p><b>John Romkey</b> created the first appliance controlled through the internet: a <b>toaster</b> that could be switched ON remotely.</p><p>This proved that everyday objects could be put online.</p>',btn:'Switch the toaster ON over the internet'},
+ {y:'2015',t:'Tesla Autopilot',h:'2015: Tesla Autopilot',txt:'<p>Tesla released <b>Autopilot</b>, using sensors, cameras and real-time data for:</p><ul><li>lane keeping</li><li>smart braking</li><li>autosteering</li></ul><p>A major milestone for IoT-enabled self-driving.</p>',btn:'Drive'},
+ {y:'2050',t:'???',h:'2050: what next?',txt:'<p>Nobody knows yet. Some ideas people talk about:</p><ul><li>homes that order food and fix faults before you notice</li><li>factories where machines book their own repairs</li><li>cities where every lamp, drain and bin reports itself</li></ul><p><b>Your turn:</b> discuss with your neighbour, then answer when the class wheel (★) picks you.</p>',btn:'Light up the city'}];
+let hsI=0,hsBusy=false;
+$('#hsTl').innerHTML=HS.map((s,i)=>`<button aria-pressed="${i===0}" data-i="${i}"><b>${s.y}</b><span>${s.t}</span></button>`).join('');
+const hsSvg=$('#hsSvg');
+function hsScene(){const i=hsI;let h='';
+  if(i===0){h=`<text x="20" y="28" font-size="14" class="dim">Carnegie Mellon University, Pittsburgh</text>
+    <rect x="40" y="60" width="150" height="210" rx="6" fill="#B3262B"/><text x="115" y="92" text-anchor="middle" font-size="22" style="font-weight:700;fill:#fff">Coke</text>
+    ${[0,1,2,3,4,5].map(k=>`<rect x="${58+(k%3)*42}" y="${118+Math.floor(k/3)*62}" width="30" height="48" rx="3" fill="#1D2730"/><circle id="hc${k}" cx="${73+(k%3)*42}" cy="${158+Math.floor(k/3)*62}" r="6" fill="#4E5B65"/>`).join('')}
+    <path id="hsWire" d="M190,200 H430" stroke="#5AA8FF" stroke-width="3" stroke-dasharray="7 6"/><text x="310" y="190" text-anchor="middle" font-size="12" class="dim">university network</text>
+    <rect x="430" y="110" width="180" height="130" rx="6" fill="#1D2730" stroke="#8A99A6" stroke-width="2"/><text x="440" y="132" font-size="12" style="fill:#3FB950">student@desk$</text><g id="hsOut" font-size="12" font-family="Consolas,monospace"></g>
+    <circle id="hsPk" r="8" fill="#F0C04A" opacity="0"/>`}
+  if(i===1){h=`<text x="20" y="28" font-size="14" class="dim">Interop show, 1990</text>
+    <rect x="40" y="120" width="140" height="90" rx="6" fill="#1D2730" stroke="#8A99A6" stroke-width="2"/><text x="110" y="160" text-anchor="middle" font-size="13" style="fill:#3FB950;font-family:Consolas,monospace">toaster ON</text><rect x="20" y="210" width="180" height="12" rx="3" fill="#4B5661"/>
+    <path d="M200,165 H440" stroke="#5AA8FF" stroke-width="3" stroke-dasharray="7 6"/><text x="320" y="150" text-anchor="middle" font-size="12" class="dim">internet</text>
+    <rect id="hsBread" x="485" y="120" width="70" height="60" rx="10" fill="#E0C089"/>
+    <rect x="450" y="140" width="140" height="100" rx="18" fill="#C7CED6" stroke="#8A99A6" stroke-width="2"/><rect x="470" y="140" width="100" height="10" fill="#4B5661"/>
+    <path id="hsHeat" d="M478,170 h84 M478,190 h84 M478,210 h84" stroke="#4E5B65" stroke-width="4"/><text x="520" y="268" text-anchor="middle" font-size="13" class="dim">the toaster</text>
+    <circle id="hsPk" r="8" fill="#F0C04A" opacity="0"/>`}
+  if(i===2){h=`<rect x="0" y="0" width="640" height="300" fill="#2B3238"/><path d="M0,60 H640 M0,240 H640" stroke="#D6DEE4" stroke-width="4"/><path d="M0,150 H640" stroke="#F0C04A" stroke-width="3" stroke-dasharray="24 18"/>
+    <g id="hsCar"><rect x="-40" y="-18" width="80" height="36" rx="8" fill="#E7EAEE"/><rect x="-10" y="-14" width="26" height="28" rx="4" fill="#1D2730"/><path id="hsWave" d="M44,-14 q16,14 0,28 M54,-22 q24,22 0,44" stroke="#5AA8FF" stroke-width="3" fill="none"/></g>
+    <g id="hsAhead" opacity="0"><rect x="-40" y="-18" width="80" height="36" rx="8" fill="#B3262B"/><rect x="-36" y="-12" width="6" height="24" fill="#FF8A84"/></g>
+    <text x="20" y="290" font-size="13" class="dim" id="hsSpd">Speed 90 km/h</text>`}
+  if(i===3){h=`<rect x="0" y="0" width="640" height="300" fill="#0D1317"/>${[...Array(14)].map((_,k)=>{const x=20+k*44,hh=60+((k*37)%140);return `<rect x="${x}" y="${280-hh}" width="36" height="${hh}" fill="#172028" stroke="#34424D"/>`}).join('')}<g id="hsNet"></g><text x="320" y="36" text-anchor="middle" font-size="22" class="lb" style="fill:#7FE3FF">2050 ???</text>`}
+  hsSvg.innerHTML=h;
+  $('#hsTxt').innerHTML=`<h3>${HS[i].h}</h3>${HS[i].txt}`;
+  $('#hsCtrl').innerHTML=`<button class="btn primary" id="hsGo">▶ ${HS[i].btn}</button>`+(i===2?'<button class="btn" id="hsDrift">Drift towards the line</button>':'');
+  $('#hsSay').innerHTML='Press the button to see it work.';
+  $('#hsGo').onclick=hsPlay;if(i===2)$('#hsDrift').onclick=()=>hsTesla('drift');
+  if(i===2)hsCarAt(150,150)}
+const hsMove=async(el,x1,y1,x2,y2,ms)=>{el.setAttribute('opacity',1);await tween(ms,k=>{el.setAttribute('cx',x1+(x2-x1)*k);el.setAttribute('cy',y1+(y2-y1)*k)});el.setAttribute('opacity',0)};
+function hsCarAt(x,y,r=0){$('#hsCar')&&$('#hsCar').setAttribute('transform',`translate(${x},${y}) rotate(${r})`)}
+async function hsTesla(kind){if(hsBusy)return;hsBusy=true;const say=t=>$('#hsSay').innerHTML=t;
+  if(kind==='drift'){say('<b>Lane keeping:</b> the car drifts towards the line…');await tween(1800,k=>hsCarAt(150+k*120,150+k*55,k*8));
+    say('<b>Lane keeping:</b> the cameras see the lane line and the car steers itself back to the centre.');await tween(1800,k=>hsCarAt(270+k*80,205-k*55,8-k*8));}
+  else{say('<b>Autosteering:</b> the car follows the lane by itself, using cameras and sensors.');await tween(2200,k=>hsCarAt(150+k*200,150));
+    const a=$('#hsAhead');a.setAttribute('opacity',1);a.setAttribute('transform','translate(560,150)');say('<b>Smart braking:</b> the radar sees a car stopping ahead…');await sleep(900);
+    await tween(2200,k=>{hsCarAt(350+k*90*(1-k/2),150);$('#hsSpd').textContent='Speed '+Math.round(90*(1-k))+' km/h'});say('<b>Smart braking:</b> it stops by itself, a safe distance behind. All from sensor data processed in real time.');}
+  hsBusy=false}
+async function hsPlay(){if(hsBusy)return;const i=hsI,say=t=>$('#hsSay').innerHTML=t;
+  if(i===2)return hsTesla('drive');hsBusy=true;
+  if(i===0){$('#hsOut').innerHTML='';say('A student at a desk sends a request over the university network…');await hsMove($('#hsPk'),430,200,190,200,1600);
+    say('The machine checks each column: is it stocked, and has the drink been inside long enough to be cold?');
+    const st=[0,1,2,3,4,5].map(()=>{const r=Math.random();return r<.18?'EMPTY':r<.4?'WARM':'COLD'});
+    for(let k=0;k<6;k++){$('#hc'+k).setAttribute('fill',st[k]==='EMPTY'?'#E5484D':st[k]==='WARM'?'#F0C04A':'#3FB950');await sleep(250)}
+    await hsMove($('#hsPk'),190,200,430,200,1600);
+    $('#hsOut').innerHTML=st.map((s,k)=>`<text x="440" y="${152+k*14}" style="fill:${s==='EMPTY'?'#FF8A84':s==='WARM'?'#F0C04A':'#7FE3A0'}">column ${k+1}: ${s}</text>`).join('');
+    say('<b>The reply arrives.</b> Now the student knows which column has a cold drink, without walking to the machine. That is remote monitoring.')}
+  if(i===1){say('A command is sent from a computer over the internet…');await hsMove($('#hsPk'),200,165,450,165,2000);
+    say('The toaster receives the command and switches its heater ON.');$('#hsHeat').setAttribute('stroke','#FF7A1A');await tween(2600,k=>$('#hsBread').setAttribute('fill',`rgb(${224-k*80},${192-k*90},${137-k*90})`));
+    $('#hsBread').setAttribute('y',96);say('<b>Toast ready!</b> An everyday object controlled through the internet. It also had to be fed bread by hand: the full idea came later.');}
+  if(i===3){const g=$('#hsNet');g.innerHTML='';say('Every building, lamp and vehicle connected…');
+    for(let k=0;k<26;k++){const x=30+Math.random()*580,y=80+Math.random()*190;svgEl(g,'circle',{cx:x,cy:y,r:3,fill:'#7FE3FF'});if(k)svgEl(g,'path',{d:`M${x},${y}L320,60`,stroke:'#5AA8FF','stroke-width':1,opacity:.35});await sleep(110)}
+    say('What would <b>you</b> connect? Think of one problem in your home, campus or kampung that IoT could solve.');}
+  hsBusy=false}
+$$('#hsTl button').forEach(b=>b.onclick=()=>{if(hsBusy)return;hsI=+b.dataset.i;press($$('#hsTl button'),b);hsScene()});
+hsScene();
+
+/* ===== 6.3 Sense, think, act, share ===== */
+let lpStep=-1,lpBusy=false;
+function lpDraw(){const T=+$('#lpT').value,hot=T>30,st=lpStep;
+  const box=(x,lab,sub,col,on)=>`<g opacity="${on?1:.45}"><rect class="box" x="${x-80}" y="70" width="160" height="150" rx="10" style="${on?`stroke:${col};stroke-width:4`:''}"/><text x="${x}" y="246" text-anchor="middle" font-size="17" class="lb" style="fill:${col}">${lab}</text><text x="${x}" y="266" text-anchor="middle" font-size="13" class="dim">${sub}</text></g>`;
+  let h=box(110,'1. Sense','temperature sensor','#2F6FB5',st>=0)+box(330,'2. Think','processor (rule)','#B87F00',st>=1)+box(560,'3. Act','fan (actuator)','#2E7A39',st>=2)+box(790,'4. Share','phone app','#7B3FB5',st>=3);
+  h+=`<path class="wire" d="M190,145 H250 M410,145 H480 M640,145 H710"/><path d="M244,139 l8,6 l-8,6 M474,139 l8,6 l-8,6 M704,139 l8,6 l-8,6" fill="none" stroke="var(--pipe)" stroke-width="3"/>`;
+  // sensor
+  h+=`<rect x="100" y="90" width="20" height="90" rx="10" fill="var(--panel2)" stroke="var(--ink2)" stroke-width="2"/><rect x="104" y="${180-(T-20)*4}" width="12" height="${(T-20)*4}" fill="#E5484D"/><circle cx="110" cy="190" r="14" fill="#E5484D"/><text x="150" y="140" font-size="18" class="lb">${T}°C</text>`;
+  // processor
+  h+=`<rect x="295" y="95" width="70" height="70" rx="6" fill="#B87F00"/><text x="330" y="136" text-anchor="middle" font-size="14" style="fill:#fff;font-weight:700">ESP32</text><text x="330" y="196" text-anchor="middle" font-size="14" style="font-family:Consolas,monospace">${st>=1?`${T} &gt; 30? <tspan style="fill:${hot?'#2E7A39':'#C22E29'};font-weight:700">${hot?'YES':'NO'}</tspan>`:'if T &gt; 30'}</text>`;
+  // fan
+  const spin=st>=2&&hot;h+=`<g transform="translate(560,135)"><g class="${spin?'lp-spin':''}">${[0,120,240].map(a=>`<ellipse rx="10" ry="30" cy="-30" transform="rotate(${a})" fill="#8A99A6"/>`).join('')}</g><circle r="9" fill="var(--ink)"/></g><text x="560" y="205" text-anchor="middle" font-size="14" class="lb" style="fill:${spin?'#2E7A39':'var(--ink2)'}">${st>=2?(hot?'Fan ON':'Fan stays OFF'):'Fan OFF'}</text>`;
+  // phone
+  h+=`<rect x="745" y="82" width="90" height="128" rx="12" fill="#1D2730" stroke="#8A99A6" stroke-width="3"/>${st>=3?`<rect x="752" y="104" width="76" height="62" rx="6" fill="#2F6FB5"/><text x="790" y="124" text-anchor="middle" font-size="11" style="fill:#fff;font-weight:700">Lab 3</text><text x="790" y="142" text-anchor="middle" font-size="12" style="fill:#fff">${T} °C</text><text x="790" y="158" text-anchor="middle" font-size="11" style="fill:#fff">Fan ${hot?'ON':'OFF'}</text>`:''}`;
+  h+=`<circle id="lpPk" r="9" fill="#F0C04A" opacity="0"/>`;
+  $('#lpSvg').innerHTML=h}
+const LPS=T=>{const hot=T>30;return [
+  `<b>1. Sense:</b> the temperature sensor measures the room: <b>${T} °C</b>, and turns it into an electrical signal for the processor.`,
+  `<b>2. Think:</b> the processor checks its rule, "is ${T} above 30?" The answer is <b>${hot?'YES':'NO'}</b>. It decides locally, in a fraction of a second, with no person involved.`,
+  hot?`<b>3. Act:</b> the processor switches the relay and the <b>fan turns ON</b>. That is the actuator.`:`<b>3. Act:</b> no action is needed, so the <b>fan stays OFF</b>. Try a temperature above 30 °C.`,
+  `<b>4. Share:</b> the communication module (Wi-Fi) sends the reading and the fan status over the internet. The phone app shows it, wherever you are. Then the loop starts again, every few seconds.`]};
+async function lpGo(){if(lpBusy)return;lpBusy=true;$('#lpNext').hidden=true;lpStep++;lpDraw();
+  const pk=$('#lpPk'),T=+$('#lpT').value,legs=[[190,250],[410,480],[640,710]];
+  if(lpStep>=1&&lpStep<=3){const [a,b]=legs[lpStep-1];pk.setAttribute('opacity',1);await tween(900,k=>{pk.setAttribute('cx',a+(b-a)*k);pk.setAttribute('cy',145)});pk.setAttribute('opacity',0)}
+  $('#lpSay').innerHTML=LPS(T)[lpStep];lpBusy=false;
+  if(lpStep<3){$('#lpNext').hidden=false}else{$('#lpRun').textContent='▶ Run the loop again'}}
+$('#lpRun').onclick=()=>{lpStep=-1;lpGo()};$('#lpNext').onclick=lpGo;
+$('#lpT').oninput=e=>{$('#lpTv').textContent=e.target.value+' °C';lpStep=-1;$('#lpNext').hidden=true;$('#lpRun').textContent='▶ Run one loop';lpDraw();$('#lpSay').innerHTML='Temperature changed. Press <b>Run one loop</b>.'};
+lpDraw();
+
+/* ===== 6.4 Why IoT in monitoring ===== */
+const LIVE={temp:[27.4,'°C','Temperature'],hum:[64,'%','Humidity'],mot:[1,'','Motion'],pwr:[3.42,'kW','Power use'],lvl:[72,'%','Water level'],lux:[540,'lx','Light intensity']};
+function liveTick(){LIVE.temp[0]=+(LIVE.temp[0]+(Math.random()-.5)*.4).toFixed(1);LIVE.hum[0]=Math.round(LIVE.hum[0]+(Math.random()-.5)*2);LIVE.mot[0]=Math.random()<.7?1:0;
+  LIVE.pwr[0]=+(LIVE.pwr[0]+(Math.random()-.5)*.2).toFixed(2);LIVE.lvl[0]=Math.max(20,Math.min(95,LIVE.lvl[0]+Math.round((Math.random()-.55)*2)));LIVE.lux[0]=Math.round(LIVE.lux[0]+(Math.random()-.5)*30)}
+const liveTiles=()=>Object.keys(LIVE).map(k=>`<div><div class="k">${LIVE[k][2]}</div><div class="v" data-l="${k}">${k==='mot'?(LIVE[k][0]?'YES':'no'):LIVE[k][0]}<small style="font-size:13px;color:#8A99A6"> ${LIVE[k][1]}</small></div></div>`).join('');
+function liveUpd(){$$('[data-l]').forEach(e=>{const k=e.dataset.l;e.innerHTML=`${k==='mot'?(LIVE[k][0]?'YES':'no'):LIVE[k][0]}<small style="font-size:13px;color:#8A99A6"> ${LIVE[k][1]}</small>`;e.classList.add('fl');setTimeout(()=>e.classList.remove('fl'),400)})}
+let bnK=0,bnTimer=null,acc={occ:1,T:31,empty:0};
+const BN=[
+ ['Real-time data collection',()=>`<h3>1. Real-time data collection</h3><p style="margin:0">IoT collects data continuously, not once a day. These six readings update by themselves every two seconds:</p><div class="bn-tiles">${liveTiles()}</div>`],
+ ['Remote monitoring',()=>`<h3>2. Remote monitoring</h3><p style="margin:0">Where are you? Choose a place: the readings are the same, live, from anywhere in the world.</p><div class="bn-where" id="bnWhere">${['In the lab','At home in Kangar','Overseas in Tokyo'].map((p,i)=>`<button class="chip" aria-pressed="${i===0}" data-p="${p}">${p}</button>`).join('')}</div><div class="bn-where">${['Mobile app','Web dashboard','Cloud server'].map((p,i)=>`<button class="chip" aria-pressed="${i===0}" data-d="${p}">${p}</button>`).join('')}</div><div class="hmi"><div class="hmi-title"><b id="bnDev">Mobile app</b><span class="meta" id="bnLoc">In the lab</span></div><div class="bn-tiles" style="padding:10px;margin:0">${liveTiles()}</div></div>`],
+ ['Reduces manual inspection',()=>`<h3>3. Reduces manual inspection</h3><p style="margin:0">No more walking round to check machine status, temperatures, rooms and energy use. Work out the time saved:</p>
+   <div class="ctrl"><label>Machines <input type="range" id="bnM" min="2" max="40" value="12"> <b id="bnMv">12</b></label><label>Checks per day <input type="range" id="bnR" min="1" max="8" value="4"> <b id="bnRv">4</b></label></div>
+   <div class="bn-scr"><div class="panel"><b>Without IoT</b><div class="bn-stat" id="bnH"></div><div id="bnHt" class="muted"></div></div><div class="panel"><b>With IoT</b><div class="bn-stat" style="color:var(--ok)">0 h walking</div><div class="muted">Every machine reports by itself all the time. A fault is seen within seconds, not at the next round.</div></div></div>`],
+ ['Automation',()=>`<h3>4. Automation</h3><p style="margin:0">Rules run by themselves: lights off when the room is empty, fan speed from the temperature, and a notification when something is abnormal.</p>
+   <div class="ctrl"><button class="btn" id="bnOcc">🚶 Someone leaves the room</button><label>Room temperature <input type="range" id="bnT" min="22" max="38" value="31"> <b id="bnTv">31 °C</b></label></div>
+   <svg class="room" viewBox="0 0 520 240" id="bnRoom" role="img" aria-label="A room with a light, a fan and a person"></svg><div class="say" id="bnSay"></div>`],
+ ['Predictive maintenance',()=>`<h3>5. Predictive maintenance</h3><p style="margin:0">IoT spots the early signs of failure (overheating, excess vibration, power spikes) and warns you <b>before</b> the machine breaks. Watch the vibration of a pump motor over 12 weeks.</p>
+   <div class="ctrl"><button class="btn primary" id="bnPlay">▶ Play 12 weeks</button></div><svg class="chart" viewBox="0 0 560 230" id="bnChart" role="img" aria-label="Vibration trend over 12 weeks"></svg><div class="say" id="bnPm">Press <b>Play</b>.</div>`]];
+$('#bnTabs').innerHTML=BN.map((b,i)=>`<button class="chip" aria-pressed="${i===0}" data-i="${i}">${i+1}. ${b[0]}</button>`).join('');
+function bnRoom(){const o=acc.occ,T=acc.T,light=o||acc.empty<2,spd=T<26?0:T<29?1:T<32?2:3;
+  $('#bnRoom').innerHTML=`<rect x="10" y="10" width="500" height="220" rx="6" fill="var(--panel)" stroke="var(--line)"/>
+   <circle cx="130" cy="40" r="22" fill="${light?'#F0C04A':'#4E5B65'}"/>${light?'<path d="M130,70 l-50,140 h100 z" fill="#F0C04A" opacity=".18"/>':''}<text x="130" y="44" text-anchor="middle" font-size="11" style="font-weight:700">LIGHT</text>
+   <g transform="translate(330,60)"><g style="animation:rot ${spd?[0,1.6,.8,.4][spd]:0}s linear infinite;${spd?'':'animation:none'}" class="fan-b">${[0,120,240].map(a=>`<ellipse rx="10" ry="34" cy="-34" transform="rotate(${a})" fill="#8A99A6"/>`).join('')}</g><circle r="7" fill="var(--ink)"/></g><text x="330" y="130" text-anchor="middle" font-size="13" class="lb">Fan: ${['OFF','LOW','MEDIUM','HIGH'][spd]}</text>
+   ${o?'<g transform="translate(220,170)"><circle cy="-34" r="12" fill="#5B6771"/><rect x="-11" y="-20" width="22" height="40" rx="8" fill="#5B6771"/></g>':''}
+   <text x="440" y="200" text-anchor="middle" font-size="13">PIR: ${o?'person':'nobody'}</text><text x="440" y="220" text-anchor="middle" font-size="13">${T} °C</text>`;
+  $('#bnSay').innerHTML=(o?'Someone is in the room: lights ON. ':acc.empty<2?'The room just became empty… ':'<b>Nobody in the room: lights switched OFF automatically.</b> ')+`Fan ${['OFF','LOW','MEDIUM','HIGH'][spd]} because it is ${T} °C.`+(T>=35?' <b style="color:var(--alarm)">⚠ Notification sent: temperature abnormal.</b>':'')}
+function bnChart(w){const W=560,H=230,x=k=>50+k*40,y=v=>200-v*18,vib=k=>1.2+Math.max(0,k-3)*.12+Math.max(0,k-6)**2*.11;let h=`<path d="M50,20 V200 H530" stroke="var(--pipe)" fill="none"/>`;
+  for(let k=0;k<=12;k++)h+=`<text x="${x(k)}" y="218" text-anchor="middle" font-size="11">${k}</text>`;h+=`<text x="530" y="214" text-anchor="end" font-size="11">week</text><text x="54" y="16" font-size="11">vibration (mm/s)</text>`;
+  h+=`<path d="M50,${y(4.5)} H530" stroke="#B87F00" stroke-dasharray="6 4"/><text x="526" y="${y(4.5)-5}" text-anchor="end" font-size="11" style="fill:#B87F00">warning 4.5</text><path d="M50,${y(9)} H530" stroke="#C22E29" stroke-dasharray="6 4"/><text x="526" y="${y(9)-5}" text-anchor="end" font-size="11" style="fill:#C22E29">breakdown 9.0</text>`;
+  let d='';for(let k=0;k<=w;k+=.25)d+=(k?'L':'M')+x(k).toFixed(1)+','+y(vib(k)).toFixed(1);h+=`<path d="${d}" stroke="#2F6FB5" stroke-width="3" fill="none"/>`;
+  const wk=[...Array(49)].map((_,i)=>i/4).find(k=>vib(k)>=4.5);if(w>=wk)h+=`<circle cx="${x(wk)}" cy="${y(4.5)}" r="7" fill="#F0C04A" stroke="#B87F00" stroke-width="2"/>`;
+  $('#bnChart').innerHTML=h;return {wk,v:vib(w)}}
+function bnShow(i){bnK=i;press($$('#bnTabs .chip'),$$('#bnTabs .chip')[i]);$('#bnBox').innerHTML=BN[i][1]();
+  if(i===1){$$('#bnWhere .chip').forEach(b=>b.onclick=()=>{press($$('#bnWhere .chip'),b);$('#bnLoc').textContent=b.dataset.p});$$('[data-d]').forEach(b=>b.onclick=()=>{press($$('[data-d]'),b);$('#bnDev').textContent=b.dataset.d})}
+  if(i===2){const c=()=>{const m=+$('#bnM').value,r=+$('#bnR').value,h=m*r*5/60;$('#bnMv').textContent=m;$('#bnRv').textContent=r;$('#bnH').textContent=h.toFixed(1)+' h walking a day';$('#bnHt').textContent=`${m} machines × ${r} checks × 5 minutes each. Between rounds a fault can go unseen for up to ${Math.round(24/r)} hours.`};$('#bnM').oninput=c;$('#bnR').oninput=c;c()}
+  if(i===3){$('#bnOcc').onclick=()=>{acc.occ=acc.occ?0:1;acc.empty=0;$('#bnOcc').textContent=acc.occ?'🚶 Someone leaves the room':'🚶 Someone comes in';bnRoom()};$('#bnT').oninput=e=>{acc.T=+e.target.value;$('#bnTv').textContent=acc.T+' °C';bnRoom()};$('#bnT').value=acc.T;$('#bnTv').textContent=acc.T+' °C';bnRoom()}
+  if(i===4){bnChart(0);let busy=false;$('#bnPlay').onclick=async()=>{if(busy)return;busy=true;let warned=false;
+    await tween(9000,k=>{const r=bnChart(k*12);if(!warned&&k*12>=r.wk){warned=true;$('#bnPm').innerHTML=`<b>Week ${r.wk.toFixed(1)}: IoT alert!</b> Vibration passed 4.5 mm/s. The bearing is wearing out. Plan a repair this weekend, while the pump still works.`}});
+    $('#bnPm').innerHTML+=` <br>Without IoT, nobody would notice until <b>week 12</b>, when it reaches the breakdown level and the pump stops in the middle of production.`;busy=false}}}
+$$('#bnTabs .chip').forEach(b=>b.onclick=()=>bnShow(+b.dataset.i));bnShow(0);
+setInterval(()=>{if(document.hidden)return;liveTick();if(bnK<=1)liveUpd();if(bnK===3&&!acc.occ&&acc.empty<2){acc.empty++;bnRoom()}},2000);
+
+/* ===== 6.5 Examples ===== */
+const EX=[
+ {k:'office',n:'Smart office',ctl:['People in the office',0,20,6,v=>v],
+  what:'Auto-control of lights and fan, energy monitoring and occupancy tracking.',sens:'PIR motion / occupancy sensor, temperature sensor, energy meter',auto:'Lights and fan OFF when the office is empty; fan speed follows the temperature.',dash:'Occupancy, room temperature, energy used today.',
+  f:v=>{const T=+(24+v*.4).toFixed(1),fan=v?(T<27?'LOW':T<29?'MED':'HIGH'):'OFF';return {tiles:[['Occupancy',v+' people',v?'g':''],['Lights',v?'ON':'OFF',v?'w':''],['Fan',fan,''],['Room temp',T+' °C',T>29?'w':''],['Energy today',(2.1+v*.35).toFixed(1)+' kWh','']],alm:v?['Occupied: comfort mode','okk']:['Office empty: lights and fan switched OFF automatically','step']}}},
+ {k:'pv',n:'PV module temperature',ctl:['Sunlight (W/m²)',0,1100,800,v=>v],
+  what:'Sensors and cooling control keep the solar module cool to improve its efficiency.',sens:'Module temperature sensor (e.g. DS18B20), irradiance sensor, power meter',auto:'Cooling pump ON when the module is above 45 °C.',dash:'Module temperature, efficiency, power output.',
+  f:v=>{let T=30+v*.035;const cool=T>45;if(cool)T=38+v*.004;const eff=Math.max(10,20-0.4*Math.max(0,T-25)),P=5*v/1000*eff/20;return {tiles:[['Irradiance',v+' W/m²',''],['Module temp',T.toFixed(1)+' °C',T>45?'a':T>40?'w':''],['Cooling pump',cool?'ON':'OFF',cool?'g':''],['Efficiency',eff.toFixed(1)+' %',eff<16?'w':''],['Power',P.toFixed(2)+' kW','']],alm:cool?['Hot module: cooling pump switched ON','on']:['Module temperature normal','okk']}}},
+ {k:'pantry',n:'Smart pantry',ctl:['Minutes since anyone was seen',0,30,2,v=>v],
+  what:'Detects people, monitors power use and switches devices off automatically.',sens:'PIR presence sensor, smart plugs with power monitoring',auto:'Kettle and microwave plugs switched OFF after 10 minutes with nobody there.',dash:'Presence, power now, energy today, auto-off events.',
+  f:v=>{const off=v>=10,here=v<1;return {tiles:[['Presence',here?'YES':'no',here?'g':''],['Kettle + microwave',off?'0 W':'1850 W',off?'':'w'],['Energy today',(off?1.6:1.6+v*.03).toFixed(2)+' kWh',''],['Auto switch-off',off?'DONE':'in '+(10-v)+' min',off?'g':'']],alm:off?['Nobody in the pantry for 10 min: devices switched OFF','step']:['Pantry in use','okk']}}},
+ {k:'machine',n:'Industrial machine health',ctl:['Bearing wear (%)',0,100,20,v=>v],
+  what:'Tracks vibration, current, noise and temperature to catch a failing machine early.',sens:'Vibration sensor, current sensor (ACS712), microphone, temperature sensor',auto:'Warning at high vibration; stop request before damage.',dash:'Four health readings with trends and alarms.',
+  f:v=>{const vib=1.5+v*.08,cur=10+v*.05,noise=70+v*.2,T=45+v*.35;return {tiles:[['Vibration',vib.toFixed(1)+' mm/s',vib>7?'a':vib>4.5?'w':'g'],['Current',cur.toFixed(1)+' A',''],['Noise',Math.round(noise)+' dB',noise>85?'w':''],['Temperature',T.toFixed(0)+' °C',T>70?'a':T>60?'w':'']],alm:vib>7?['DANGER: stop the machine for repair','on']:vib>4.5?['Warning: plan maintenance soon','step']:['Machine healthy','okk']}}},
+ {k:'env',n:'Environmental data logging',ctl:['Time of day (hour)',0,23,10,v=>String(v).padStart(2,'0')+':00'],
+  what:'Logs weather, gas, air quality and light intensity all day.',sens:'Temperature and humidity (DHT22), gas (MQ series), light (BH1750), air-quality sensor',auto:'Logs a reading every 10 minutes (144 a day) and warns if the air quality is poor.',dash:'Graphs of every reading over the day.',
+  f:v=>{const T=24+8*Math.max(0,Math.sin((v-6)/12*Math.PI)),H=Math.round(90-(T-24)*3),lux=Math.round(Math.max(0,Math.sin((v-7)/12*Math.PI))*80000),aq=Math.round(40+60*Math.exp(-((v-8)**2)/3)+50*Math.exp(-((v-18)**2)/3));return {tiles:[['Temperature',T.toFixed(1)+' °C',''],['Humidity',H+' %',''],['Light',lux.toLocaleString('en-GB')+' lx',''],['Air quality (AQI)',aq,aq>100?'a':aq>70?'w':'g'],['Readings logged',v*6+' today','']],alm:aq>100?['Poor air quality (traffic peak): alert sent','on']:['Logging normally','okk']}}}];
+let exI=0;
+$('#exTabs').innerHTML=EX.map((e,i)=>`<button class="chip" aria-pressed="${i===0}" data-i="${i}">${e.n}</button>`).join('');
+function exDraw(){const e=EX[exI],v=+$('#exCtl').value,r=e.f(v);$('#exCtlV').textContent=e.ctl[4](v)+(e.k==='pv'?' W/m²':e.k==='machine'?' %':e.k==='pantry'?' min':'');
+  $('#exTiles').innerHTML=r.tiles.map(t=>`<div><div class="k">${t[0]}</div><div class="v ${t[2]}">${t[1]}</div></div>`).join('');const a=$('#exAlm');a.textContent=r.alm[0];a.className='alm '+r.alm[1]}
+function exShow(i){exI=i;const e=EX[i];press($$('#exTabs .chip'),$$('#exTabs .chip')[i]);$('#exTitle').textContent=e.n.toUpperCase();$('#exCtlL').textContent=e.ctl[0];
+  const c=$('#exCtl');c.min=e.ctl[1];c.max=e.ctl[2];c.value=e.ctl[3];c.step=e.k==='pv'?50:1;
+  $('#exInfo').innerHTML=`<h3>${e.n}</h3><p style="margin:0">${e.what}</p><dl><dt>Sensors</dt><dd>${e.sens}</dd><dt>Automatic action</dt><dd>${e.auto}</dd><dt>On the dashboard</dt><dd>${e.dash}</dd></dl>`;exDraw()}
+$$('#exTabs .chip').forEach(b=>b.onclick=()=>exShow(+b.dataset.i));$('#exCtl').oninput=exDraw;exShow(0);
+
+/* ===== 6.6 Advantages and disadvantages ===== */
+const ADV=[['Improved efficiency and automation','Devices do tasks automatically, reduce human error and save time and energy.','Auto lights, smart cooling, predictive maintenance.'],
+ ['Convenience and real-time access','Data can be seen anytime, anywhere, and monitored from a phone or app.','Smart CCTV, IoT home control, health monitoring.'],
+ ['Better monitoring and control','Live sensor data for decisions, and early detection of problems.','PV temperature monitoring, energy tracking.'],
+ ['Long-term cost savings','Uses less electricity and reduces machine breakdowns.','Smart meters, predictive maintenance systems.']];
+const DIS=[['Cybersecurity risks','Devices can be hacked, leading to data theft or a system being disrupted.','Risks: unauthorised access, loss of privacy.'],
+ ['Privacy concerns','IoT devices collect personal data, which may be misused or shared without permission.','Location tracking, voice recordings.'],
+ ['High initial cost','Sensors, controllers, gateways and installation, plus cloud service fees.','Impact: expensive for large-scale systems.'],
+ ['Dependency on internet connectivity','The system fails or slows down without a stable internet connection.','Less reliable in rural areas or where the signal is weak.']];
+const adList=(el,L)=>{el.innerHTML=L.map((a,i)=>`<li><button aria-expanded="false" data-i="${i}">${i+1}. ${a[0]}</button><div class="more" hidden>${a[1]} <b>Examples:</b> ${a[2]}</div></li>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{const m=b.nextElementSibling,o=m.hidden;m.hidden=!o;b.setAttribute('aria-expanded',o)})};
+adList($('#adGood'),ADV);adList($('#adBad'),DIS);
+const SCN=[['A plantation in a rural part of Pahang wants soil-moisture sensors that send data over 4G, but the phone signal there is weak.',3,'With a weak signal the readings arrive late or not at all. The design needs a local logger, or LoRa (Chapter 7), that does not rely on 4G.'],
+ ['A clinic wants patients\' blood-pressure monitors at home to send every reading to the cloud.',1,'Health data is personal. The clinic must protect it and only share it with the patient\'s doctor.'],
+ ['A hotel wants a smart lock, a smart air-con and an energy meter in every one of its 500 rooms.',2,'1,500 devices plus gateways, installation and cloud fees: the up-front cost is large, even if it saves money later.'],
+ ['A water company lets operators start and stop pumps from a cloud dashboard.',0,'If an attacker gets in, they could stop the water supply. Strong passwords, encryption and network separation are a must.']];
+$('#adScn').innerHTML=SCN.map((s,i)=>`<div class="scn" data-i="${i}"><p>${i+1}. ${s[0]}</p><div class="chips">${DIS.map((d,j)=>`<button class="chip" data-j="${j}">${d[0]}</button>`).join('')}</div><div class="exp" hidden></div></div>`).join('');
+$$('#adScn .scn').forEach(d=>d.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(d.dataset.done)return;d.dataset.done=1;const s=SCN[+d.dataset.i],good=+c.dataset.j===s[1];
+  c.classList.add(good?'right':'wrong');if(!good)d.querySelector(`.chip[data-j="${s[1]}"]`).classList.add('right');const e=d.querySelector('.exp');e.hidden=false;e.textContent=(good?'Yes. ':'The biggest worry here is '+DIS[s[1]][0].toLowerCase()+'. ')+s[2]}));
+
+/* ===== 6.7 IoT vs IIoT ===== */
+$('#vsTab tbody').innerHTML=[
+ ['Where it is used','Homes and people: watches, smart homes, health gadgets','Factories, power plants, water treatment, oil and gas, solar farms'],
+ ['Main goal','Convenience and comfort','Safety, uptime and efficiency of the plant'],
+ ['If it fails','Inconvenient: the lights stay on','Production stops, equipment is damaged, or people get hurt'],
+ ['Devices','Low-cost consumer gadgets','Rugged industrial sensors, PLCs and gateways built for heat, dust and vibration'],
+ ['Networks','Wi-Fi, Bluetooth, home internet','Industrial Ethernet, Modbus, 4G/5G, LoRaWAN, often with a backup link'],
+ ['Timing','A few seconds late is fine','Data must arrive on time and reliably'],
+ ['Security','Important','Critical: an attack can stop a plant or a power grid'],
+ ['Lifetime','A few years','10 to 20 years or more'],
+ ['Examples','Smart watch, smart plug, robot vacuum','Machine health monitoring, smart grid meters, PV farm monitoring']].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+sorter($('#vsSort'),$('#vsFb'),[
+ ['A smart watch that counts your steps','iot','A personal gadget for convenience: consumer IoT.'],
+ ['Vibration sensors on the pumps of a palm oil mill, reporting to the maintenance team','iiot','It protects production equipment: industrial IoT.'],
+ ['A robot vacuum cleaner you start from your phone','iot','A home convenience device: consumer IoT.'],
+ ['Smart meters across a city reporting to the power utility','iiot','Part of the power grid, run by the utility: industrial IoT.'],
+ ['A smart plug for a table lamp','iot','A home device: consumer IoT.'],
+ ['Temperature sensors on the panels of a solar farm, sent to the operator\'s cloud','iiot','Monitoring an energy plant: industrial IoT.'],
+ ['A fitness band','iot','A personal gadget: consumer IoT.'],
+ ['A gateway that sends data from factory PLCs to a cloud dashboard','iiot','It connects industrial controllers to the cloud: industrial IoT.']],[['iot','IoT (home)'],['iiot','IIoT (plant)']]);
+
+/* Class game: name wheel: names live only in this browser (localStorage), never in the page */
+(function(){
+  const cv=$('#wheelCv'),ctx=cv.getContext('2d'),btn=$('#spinBtn');
+  /* Game-show music made live with Web Audio: no audio files, no copyright */
+  const Snd=(()=>{let ac,master,mus,timer,on=false,step=0,next=0,noise;
+    const mf=m=>440*Math.pow(2,(m-69)/12),S=60/128/4;
+    const CH=[[48,60,64,67],[43,59,62,67],[45,60,64,69],[41,60,65,69]];
+    function init(){if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();master=ac.createGain();master.gain.value=.3;master.connect(ac.destination);
+        mus=ac.createGain();mus.gain.value=.8;mus.connect(master);noise=ac.createBuffer(1,ac.sampleRate*.5,ac.sampleRate);const d=noise.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+      if(ac.state==='suspended')ac.resume();return true}
+    function tone(type,f,t,dur,v,dest){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.03)}
+    function kick(t,dest){const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g);g.connect(dest);o.start(t);o.stop(t+.3)}
+    function hiss(t,dur,v,freq,type,dest){const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noise;f.type=type;f.frequency.value=freq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(f);f.connect(g);g.connect(dest);s.start(t);s.stop(t+dur+.02)}
+    function beat(i,t){const s=i%16,ch=CH[Math.floor(i/16)%4];
+      if(s%4===0)kick(t,mus);
+      if(s===4||s===12){hiss(t,.16,.5,1600,'bandpass',mus);tone('triangle',190,t,.08,.2,mus)}
+      hiss(t,.04,s%2?.12:.22,7000,'highpass',mus);
+      if(s%2===0)tone('square',mf(ch[0]+(s%4===2?12:0)),t,S*1.7,.07,mus);
+      tone('triangle',mf([ch[1],ch[2],ch[3],ch[2]+12][s%4]+12),t,S*.9,.11,mus);
+      if(s===0)[ch[1],ch[2],ch[3]].forEach(m=>tone('sawtooth',mf(m),t,S*14,.018,mus))}
+    function sched(){while(next<ac.currentTime+.12){beat(step,next);next+=S;step++}}
+    return {get on(){return on},
+      start(){if(on||!init())return;on=true;step=0;next=ac.currentTime+.06;timer=setInterval(sched,25)},
+      stop(){on=false;clearInterval(timer);if(mus){mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setValueAtTime(.8,ac.currentTime)}},
+      duck(d){if(!ac)return;mus.gain.cancelScheduledValues(ac.currentTime);mus.gain.setTargetAtTime(d?.15:.8,ac.currentTime,.15)},
+      ticks(dur){if(!init())return;const t0=ac.currentTime;let e=0;while(e<dur-.25){const p=e/dur;tone('square',1700,t0+e,.025,.16,master);hiss(t0+e,.02,.15,5000,'highpass',master);e+=.045+.42*p*p*p}},
+      fanfare(){if(!init())return;const t=ac.currentTime+.04;[60,64,67,72].forEach((m,i)=>tone('square',mf(m+12),t+i*.09,.16,.1,master));
+        [60,64,67,72,76].forEach(m=>{tone('triangle',mf(m),t+.4,1.4,.12,master);tone('sawtooth',mf(m),t+.4,1.1,.025,master)});kick(t+.4,master);hiss(t+.4,1.2,.25,6000,'highpass',master)}}})();
+  const mBtn=()=>{const b=$('#wMusic');b.setAttribute('aria-pressed',Snd.on);b.textContent=Snd.on?'♪ Music on':'♪ Music off'};
+  $('#wMusic').onclick=()=>{Snd.on?Snd.stop():Snd.start();mBtn()};
+  addEventListener('pagehide',()=>Snd.stop());
+  const COLS=['#1B5AA6','#2E7A39','#B87F00','#C22E29','#1F7A8C','#6C4AB6','#5B6771','#D35400'];
+  const DEF=[...Array(12)].map((_,i)=>'Student '+(i+1));
+  let names=store.get('class-names')||DEF, pool=store.get('ch6-pool')||names.slice(), picked=store.get('ch6-picked')||[];
+  pool=pool.filter(n=>names.includes(n));
+  let rot=0,spinning=false;
+  const save=()=>{store.set('class-names',names);store.set('ch6-pool',pool);store.set('ch6-picked',picked)};
+  function draw(){const n=pool.length,W=800,R=392,c=400;ctx.clearRect(0,0,W,W);
+    if(!n){ctx.fillStyle='#5B6771';ctx.beginPath();ctx.arc(c,c,R,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='600 40px "Barlow Condensed", sans-serif';ctx.textAlign='center';ctx.fillText('Everyone has had a turn',c,c-120);return}
+    const seg=2*Math.PI/n;
+    for(let i=0;i<n;i++){const a0=-Math.PI/2+i*seg;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,R,a0,a0+seg);ctx.closePath();
+      ctx.fillStyle=n===1?COLS[0]:COLS[i%(n%COLS.length===1?COLS.length-1:COLS.length)];ctx.fill();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=2;ctx.stroke();
+      ctx.save();ctx.translate(c,c);ctx.rotate(a0+seg/2);ctx.fillStyle='#fff';ctx.textAlign='right';ctx.textBaseline='middle';
+      const fs=Math.max(18,Math.min(44,Math.floor(seg*R*0.55)));ctx.font=`600 ${fs}px "Barlow Condensed", "Arial Narrow", sans-serif`;
+      let t=pool[i];while(ctx.measureText(t).width>R*0.66&&t.length>3)t=t.slice(0,-2)+'…';ctx.fillText(t,R-22,0);ctx.restore()}}
+  function count(){$('#wCount').textContent=`${pool.length} of ${names.length} names on the wheel`;
+    $('#wPicked').innerHTML=picked.map(p=>`<li>${p.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</li>`).join('')||'<li class="muted" style="list-style:none;margin-left:-22px">Nobody yet</li>';
+    btn.disabled=spinning||!pool.length}
+  function show(name,lbl){const w=$('#winner');w.textContent=name;$('#winLbl').textContent=lbl;w.classList.remove('go');void w.offsetWidth;w.classList.add('go')}
+  btn.onclick=()=>{if(spinning||!pool.length)return;spinning=true;count();
+    const n=pool.length,seg=360/n,i=Math.floor(Math.random()*n);
+    const target=-(i+0.5)*seg+(Math.random()-0.5)*seg*0.7;
+    const cur=((rot%360)+360)%360,want=((target%360)+360)%360;
+    rot+=360*(reduce?1:6)+((want-cur+360)%360);
+    cv.style.transition=`transform ${reduce?0.3:5.5}s cubic-bezier(.12,.8,.1,1)`;cv.style.transform=`rotate(${rot}deg)`;
+    show('…','Spinning…');if(Snd.on){Snd.duck(1);Snd.ticks(reduce?0.4:5.5)}
+    setTimeout(()=>{const name=pool[i];show(name,'Your turn to answer:');if(Snd.on){Snd.fanfare();setTimeout(()=>Snd.duck(0),1800)}picked.push(name);
+      if($('#wRemove').checked){pool.splice(i,1);setTimeout(()=>{cv.style.transition='none';rot=0;cv.style.transform='rotate(0deg)';draw()},1600)}
+      spinning=false;save();count()},reduce?400:5600)};
+  $('#wReset').onclick=()=>{if(spinning)return;pool=names.slice();picked=[];save();draw();count();show('?','Press SPIN to pick a student')};
+  $('#wEdit').onclick=()=>{$('#wNames').value=names.join('\n');$('#wEditor').hidden=false;$('#wNames').focus()};
+  $('#wCancel').onclick=()=>{$('#wEditor').hidden=true};
+  $('#wSave').onclick=()=>{const L=[...new Set($('#wNames').value.split('\n').map(s=>s.trim()).filter(Boolean))];
+    if(!L.length){alert('Please enter at least one name.');return}names=L;pool=L.slice();picked=[];save();draw();count();$('#wEditor').hidden=true;show('?',`${L.length} names saved. Press SPIN.`)};
+  const box=$('#wheelBox');if(!box.requestFullscreen)$('#wFull').hidden=true;
+  $('#wFull').onclick=()=>{if(document.fullscreenElement){document.exitFullscreen()}else{box.requestFullscreen();Snd.start();mBtn()}};
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&Snd.on){Snd.stop();mBtn()}});
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw);
+  draw();count();
+})();
+})();
+</script>
+<!-- Phone remote (receiver). The same block is in every chapter and lab page and the homepage. -->
+<style>
+.rm-btn{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+.rm-btn.on{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (pointer:coarse){.rm-btn{display:none}}
+.rm-panel{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:flex;align-items:center;justify-content:center;padding:16px}
+.rm-panel[hidden]{display:none}
+.rm-card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;max-width:400px;width:100%;padding:18px;text-align:center;font-size:15px}
+.rm-card h3{margin:0 0 6px;font-size:24px}
+.rm-qr{display:inline-block;background:#fff;padding:8px;border-radius:6px;margin:8px 0;min-height:120px;min-width:120px}
+.rm-qr svg,.rm-qr img{display:block;width:240px;height:240px}
+.rm-code{font:700 26px var(--cond);letter-spacing:.08em}
+.rm-st{margin:6px 0;font-weight:600}
+.rm-st.ok{color:var(--ok)}.rm-st.bad{color:var(--alarm)}
+.rm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1D2730;color:#fff;padding:8px 16px;border-radius:20px;z-index:71;opacity:0;transition:opacity .3s;pointer-events:none;font-weight:600}
+.rm-toast.show{opacity:.94}
+</style>
+<button class="btn rm-btn" id="rmBtn" title="Control this page from your phone">📱 Phone remote</button>
+<div class="rm-panel" id="rmPanel" hidden><div class="rm-card" role="dialog" aria-label="Phone remote">
+  <h3>Phone remote</h3>
+  <div class="rm-st" id="rmSt">Connecting…</div>
+  <div class="rm-qr" id="rmQr"></div>
+  <div>Scan with your phone camera, or open <b id="rmLink"></b> and type:</div>
+  <div class="rm-code" id="rmCode"></div>
+  <p class="muted" style="font-size:13px;margin:8px 0">Only the first phone that connects can control this PC. Tip: pair before the projector shows this box. The remote keeps working when you open another chapter.</p>
+  <div class="row" style="justify-content:center"><button class="btn primary" id="rmClose">Close</button><button class="btn danger" id="rmStop">Stop remote</button></div>
+</div></div>
+<div class="rm-toast" id="rmToast" aria-live="polite"></div>
+<script>
+(function(){
+const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const $=id=>document.getElementById(id);
+const btn=$('rmBtn'),panel=$('rmPanel'),toast=$('rmToast');
+if(!window.crypto||!crypto.subtle){btn.hidden=true;return}
+let cli=null,code=null,key=null,bi=0,lastN=0,phone=false,started=false,stT=null;
+const load=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+const topic=x=>`emt30205/rm/${code.slice(0,4)}/${x}`;
+function say(t){toast.textContent=t;toast.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('show'),1600)}
+const secs=()=>[...document.querySelectorAll('section.topic')];
+function cur(){const a=secs();let c=null;const y=innerHeight*.35;for(const s of a){if(s.getBoundingClientRect().top<=y)c=s}return c}
+function info(s){const h=s.querySelector('h2');if(!h)return [s.id,'',''];const n=h.querySelector('.n');return [s.id,n?n.textContent:'',[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim()]}
+function stepBtn(s){return s?[...s.querySelectorAll('.btn.primary,.hbtn.go')].find(b=>!b.disabled&&b.offsetParent):null}
+let want=null,wantT=0;
+function state(){if(!cli||!cli.connected)return;const s=Date.now()<wantT?want:cur(),b=stepBtn(s);
+  cli.publish(topic('s'),JSON.stringify({t:document.title.split('|')[0].trim(),p:location.pathname.split('/').pop()||'index.html',secs:secs().map(info),cur:s?s.id:'',step:b?b.textContent.trim().slice(0,32):'',wheel:!!$('spinBtn')}),{retain:true})}
+const later=()=>{clearTimeout(stT);stT=setTimeout(state,500)};
+function toY(y){y=Math.max(0,Math.min(y,document.documentElement.scrollHeight-innerHeight));window.scrollTo({top:y});setTimeout(()=>{if(Math.abs(scrollY-y)>40)window.scrollTo({top:y,behavior:'instant'});later()},1200)}
+const go=s=>{if(s){want=s;wantT=Date.now()+1500;toY(s.getBoundingClientRect().top+scrollY-10)}};
+const b64d=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+async function verify(m){try{const o=JSON.parse(m);if(typeof o.n!=='number'||o.n<=lastN)return null;
+  const ok=await crypto.subtle.verify('HMAC',key,b64d(o.g),new TextEncoder().encode(o.n+'|'+o.c));if(!ok)return null;const x=JSON.parse(o.c),own=L('rm-sid');if(own?x.s!==own:x.a!=='hello')return null;lastN=o.n;S('rm-n',String(lastN));return x}catch(e){return null}}
+function run(c){if(!L('rm-sid')&&c.a==='hello'&&c.s)S('rm-sid',c.s);
+  const a=secs(),s=cur(),i=a.indexOf(s);
+  if(c.a==='hello'){phone=true;btn.textContent='📱 Phone connected';$('rmSt').textContent='Phone connected ✓';$('rmSt').className='rm-st ok';say('📱 Phone connected');setTimeout(()=>{panel.hidden=true},1200)}
+  else if(c.a==='next'){if(i<a.length-1){go(a[i+1]);say('Next section ▶')}}
+  else if(c.a==='prev'){if(i>0){go(a[i-1]);say('◀ Previous section')}}
+  else if(c.a==='down')toY(scrollY+innerHeight*.6);
+  else if(c.a==='up')toY(scrollY-innerHeight*.6);
+  else if(c.a==='top'){want=null;wantT=Date.now()+1500;toY(0)}
+  else if(c.a==='go'){const t=document.getElementById(c.id);if(t&&t.matches('section.topic'))go(t)}
+  else if(c.a==='step'){const b=stepBtn(s);if(b){const r=b.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)window.scrollBy({top:r.top-innerHeight*.3});b.click();say('▶ '+b.textContent.trim().slice(0,30))}else say('No step button in this section')}
+  else if(c.a==='spin'){const w=$('spinBtn');if(w){go(w.closest('section'));setTimeout(()=>w.click(),600);say('Spinning the wheel')}}
+  else if(c.a==='theme'){const t=$('themeBtn');if(t)t.click()}
+  else if(c.a==='open'){if(/^[a-z0-9-]+\.html$/.test(c.h||'')){say('Opening '+c.h);location.href=c.h;return}}
+  state();later()}
+function showPairing(){const url=new URL('remote.html',location.href);url.hash=code+'.'+bi;
+  $('rmLink').textContent=url.host+url.pathname;$('rmCode').textContent=code.match(/.{4}/g).join('-');
+  if(window.qrcode){const q=qrcode(0,'M');q.addData(url.href);q.make();$('rmQr').innerHTML=q.createSvgTag(5,2)}}
+function connect(){const c=mqtt.connect(BROKERS[bi],{clientId:'emtpc'+Math.random().toString(16).slice(2,10),connectTimeout:7000,reconnectPeriod:4000});cli=c;let ok=false;
+  c.on('connect',()=>{ok=true;S('rm-b',String(bi));c.subscribe(topic('c'));state();btn.classList.add('on');btn.textContent=phone?'📱 Phone connected':'📱 Remote ready';
+    if(!phone){$('rmSt').textContent='Ready: waiting for your phone';$('rmSt').className='rm-st'}showPairing()});
+  c.on('message',async(t,m)=>{if(t!==topic('c'))return;const x=await verify(m.toString());if(x)run(x)});
+  c.on('offline',()=>{btn.classList.remove('on');btn.textContent='📱 Reconnecting…'});
+  setTimeout(()=>{if(!ok&&cli===c&&bi+1<BROKERS.length){c.end(true);bi++;$('rmSt').textContent='Trying another server…';connect()}else if(!ok&&cli===c){$('rmSt').textContent='Cannot reach the remote server from this network.';$('rmSt').className='rm-st bad'}},8000)}
+async function start(show){if(started){if(show)panel.hidden=false;return}started=true;
+  code=L('rm-code');if(!code||!/^[A-Z2-9]{12}$/.test(code)){code=[...crypto.getRandomValues(new Uint8Array(12))].map(x=>AB[x%AB.length]).join('');S('rm-code',code);S('rm-n',null)}
+  S('rm-on','1');lastN=+L('rm-n')||0;bi=Math.min(+L('rm-b')||0,BROKERS.length-1);if(show)panel.hidden=false;btn.textContent='📱 Connecting…';
+  key=await crypto.subtle.importKey('raw',new TextEncoder().encode(code.slice(4)),{name:'HMAC',hash:'SHA-256'},false,['verify']);
+  try{if(!window.mqtt)await load('https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js');if(!window.qrcode)await load('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js')}
+  catch(e){$('rmSt').textContent='Could not load the remote. Check the internet connection.';$('rmSt').className='rm-st bad';started=false;return}
+  connect()}
+function stop(){S('rm-on',null);S('rm-sid',null);S('rm-code',null);S('rm-n',null);if(cli){try{cli.publish(topic('s'),'',{retain:true});cli.end(true)}catch(e){}}cli=null;started=false;phone=false;panel.hidden=true;btn.classList.remove('on');btn.textContent='📱 Phone remote';$('rmQr').innerHTML='';say('Phone remote stopped')}
+btn.onclick=()=>start(true);$('rmClose').onclick=()=>{panel.hidden=true};$('rmStop').onclick=stop;
+panel.onclick=e=>{if(e.target===panel)panel.hidden=true};
+addEventListener('scroll',later,{passive:true});
+if(L('rm-on')==='1'){if(L('rm-sid'))phone=true;start(false)}
+})();
+</script>
+</body>
+</html>

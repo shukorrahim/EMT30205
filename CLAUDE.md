@@ -36,9 +36,9 @@ now match the numbers of the lecturer's source files again.
 | 3 | Serial Communication | RS-232/422/485, differential signalling, half/full duplex, converters, nodes, wired topologies (bus, ring, star, tree), PLC networking | OSI and "what is a protocol" → Ch 2 |
 | 4 | Human Machine Interface (Part 1) | HMI in the loop, input/output, architecture under the screen, evolution, industries, the 5 HMI design rules (schematic, colour, layout, values, consistency) | "what is an HMI" → Ch 1.10 |
 | 5 | Human Machine Interface (Part 2) | PLC and HMI: linking ladder diagrams to HMI graphics through addresses (5.1), HMI components, HMI reading/writing PLC addresses, CX-Designer, Tutorial 1 and Tutorial 2 | design rules → Ch 4; serial link → Ch 3; work bits → Lab 2 |
-| 6 | IoT Fundamentals | what IoT is, history, the "thing" (connect/compute/communicate), architecture, communication models, data, security/issues | IP basics → Ch 2 |
-| 7 | IoT Protocols and Zigbee | the single wireless comparison table, MQTT/CoAP, Zigbee in depth (802.15.4, device types, mesh, self-healing) | star topology → Ch 3 |
-| 8 | IoT in Monitoring Systems | ESP32/Pi/Arduino, gateways, cloud platforms, monitoring examples, SCADA vs IIoT | IoT definition/architecture → Ch 6; protocol table → Ch 7 |
+| 6 | Introduction to the Internet of Things (IoT) | what IoT is (4 ingredients), history, sense-think-act-share loop, why IoT in monitoring (5 benefits), 5 monitoring examples, advantages/disadvantages, IoT vs IIoT. No quiz and no jargon buster (lecturer's choice) | SCADA → Ch 1 |
+| 7 | IoT Architecture and Components (planned) | the 4 components: sensors, devices (ESP32/ESP8266/Arduino/Pi table), gateway and the wireless comparison table (Wi-Fi, Bluetooth, LoRa, Zigbee, 4G/5G), cloud platforms | IoT definition → Ch 6; star topology → Ch 3 |
+| 8 | IoT in Monitoring Systems | ESP32/Pi/Arduino, gateways, cloud platforms, monitoring examples, SCADA vs IIoT | IoT definition, IIoT → Ch 6; architecture, protocol table → Ch 7 |
 | 9 | Design PLC and SCADA Systems | the design process (11 steps), FAT/SAT, documentation, one worked project | control philosophy → Ch 1; I/O list → Lab 1; comms → Ch 2/3; HMI screens → Ch 4/5 |
 
 ## Style rules
