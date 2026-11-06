@@ -103,6 +103,9 @@ a.tile:focus-visible{outline:none;border-color:var(--gold)}
 .tile-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;font-size:14px}
 .tile-foot .tf-l{flex:1;min-width:0;color:var(--ink2)}
 .tile-foot .tf-go{color:var(--warn);font-weight:700;white-space:nowrap}
+.sub-head{font-size:18px;color:var(--head);margin:30px 0 0}
+.tile.portal{border:2px solid var(--gold)}
+.tile.portal .tile-top{background:linear-gradient(160deg,#1F3B63 0%,#0F1D33 100%)}
 .tile.soon .tile-top{background:linear-gradient(160deg,#7A879C 0%,#5C6880 100%);border-bottom-color:#C9CED8}
 .tile.soon .tkick{color:#E3E7EE}
 .bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:5px;overflow:hidden}
@@ -221,6 +224,16 @@ button,a,[role=button]{touch-action:manipulation}
   <h2>Labs</h2>
   <div class="intro"><p>Lab pages are hands-on simulations you can practise on before (and after) the real lab session.</p></div>
   <ol class="tiles" id="labList"></ol>
+  <h3 class="sub-head">Submit your lab work</h3>
+  <div class="tiles">
+    <a class="tile portal" href="https://script.google.com/a/macros/unimap.edu.my/s/AKfycbxcMv-USJsMtzQATBf1u0_Zi6yC9Km34OyR9jud6OYj29CERWFKfWJdT9snGR0RJD2-/exec" target="_blank" rel="noopener">
+      <div class="tile-top"><div class="trow"><span class="tlogo"><img src="unimap-logo.png" alt="" width="86" height="48"></span><span class="tbadge gold">Submit here</span></div>
+        <div class="tkick">Lab reports · Lab assessments · Attendance</div><div class="ttitle">Smart Portal</div>
+        <div class="tsub">Answer and submit your lab reports and lab assessments, and check in for class. Sign in with your UniMAP account.</div>
+        <div class="tmeta">Opens in a new tab · @unimap.edu.my account needed</div></div>
+      <div class="tile-foot"><span class="tf-l">Read the lab page first, then submit in the portal.</span><span class="tf-go">Open Smart Portal →</span></div>
+    </a>
+  </div>
 </section>
 
 <section class="topic" id="assessment">
