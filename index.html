@@ -3,138 +3,122 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1F3B63" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1D33" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <title>EMT30205 Monitoring System Integration</title>
 <meta name="description" content="Interactive lecture notes for EMT30205 Monitoring System Integration, Bachelor of Electrical Maintenance System, Faculty of Electrical Engineering (FKTE).">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Same look as the Smart Portal: navy header with the UniMAP logo, white cards, navy tiles with a gold stripe */
 :root{
-  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
-  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
-  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
-  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
-  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  --canvas:#F3F5F9; --panel:#FFFFFF; --panel2:#EEF1F6; --ink:#1D2433; --ink2:#5D6779;
+  --line:#D9DEE7; --pipe:#9AA5B5; --sel:#2D5590; --sel-ink:#fff; --sel-soft:#EEF3FB;
+  --ok:#1E8A4C; --warn:#A06F00; --alarm:#C0392B; --off:#A7B0BD;
+  --navy:#1F3B63; --head:#1F3B63; --gold:#E8A317; --hdr:#1F3B63;
+  --body:"Segoe UI", Roboto, Arial, system-ui, sans-serif;
+  --cond:"Segoe UI", Roboto, Arial, system-ui, sans-serif;
   box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
-  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
-  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
-  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+  --canvas:#121821; --panel:#1B2330; --panel2:#243042; --ink:#E3E8EF; --ink2:#A3AEBD;
+  --line:#334155; --pipe:#5B6B80; --sel:#7FA8E6; --sel-ink:#0E1A27; --sel-soft:#1E2C42;
+  --ok:#5CC184; --warn:#E8B54A; --alarm:#EF6B5F; --off:#556070; --head:#DBE6F5; --hdr:#0F1D33;}}
 :root[data-theme="dark"]{
-  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
-  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
-  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+  --canvas:#121821; --panel:#1B2330; --panel2:#243042; --ink:#E3E8EF; --ink2:#A3AEBD;
+  --line:#334155; --pipe:#5B6B80; --sel:#7FA8E6; --sel-ink:#0E1A27; --sel-soft:#1E2C42;
+  --ok:#5CC184; --warn:#E8B54A; --alarm:#EF6B5F; --off:#556070; --head:#DBE6F5; --hdr:#0F1D33;}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
-h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 16px/1.55 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:700;line-height:1.15;margin:0}
 p{margin:0 0 1em}
 button{font:inherit;color:inherit}
 a{color:var(--sel)}
-:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 
-main{padding:0 20px 60px}
+main{padding:0 16px 60px}
 .wrap{max-width:1040px;margin:0 auto}
 .muted{color:var(--ink2)}
 
-/* Hero */
-header.hero{padding:56px 0 36px}
-.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
-.hero h1{font-size:clamp(44px,8vw,92px);font-weight:700;letter-spacing:-.01em}
-.hero h1 small{display:block;font-size:.34em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
-.hero .by{margin-top:18px;color:var(--ink2);font-size:15px}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:24px;margin-top:28px;align-items:start}
-@media (min-width:900px){.hero-grid{grid-template-columns:1fr 1.15fr}}
-.lead{font-size:19px;max-width:620px}
-.facts{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
-.facts li{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px}
+/* Header bar (as in the Smart Portal) */
+header.top{background:var(--hdr);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 18px}
+header.top .wrap{display:flex;align-items:center;gap:14px}
+.hlogo{background:#fff;border-radius:10px;padding:6px 10px;flex:none;display:inline-flex}
+.hlogo img{display:block;width:96px;height:54px;object-fit:contain}
+header.top h1{font-size:22px;font-weight:700}
+header.top p{margin:3px 0 0;opacity:.85;font-size:13px}
+@media (max-width:520px){ .hlogo img{width:72px;height:40px} header.top h1{font-size:18px} }
+
+/* Welcome card */
+.welcome{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;margin:22px 0 10px;display:grid;gap:18px}
+@media (min-width:860px){.welcome{grid-template-columns:1.3fr 1fr;align-items:start}}
+.lead{font-size:18px;margin:0 0 10px}
+.facts{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.facts li{background:var(--sel-soft);border-radius:8px;padding:8px 12px;font-size:15px}
+.by{color:var(--ink2);font-size:14px;margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats div{background:var(--sel-soft);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.stats b{display:block;font-size:26px;color:var(--head);line-height:1.2;font-variant-numeric:tabular-nums}
+.stats b u{font-size:14px;text-decoration:none;color:var(--ink2);font-weight:400;margin-left:2px}
+.stats span{font-size:12px;color:var(--ink2)}
+.jump{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 
 /* Buttons */
-.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;text-decoration:none;display:inline-block;color:var(--ink)}
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:600;font-size:15px;text-decoration:none;display:inline-block;color:var(--ink)}
 .btn:hover{background:var(--panel2)}
-.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:#2D5590}
 .btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
-.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
-.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
-.seg button:last-child{border-right:0}
-.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.seg{display:inline-flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--panel);padding:5px 14px;cursor:pointer;font-size:14px;border-radius:16px;color:var(--sel)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-/* HMI screen */
-.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;--opn:#3FB950;--val:#7FE3FF;--kv33:#F0C04A;
-  background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);font-size:13px}
-.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
-.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
-.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums;white-space:nowrap}
-.hmi-nav{display:flex;gap:3px;background:var(--hp);padding:4px 6px;border-bottom:1px solid var(--hl);overflow-x:auto}
-.hmi-nav button{background:transparent;border:1px solid var(--hl);color:var(--hd);padding:3px 12px;font-size:13px;border-radius:2px;cursor:pointer;white-space:nowrap}
-.hmi-nav [aria-pressed="true"]{background:#2F6FB5;color:#fff;border-color:#2F6FB5}
-.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:38px;flex-wrap:wrap}
-.hmi-foot .alm{flex:1;padding:3px 8px;border-radius:2px;color:var(--hd);min-width:180px}
-.hbtn{background:#2A3843;color:var(--ht);border:1px solid #4A5A66;border-radius:2px;padding:4px 12px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
-.hbtn:hover{background:#34444F}.hbtn.go{background:#2F6FB5;border-color:#2F6FB5;color:#fff}
-.hbtn[aria-disabled="true"]{opacity:.4;cursor:not-allowed;pointer-events:none}
-.lamp{display:inline-block;width:9px;height:9px;border-radius:50%;background:#4E5B65;flex:none}
-.lamp.on{background:var(--opn)}
-.lamp.part{background:var(--kv33)}
+/* Section headings: big navy text, gold bar, rule across the page */
+section.topic{padding:30px 0 6px}
+.topic h2{display:flex;align-items:center;gap:14px;font-size:24px;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--head);margin:0 0 16px;padding-left:14px;border-left:7px solid var(--gold);line-height:1.2}
+.topic h2::after{content:"";flex:1;height:2px;background:var(--line)}
+@media (max-width:520px){.topic h2{font-size:20px}}
+.topic .intro{max-width:720px;color:var(--ink2)}
 
-.ov{padding:10px;display:grid;gap:10px}
-.ov-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.ov-tile{background:#000;border:1px solid var(--hl);padding:6px 8px;border-radius:2px}
-.ov-tile .k{color:var(--hd);font-size:12px}
-.ov-tile .v{font-family:var(--cond);font-size:clamp(20px,3vw,28px);color:var(--val);font-weight:600;font-variant-numeric:tabular-nums}
-.ov-tile .v u{font-size:13px;color:var(--hd);text-decoration:none;margin-left:3px}
-.stations{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.st{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--hp);border:1px solid var(--hl);border-radius:2px;padding:6px 8px;cursor:pointer;color:var(--ht);min-height:62px}
-.st:hover{border-color:#fff;border-style:dashed}
-.st[aria-pressed="true"]{border:2px solid var(--val);padding:5px 7px}
-.st .top{display:flex;justify-content:space-between;align-items:center;font-family:var(--cond);font-weight:600;font-size:15px}
-.st .nm{font-size:12px;color:var(--hd);line-height:1.3}
-.face{border-top:1px solid var(--hl);background:#1E2931;padding:8px 10px;min-height:76px}
-.face b{font-family:var(--cond);font-size:16px;font-weight:600}
-.face p{margin:2px 0 8px;color:var(--hd);line-height:1.4}
-
-/* Sections */
-section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
-.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:14px}
-.topic .intro{max-width:720px}
-
-/* Chapter list */
-.chapters{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:1fr;gap:10px}
-@media (min-width:760px){.chapters{grid-template-columns:1fr 1fr}}
-.ch{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start}
-.ch.soon{background:var(--panel2);border-style:dashed}
-.ch .num{font-family:var(--cond);font-weight:700;font-size:44px;line-height:1;color:var(--ink2);min-width:1.1em;text-align:center}
-.ch.live .num{color:var(--sel)}
-.ch h3{font-size:23px;margin:2px 0 4px}
-.ch h3 a{color:inherit;text-decoration:none}
-.ch h3 a:hover{text-decoration:underline}
-.ch .desc{font-size:15px;color:var(--ink2);margin:0 0 8px}
-.ch .meta{grid-column:2;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
-.tag{display:inline-block;font-size:13px;font-weight:600;padding:2px 8px;border-radius:3px}
-.tag.on{background:var(--ok);color:#fff}
-.tag.off{background:var(--off);color:#fff}
-.prog{grid-column:2;font-size:13px;color:var(--ink2)}
-.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:4px;overflow:hidden}
-.ch.soon .bar{background:var(--panel)}
+/* Chapter and lab tiles: grow a little on hover */
+.tiles{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px}
+.tl[hidden]{display:none}
+.tile{height:100%;background:var(--panel);border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 2px 6px rgba(15,25,45,.08);
+  transition:transform .2s ease,box-shadow .2s ease;display:flex;flex-direction:column;text-decoration:none;color:var(--ink);position:relative}
+a.tile:hover,a.tile:focus-visible{transform:scale(1.035);box-shadow:0 14px 30px rgba(15,25,45,.22);z-index:1}
+a.tile:focus-visible{outline:none;border-color:var(--gold)}
+.tile-top{background:linear-gradient(160deg,#25458C 0%,#172D63 100%);color:#fff;padding:20px 20px 16px;border-bottom:5px solid var(--gold);flex:1}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.tlogo{display:inline-flex;align-items:center;background:#fff;border-radius:10px;padding:6px 10px}
+.tlogo img{display:block;width:86px;height:48px;object-fit:contain}
+.tbadge{background:#fff;color:#172D63;font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border-radius:20px;padding:5px 14px;white-space:nowrap}
+.tbadge.gold{background:var(--gold);color:#1D2433}
+.tkick{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#F0B429;margin:0 0 6px}
+.ttitle{font-size:24px;font-weight:800;line-height:1.15}
+.tsub{font-size:14px;opacity:.9;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tmeta{font-size:12px;margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.22);opacity:.85}
+.tile-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;font-size:14px}
+.tile-foot .tf-l{flex:1;min-width:0;color:var(--ink2)}
+.tile-foot .tf-go{color:var(--warn);font-weight:700;white-space:nowrap}
+.tile.soon .tile-top{background:linear-gradient(160deg,#7A879C 0%,#5C6880 100%);border-bottom-color:#C9CED8}
+.tile.soon .tkick{color:#E3E7EE}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:5px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
-.ch[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.tile{transition:none} a.tile:hover{transform:none}}
 
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
 .steps{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
 @media (min-width:760px){.steps{grid-template-columns:repeat(3,1fr)}}
-.steps li{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px}
-.steps b{display:block;font-family:var(--cond);font-size:20px;font-weight:600;margin-bottom:4px}
-.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.steps li{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.steps b{display:block;font-size:18px;font-weight:700;margin-bottom:4px;color:var(--head)}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:8px;font-size:15px;margin:16px 0}
 
-footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:13px;color:var(--ink2);text-align:center}
 .theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
-@media (max-width:600px){main{padding:0 16px 60px}.panel{padding:14px}.stations{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:600px){.panel{padding:14px}.welcome{padding:16px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
 /* Assessment */
@@ -185,8 +169,6 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button,a,[role=button]{touch-action:manipulation}
 @media (pointer:coarse){
   .btn,.seg button{min-height:44px;display:inline-flex;align-items:center}
-  .hmi-nav button,.hbtn{min-height:36px;padding-left:14px;padding-right:14px;display:inline-flex;align-items:center}
-  .st{min-height:68px}
 }
 @media (max-width:1079px){
   .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -195,42 +177,32 @@ button,a,[role=button]{touch-action:manipulation}
 </style>
 </head>
 <body>
+<header class="top" id="top"><div class="wrap">
+  <span class="hlogo"><img src="unimap-logo.png" alt="Universiti Malaysia Perlis" width="96" height="54"></span>
+  <div><h1>EMT30205 Monitoring System Integration</h1><p>Interactive lecture notes · Bachelor of Electrical Maintenance System · Faculty of Electrical Engineering (FKTE)</p></div>
+</div></header>
 <main>
 <div class="wrap">
 
-<header class="hero" id="top">
-  <div class="course">EMT30205 · Bachelor of Electrical Maintenance System · Faculty of Electrical Engineering (FKTE)</div>
-  <h1>Monitoring System Integration<small>Interactive lecture notes</small></h1>
-  <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
-
-  <div class="hero-grid">
-    <div>
-      <p class="lead">This course is about how engineers watch and control equipment from far away: sensors, PLCs and RTUs, communication links, and the SCADA screens operators use every day.</p>
-      <ul class="facts">
-        <li><b>Read:</b> each chapter is one page of notes in plain English, with analogies and real Malaysian examples.</li>
-        <li><b>Try:</b> every section has something to click, switch or simulate.</li>
-        <li><b>Check:</b> games, quizzes and a jargon buster in every chapter help you check what you have learned.</li>
-      </ul>
-    </div>
-
-    <div class="hmi" id="courseHmi">
-      <div class="hmi-title"><b>EMT30205: Course overview</b><span class="meta">Student | <span id="clk"></span></span></div>
-      <div class="hmi-nav" role="group" aria-label="Course screens">
-        <button aria-pressed="true" data-v="ch">Chapters</button><button aria-pressed="false" data-v="lab">Labs</button>
-      </div>
-      <div class="ov">
-        <div class="ov-tiles">
-          <div class="ov-tile"><div class="k" id="tkK1">Chapters online</div><div class="v" id="tk1">0<u>/ 8</u></div></div>
-          <div class="ov-tile"><div class="k">Sections visited</div><div class="v" id="tk2">0<u>%</u></div></div>
-          <div class="ov-tile"><div class="k" id="tkK3">Best quiz score</div><div class="v" id="tk3">–</div></div>
-        </div>
-        <div class="stations" id="stations" role="group" aria-label="Select a chapter or lab"></div>
-      </div>
-      <div class="face" id="face" aria-live="polite"><b>Select a station</b><p>Tap a chapter or lab above to see its status, then open it.</p></div>
-      <div class="hmi-foot"><span class="alm" id="banner">Lamps: green online, amber in progress, grey not yet released</span></div>
-    </div>
+<div class="welcome">
+  <div>
+    <p class="lead">This course is about how engineers watch and control equipment from far away: sensors, PLCs and RTUs, communication links, and the SCADA screens operators use every day.</p>
+    <ul class="facts">
+      <li><b>Read:</b> each chapter is one page of notes in plain English, with analogies and real Malaysian examples.</li>
+      <li><b>Try:</b> every section has something to click, switch or simulate.</li>
+      <li><b>Check:</b> games, quizzes and a jargon buster help you check what you have learned.</li>
+    </ul>
+    <div class="by">Lecture notes by Mohamad Shukor bin Abdul Rahim</div>
   </div>
-</header>
+  <div>
+    <div class="stats">
+      <div><b id="tk1">0</b><span>chapters online</span></div>
+      <div><b id="tk2">0<u>%</u></b><span>of the notes visited</span></div>
+      <div><b id="tk3">–</b><span id="tkK3">best quiz score</span></div>
+    </div>
+    <div class="jump"><a class="btn primary" href="#chapters">Notes</a><a class="btn" href="#labs">Labs</a><a class="btn" href="#assessment">Assessment</a></div>
+  </div>
+</div>
 
 <section class="topic" id="chapters">
   <h2>Notes</h2>
@@ -242,13 +214,13 @@ button,a,[role=button]{touch-action:manipulation}
       <button aria-pressed="false" data-f="soon">Coming soon</button>
     </div>
   </div>
-  <ol class="chapters" id="chList"></ol>
+  <ol class="tiles" id="chList"></ol>
 </section>
 
 <section class="topic" id="labs">
   <h2>Labs</h2>
   <div class="intro"><p>Lab pages are hands-on simulations you can practise on before (and after) the real lab session.</p></div>
-  <ol class="chapters" id="labList"></ol>
+  <ol class="tiles" id="labList"></ol>
 </section>
 
 <section class="topic" id="assessment">
@@ -342,76 +314,57 @@ function progress(c){
 const tb=$('#themeBtn');
 function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
 function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
-  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#0F1D33':'#1F3B63';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
 const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
 setThemeLabel();
 tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
 
-/* Lists */
-function card(c,kind){
+/* Lists: one tile per chapter or lab (the same tiles as the Smart Portal) */
+const LOGO='<img src="unimap-logo.png" alt="" width="86" height="48">';
+function card(c,kind,latest){
   const live=!!c.href, p=progress(c);
-  const name=esc(titleOf(c,kind));
-  const head=live?`<a href="${esc(c.href)}">${name}</a>`:name;
-  const desc=c.desc?`<p class="desc">${esc(c.desc)}</p>`:`<p class="desc">${live?'':'Notes for this '+kind.toLowerCase()+' will be posted during the semester.'}</p>`;
-  let meta=live?`<span class="tag on">Available</span><a class="btn primary" href="${esc(c.href)}">Open ${kind.toLowerCase()} ${c.n}</a>`:`<span class="tag off">Coming soon</span>`;
-  if(live&&c.parts)meta=`<span class="tag on">Available</span>`+c.parts.map(p=>`<a class="btn primary" href="${esc(p.href)}">${esc(p.label)}</a>`).join('');
-  let prog='';
-  if(p) prog=`<div class="prog">${p.seen} of ${c.sections} sections visited${p.best?` · best quiz ${p.best} / ${c.quiz}`:''}<div class="bar"><i style="width:${p.pct}%"></i></div></div>`;
-  return `<li class="ch ${live?'live':'soon'}" data-live="${live}"><div class="num">${c.n}</div><div><h3>${head}</h3>${desc}</div><div class="meta">${meta}</div>${prog}</li>`;
+  const badge=!live?'Coming soon':c===latest?'Latest':'Available';
+  const meta=live?`${c.sections} sections${c.quiz?` · ${c.quiz}-question quiz`:''}`:`Notes for this ${kind.toLowerCase()} will be posted during the semester`;
+  const foot=live?`<span class="tf-l">${p.seen} of ${c.sections} sections visited${p.best?` · best quiz ${p.best} / ${c.quiz}`:''}<span class="bar"><i style="width:${p.pct}%"></i></span></span><span class="tf-go">Open →</span>`
+    :'<span class="tf-l">Not open yet</span>';
+  const inner=`<div class="tile-top"><div class="trow"><span class="tlogo">${LOGO}</span><span class="tbadge${badge==='Latest'?' gold':''}">${badge}</span></div>
+    <div class="tkick">${kind} ${c.n} · EMT30205</div><div class="ttitle">${esc(titleOf(c,kind))}</div>
+    <div class="tsub">${esc(c.desc||'')}</div><div class="tmeta">${meta}</div></div><div class="tile-foot">${foot}</div>`;
+  return live?`<li class="tl" data-live="true"><a class="tile" href="${esc(c.href)}">${inner}</a></li>`
+    :`<li class="tl" data-live="false"><div class="tile soon" aria-disabled="true">${inner}</div></li>`;
 }
+const lastLive=list=>list.filter(c=>c.href).pop();
 function renderLists(){
-  $('#chList').innerHTML=CH.map(c=>card(c,'Chapter')).join('');
-  $('#labList').innerHTML=LABS.map(c=>card(c,'Lab')).join('');
+  $('#chList').innerHTML=CH.map(c=>card(c,'Chapter',lastLive(CH))).join('');
+  $('#labList').innerHTML=LABS.map(c=>card(c,'Lab',lastLive(LABS))).join('');
   applyFilter();
 }
 let filter='all';
-function applyFilter(){$$('#chList .ch').forEach(li=>{const live=li.dataset.live==='true';li.hidden=filter==='live'?!live:filter==='soon'?live:false})}
+function applyFilter(){$$('#chList .tl').forEach(li=>{const live=li.dataset.live==='true';li.hidden=filter==='live'?!live:filter==='soon'?live:false})}
 const fb=$$('.seg [data-f]');
 fb.forEach(b=>b.onclick=()=>{press(fb,b);filter=b.dataset.f;applyFilter()});
 
-/* Course overview HMI */
-let view='ch', selected=null;
-function lampOf(c){if(!c.href)return '';const p=progress(c);return p&&p.pct>=100&&p.best?'on':p&&(p.seen||p.best)?'part':'on'}
-function renderHmi(){
-  const list=view==='ch'?CH:LABS, kind=view==='ch'?'Chapter':'Lab', short=view==='ch'?'CH':'LAB';
-  $('#stations').innerHTML=list.map(c=>`<button class="st" data-n="${c.n}" aria-pressed="${selected===c.n}"><span class="top"><span>${short} ${c.n}</span><span class="lamp ${lampOf(c)}"></span></span><span class="nm">${esc(c.title||'Not yet released')}</span></button>`).join('');
-  $$('#stations .st').forEach(b=>b.onclick=()=>{selected=+b.dataset.n;press($$('#stations .st'),b);showFace(list.find(c=>c.n===selected),kind)});
-  const on=list.filter(c=>c.href).length;
-  $('#tkK1').textContent=view==='ch'?'Chapters online':'Labs online';
-  $('#tk1').innerHTML=`${on}<u>/ ${list.length}</u>`;
-  const ps=CH.map(progress).filter(Boolean);
+/* Stat boxes in the welcome card */
+function renderStats(){
+  $('#tk1').innerHTML=`${CH.filter(c=>c.href).length}<u>/ ${CH.length}</u>`;
   const totS=CH.filter(c=>c.href&&c.sections).reduce((a,c)=>a+c.sections,0);
-  const seenS=ps.reduce((a,p)=>a+p.seen,0);
+  const seenS=CH.map(progress).filter(Boolean).reduce((a,p)=>a+p.seen,0);
   $('#tk2').innerHTML=`${totS?Math.round(seenS/totS*100):0}<u>%</u>`;
-  const c1=CH.find(c=>c.bestKey);const best=c1?store.get(c1.bestKey):0;
+  const c1=CH.find(c=>c.bestKey&&store.get(c.bestKey))||CH.find(c=>c.bestKey);const best=c1?store.get(c1.bestKey):0;
   $('#tk3').innerHTML=best?`${best}<u>/ ${c1.quiz}</u>`:'–';
-  $('#tkK3').textContent=c1?`Best quiz, Ch ${c1.n}`:'Best quiz score';
-  if(selected!=null){const c=list.find(x=>x.n===selected);if(c)showFace(c,kind);else resetFace()}
+  $('#tkK3').textContent=c1?`best quiz, Chapter ${c1.n}`:'best quiz score';
 }
-function resetFace(){$('#face').innerHTML='<b>Select a station</b><p>Tap a chapter or lab above to see its status, then open it.</p>'}
-function showFace(c,kind){
-  const p=progress(c);
-  let status=c.href?(p?`Online. You have visited ${p.seen} of ${c.sections} sections${p.best?` and scored ${p.best} / ${c.quiz} on the quiz`:''}.`:'Online.'):'Not yet released. Check back during the semester.';
-  $('#face').innerHTML=`<b>${kind} ${c.n}: ${esc(titleOf(c,kind))}</b><p>${status}</p><div class="row">${c.parts?c.parts.map(p=>`<a class="hbtn go" href="${esc(p.href)}">${esc(p.label.split(':')[0])}</a>`).join(''):`<a class="hbtn go" href="${esc(c.href||'#')}" aria-disabled="${!c.href}">Open ${kind.toLowerCase()}</a>`}<button class="hbtn" id="faceClose">Cancel</button></div>`;
-  $('#faceClose').onclick=()=>{selected=null;press($$('#stations .st'),null);resetFace()};
-}
-const vb=$$('.hmi-nav [data-v]');
-vb.forEach(b=>b.onclick=()=>{press(vb,b);view=b.dataset.v;selected=null;resetFace();renderHmi()});
-
-/* Clock */
-function tick(){$('#clk').textContent=new Date().toLocaleTimeString('en-GB')}
-tick();setInterval(tick,1000);
 
 /* Reset progress */
 $('#resetProg').onclick=()=>{
   if(!confirm('Clear your saved progress and quiz scores on this device?'))return;
   [...CH,...LABS].forEach(c=>{(c.parts||[]).forEach(p=>store.del(p.seenKey));if(c.seenKey)store.del(c.seenKey);if(c.bestKey)store.del(c.bestKey)});
-  renderLists();renderHmi();
+  renderLists();renderStats();
 };
 
 /* Refresh when coming back from a chapter page */
-addEventListener('pageshow',()=>{renderLists();renderHmi()});
-renderLists();renderHmi();
+addEventListener('pageshow',()=>{renderLists();renderStats()});
+renderLists();renderStats();
 })();
 </script>
 <script>
