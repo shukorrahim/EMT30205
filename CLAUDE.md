@@ -31,7 +31,7 @@ now match the numbers of the lecturer's source files again.
 
 | Ch | Title | Owns | Links back to |
 |---|---|---|---|
-| 1 | Introduction to SCADA (two weeks: Part 1 `chapter1.html` 1.1–1.5; Part 2 "SCADA in Practice" `chapter1b.html` 1.6–1.12) | control philosophy, SCADA parts, RTU vs PLC, data flow (Part 1); requirements, alarms, advantages, TNB, what an HMI is (1.10), industries (Part 2) | – |
+| 1 | Introduction to SCADA | control philosophy, SCADA parts, RTU vs PLC, alarms, what an HMI is (1.10) | – |
 | 2 | Communication Protocols | protocol idea, envelope, OSI, TCP/IP, Ethernet/CSMA-CD, Modbus, IEC 60870-5, DNP3, IEC 61850/GOOSE | serial details → Ch 3 |
 | 3 | Serial Communication | RS-232/422/485, differential signalling, half/full duplex, converters, nodes, wired topologies (bus, ring, star, tree), PLC networking | OSI and "what is a protocol" → Ch 2 |
 | 4 | Human Machine Interface (Part 1) | HMI in the loop, input/output, architecture under the screen, evolution, industries, the 5 HMI design rules (schematic, colour, layout, values, consistency) | "what is an HMI" → Ch 1.10 |
@@ -62,8 +62,7 @@ now match the numbers of the lecturer's source files again.
 - Every page except the homepage links back to `index.html` in three places: "← Course homepage"
   at the top of the hero (`.hero .back`), in the desktop side menu (`.side .home`), and as the
   first item of the phone/tablet section menu (`<li class="home-m">⌂ Home</li>` in `#navlist`).
-- Progress keys: Chapter 1 Part 1 uses `scada-seen` / `ch1a-best`, Part 2 `ch1b-seen` / `ch1b-best`
-  (each part has its own quiz and class game; a split chapter is two entries in `CH` with `part:1` / `part:2`). New pages use their own keys
+- Progress keys: Chapter 1 uses `scada-seen` / `scada-best`. New pages use their own keys
   (e.g. `ch2-seen`, `ch2-best`) and must be registered in the homepage `CH` array.
 
 ## Phones (iOS and Android)
