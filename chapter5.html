@@ -497,6 +497,50 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 .hlamp.am.on{background:#E3B23F;box-shadow:0 0 14px #E3B23F}
 .hlamp.dn{background:#1B5AA6;border-color:#5AA8FF}
 .clock{font:700 26px var(--cond);color:#7FE3FF;font-variant-numeric:tabular-nums}
+/* 5.1 PLC and HMI: ladder ↔ address ↔ HMI */
+.pvh{display:grid;grid-template-columns:1fr;gap:10px;align-items:stretch;margin:12px 0 6px;max-width:900px}
+@media (min-width:760px){.pvh{grid-template-columns:1fr auto 1fr}}
+.pvh ul{margin:6px 0 0;padding-left:20px;font-size:16px}
+.pvh-t{font-family:var(--cond);font-size:22px}
+.pvh-link{display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 30px var(--cond);color:var(--sel)}
+.pvh-link span{font:600 13px var(--body);text-transform:uppercase;letter-spacing:.08em}
+.lk{display:grid;grid-template-columns:1fr;gap:12px}
+.lk-a{order:1}.lk-b{order:2}.lk-c{order:3}
+@media (min-width:900px){.lk{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:"a c" "b b"}.lk-a{grid-area:a}.lk-b{grid-area:b}.lk-c{grid-area:c}}
+.lk-pane{min-width:0}
+.lk-h{font-family:var(--cond);font-weight:600;font-size:19px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.lk-no{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--sel);color:var(--sel-ink);align-items:center;justify-content:center;font-size:15px}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px}
+.board svg{display:block;min-width:520px;width:100%;height:auto}
+.board text{font-family:var(--body);fill:var(--ink)}
+.lad .w{stroke:var(--ink);stroke-width:2;fill:none}
+.lad .w.p{stroke:#16A34A;stroke-width:3.5;stroke-dasharray:9 6;animation:flow .7s linear infinite}
+.lad .ct{stroke:var(--ink);stroke-width:2.4;fill:none}
+.lad .ct.p{stroke:#16A34A}
+.lad .cbg{fill:transparent}.lad .cbg.p{fill:rgba(22,163,74,.22)}
+.lad .coil{fill:var(--panel);stroke:var(--ink);stroke-width:2.2}.lad .coil.on{fill:rgba(22,163,74,.35)}
+.lad .tbox{fill:var(--panel);stroke:var(--ink);stroke-width:2}.lad .tbox.p{stroke:#16A34A;stroke-width:3}.lad .tbox.done{fill:rgba(22,163,74,.18)}
+.lad .rail{stroke:var(--ink);stroke-width:3}
+.lad .nm{font-size:11px;fill:var(--ink2)}
+.lad .pvt{font:700 12px Consolas,monospace;fill:#16A34A}
+.lad .hit{fill:transparent;cursor:pointer}
+.lad .ring{fill:none;stroke-width:3;opacity:0;transition:opacity .2s}
+.lad .ring.on{opacity:1}
+.adr{display:inline-block;font:700 12px Consolas,monospace;color:#fff;border-radius:10px;padding:2px 8px;cursor:pointer;border:0;line-height:1.4;white-space:nowrap}
+.lk-scr{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px}
+.lk-obj{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border:2px solid transparent;border-radius:6px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.lk-obj.hl{background:rgba(255,255,255,.08)}
+.lk-cap{font-size:12px;color:#8A99A6;line-height:1.3}
+.lk-stop{background:#9E2A2E;border-color:#C23A3F}.lk-stop.on{background:#5E1215}
+.lk-start.on{background:#1C5A26}
+.hbit{user-select:none;-webkit-user-select:none;touch-action:none}
+.lk-tab td,.lk-tab th{font:14px/1.35 var(--body)}
+.lk-tab td:nth-child(2){font-family:Consolas,monospace}
+.lk-tab td.v{white-space:nowrap;font:700 14px Consolas,monospace}
+.lk-tab tbody tr{cursor:pointer}
+.lk-tab tr.hl td{background:var(--sel-soft)}
+.lk-tab td.v.on{color:var(--ok)}
+@media (max-width:600px){.lk-scr{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* Phones and tablets (iOS and Android) */
 @media (max-width:600px){
   .panel{padding:14px}main{padding:0 14px 60px}
@@ -554,7 +598,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     </div>
     <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
   </div>
-  <p class="lead">In <a href="chapter4.html">Chapter 4 (HMI Part 1)</a> you learned what makes a good HMI. Now you build one. This chapter covers the components on an HMI screen, how they talk to the PLC, and the CX-Designer tutorials from the notes: Tutorial 1 (your first screen) and Tutorial 2 (a production counter and three products).</p>
+  <p class="lead">In <a href="chapter4.html">Chapter 4 (HMI Part 1)</a> you learned what makes a good HMI. Now you build one. This chapter covers how a ladder diagram links to HMI graphics through PLC addresses, the components on an HMI screen, how they talk to the PLC, and the CX-Designer tutorials from the notes: Tutorial 1 (your first screen) and Tutorial 2 (a production counter and three products).</p>
   <div class="ticker">
     <div><div class="k">Components</div><div class="v">7</div></div>
     <div><div class="k">Software</div><div class="v">CX-Designer</div></div>
@@ -564,8 +608,43 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 </header>
 
 <!-- 5.1 -->
+<section class="topic" id="s0">
+  <h2><span class="n">5.1</span>Introduction to PLC and HMI</h2>
+  <div class="key"><b>Key idea</b>The PLC runs the ladder diagram; the HMI shows it on a screen. They meet at the <strong>address</strong>: a contact or coil in the ladder and an object on the HMI that use the same address are two views of the same bit.</div>
+  <div class="ana"><b>Analogy: the kitchen and the order screen</b>In a fast-food shop the kitchen (the PLC) does the cooking, following its recipe (the ladder). The order screen at the counter (the HMI) only takes orders and shows "Order 25 ready". The order number (the address) is what connects them: both sides look at the same number. <i>(Analogi: dapur dan skrin pesanan. Di kedai makanan segera, dapur (PLC) yang memasak mengikut resipinya (rajah tangga). Skrin pesanan di kaunter (HMI) hanya mengambil pesanan dan memaparkan "Pesanan 25 siap". Nombor pesanan (alamat) yang menghubungkan kedua-duanya: kedua-dua pihak melihat nombor yang sama.)</i></div>
+  <div class="pvh">
+    <div class="panel"><b class="pvh-t">The PLC</b><ul><li>Reads the field inputs (switches, sensors).</li><li>Runs the ladder diagram, scan after scan.</li><li>Switches the outputs (motors, lamps).</li><li>Keeps running even if the HMI is unplugged.</li></ul></div>
+    <div class="pvh-link" aria-hidden="true"><span>address</span>⇆</div>
+    <div class="panel"><b class="pvh-t">The HMI</b><ul><li><strong>Writes</strong> to PLC addresses when the operator presses a button.</li><li><strong>Reads</strong> PLC addresses to light lamps and show numbers.</li><li>Has no control logic of its own.</li><li>Is the operator's window into the PLC.</li></ul></div>
+  </div>
+
+  <h3>Linking ladder diagrams to HMI graphics</h3>
+  <div class="prose"><p>Here is one small job: a motor with START and STOP buttons on the HMI, a run timer, and a READY lamp. Look at it three ways: the <b>ladder diagram</b> in the PLC, the <b>addresses</b> it uses, and the <b>HMI screen</b>. Tap any address, contact, coil, table row or screen object: the same address lights up in all three. Then press the HMI buttons and watch the ladder.</p></div>
+  <div class="ctrl"><button class="btn primary" id="lkTrace">▶ Trace a START press, step by step</button><button class="btn" id="lkNext" hidden>Next step ▶</button><button class="btn" id="lkReset">Reset</button><span class="stepn" id="lkN"></span></div>
+  <div class="lk">
+    <div class="lk-pane lk-a"><div class="lk-h"><span class="lk-no">1</span>Ladder diagram (in the PLC)</div><div class="board scroll-x" id="lkLad"></div><div class="pan-hint">↔ Swipe sideways to see the whole ladder</div></div>
+    <div class="lk-pane lk-c"><div class="lk-h"><span class="lk-no">3</span>HMI screen (CX-Designer)</div>
+      <div class="hmi"><div class="hmi-title"><b>SCREEN 1 · MOTOR M-1</b><span class="meta">Run mode</span></div>
+        <div class="lk-scr" id="lkScr">
+          <div class="lk-obj" data-ad="200.00"><button class="hbit lk-start" id="lkStart">START</button><span class="lk-cap">Bit button</span></div>
+          <div class="lk-obj" data-ad="200.01"><button class="hbit lk-stop" id="lkStop">STOP</button><span class="lk-cap">Bit button</span></div>
+          <div class="lk-obj" data-ad="010.00"><div class="hlamp g" id="lkMotor"></div><span class="lk-cap">MOTOR · Bit lamp</span></div>
+          <div class="lk-obj" data-ad="T000"><div class="hdisp" id="lkPv">0050</div><span class="lk-cap">Run timer PV · Numeric display</span></div>
+          <div class="lk-obj" data-ad="010.01"><div class="hlamp" id="lkReady"></div><span class="lk-cap">READY · Bit lamp</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="lk-pane lk-b"><div class="lk-h"><span class="lk-no">2</span>The addresses that link them</div>
+      <div class="scroll-x"><table class="mem lk-tab" id="lkTab"><thead><tr><th>Address</th><th>Tag</th><th>Type</th><th>In the ladder</th><th>On the HMI</th><th>HMI</th><th>Value</th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </div>
+  <div class="say" id="lkSay" aria-live="polite">Tap an address to see where it appears, or press <b>START</b> on the HMI screen.</div>
+  <div class="note"><b>Why are START and STOP work bits (200.00, 200.01) and not inputs (000.00)?</b> The input area holds the real switches wired to the PLC terminals. At the start of every scan the PLC copies the terminals into 000.00 to 000.11, so anything the HMI writes there is wiped out straight away. HMI buttons therefore write to <a href="lab2.html#s4">work bits (internal relays, Lab 2)</a>, and the ladder uses those bits as contacts.</div>
+</section>
+
+<!-- 5.2 -->
 <section class="topic" id="s1">
-  <h2><span class="n">5.1</span>The HMI component toolkit</h2>
+  <h2><span class="n">5.2</span>The HMI component toolkit</h2>
   <div class="key"><b>Key idea</b>Every component on an HMI screen is linked to one address in the PLC. Some components <b>write</b> to the PLC (buttons, entries); others <b>read</b> from it (lamps, displays).</div>
   <div class="prose"><p>Use the components on this live panel and watch the PLC memory on the right change. Tap a component's name to read about it.</p></div>
   <div class="kitw">
@@ -576,9 +655,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="ana" id="kAna"><b>Analogy</b>Tap a component name to see its everyday twin.</div>
 </section>
 
-<!-- 5.2 -->
+<!-- 5.3 -->
 <section class="topic" id="s2">
-  <h2><span class="n">5.2</span>How the HMI talks to the PLC</h2>
+  <h2><span class="n">5.3</span>How the HMI talks to the PLC</h2>
   <div class="key"><b>Key idea</b>The HMI keeps <b>reading</b> the PLC addresses shown on the screen, over and over. When the operator presses something, it <b>writes</b> a new value into the PLC. The PLC program does the rest.</div>
   <div class="ana"><b>Analogy: lockers with numbers</b>The PLC memory is a wall of numbered lockers. The HMI keeps opening the lockers it shows (read), and when you press a button it puts a new note into a locker (write). The address is the locker number. <i>(Memori PLC ialah dinding loker bernombor. HMI terus membuka loker yang dipaparkannya (baca), dan apabila anda menekan butang ia meletakkan nota baharu ke dalam loker (tulis). Alamat ialah nombor loker.)</i></div>
   <div class="ctrl"><button class="btn primary" id="tkRead">▶ Show a read cycle</button><button class="btn" id="tkWrite">Press START (write)</button></div>
@@ -596,9 +675,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <p class="muted" style="font-size:15px;margin-top:8px">The cable is one of the links from <a href="chapter3.html#s4">Chapter 3</a> (RS-232) or Ethernet, and the reading works like the master polling in <a href="chapter2.html#s8">Chapter 2.8</a>.</p>
 </section>
 
-<!-- 5.3 -->
+<!-- 5.4 -->
 <section class="topic" id="s3">
-  <h2><span class="n">5.3</span>Building a screen in CX-Designer</h2>
+  <h2><span class="n">5.4</span>Building a screen in CX-Designer</h2>
   <div class="key"><b>Key idea</b>CX-Designer is OMRON's software for drawing HMI screens. You place components on a screen, give each one a PLC address, test it on the PC, then transfer it to the HMI panel.</div>
   <div class="ctrl"><button class="btn" id="cdBack">◀ Back</button><button class="btn primary" id="cdNext">Next step ▶</button><span class="stepn" id="cdN"></span></div>
   <div class="cxd" id="cdWin">
@@ -614,9 +693,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <p class="muted" style="font-size:14px">Menu names and screens differ slightly between CX-Designer versions and HMI models. Follow your lab sheet for the exact clicks; the steps are always the same.</p>
 </section>
 
-<!-- 5.4 -->
+<!-- 5.5 -->
 <section class="topic" id="s4">
-  <h2><span class="n">5.4</span>Tutorial 1: your first HMI screen</h2>
+  <h2><span class="n">5.5</span>Tutorial 1: your first HMI screen</h2>
   <div class="key"><b>Key idea</b>Practise the three questions of Tutorial 1 here before you do them in CX-Designer: add components, give them addresses, then switch to Run mode and test them.</div>
   <div class="chips" id="t1Q" role="group" aria-label="Question"></div>
   <div class="task" id="t1Task"></div>
@@ -634,9 +713,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="say" id="t1Say" aria-live="polite">Add components in <b>Edit</b> mode, then switch to <b>Run</b> to test.</div>
 </section>
 
-<!-- 5.5 -->
+<!-- 5.6 -->
 <section class="topic" id="s5">
-  <h2><span class="n">5.5</span>Tutorial 2: the production counter</h2>
+  <h2><span class="n">5.6</span>Tutorial 2: the production counter</h2>
   <div class="key"><b>Key idea</b>The HMI and the PLC work as a team: the operator sets a target on the HMI, the PLC counter does the counting, and the HMI shows the count and lights a lamp when the target is reached.</div>
   <div class="task"><b>Tutorial 2, Soalan 2:</b> <i>Apabila sejumlah nombor dimasukkan dengan menekan bit button, numeric display akan memaparkan jumlah nombor tersebut. Setelah kiraan nombor tersebut mencapai had yang telah dilaraskan pada numeric entry, bit lamp akan menyala.</i><br>Each press of the bit button adds one to the count shown on the numeric display. When the count reaches the limit set on the numeric entry, the bit lamp lights.</div>
   <div class="steps4" id="ctSteps">
@@ -661,9 +740,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   <div class="note"><b>Good to know:</b> an OMRON <b>CNT</b> counter counts <b>down</b>. Its present value (PV) starts at the set value (SV, here from DM0100) and drops by 1 at each pulse; when PV reaches 0 the counter turns ON. The HMI shows <b>SV − PV</b> so the operator sees the count going up.</div>
 </section>
 
-<!-- 5.6 -->
+<!-- 5.7 -->
 <section class="topic" id="s6">
-  <h2><span class="n">5.6</span>Tutorial 2: three products in three hours</h2>
+  <h2><span class="n">5.7</span>Tutorial 2: three products in three hours</h2>
   <div class="key"><b>Key idea</b>A good HMI puts a complex job on one clear overview screen: which product is running, which is next, and how many have been made.</div>
   <div class="task"><b>Tutorial 2, Soalan 1:</b> <i>Dalam masa 3 jam, sebuah mesin menghasilkan 3 jenis produk yang berlainan dari segi saiz dan bahan.</i> In 3 hours one machine makes 3 products: <b>Product 1</b> 40 mm × 40 mm (iron), <b>Product 2</b> 30 mm × 30 mm (plastic), <b>Product 3</b> 50 mm × 50 mm (aluminium). Solve it with an HMI.</div>
   <div class="ctrl"><button class="btn primary" id="bpGo">▶ Start the 3-hour shift</button><button class="btn" id="bpPause">❚❚ Pause</button><button class="btn" id="bpReset">Reset</button><span class="muted" style="font-size:14px">1 hour here = 20 seconds</span></div>
@@ -677,9 +756,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
   </div>
 </section>
 
-<!-- 5.7 -->
+<!-- 5.8 -->
 <section class="topic" id="s7">
-  <h2><span class="n">5.7</span>The complete HMI system</h2>
+  <h2><span class="n">5.8</span>The complete HMI system</h2>
   <div class="key"><b>Key idea</b>The HMI is the hub between the person, the PLC logic and the physical plant. Good screen design plus correct PLC logic gives the three goals of industry: safety, uptime and consistent quality.</div>
   <figure class="diagram scroll-x wide"><svg viewBox="0 0 900 340" role="img" aria-label="Human, HMI, PLC and plant connected">
     <g fill="none" stroke-width="4"><path d="M450,96 V140" stroke="#1B5AA6" class="flowline"/><path d="M360,200 H230" stroke="#D35400" class="flowline"/><path d="M540,200 H670" stroke="#D35400" class="flowline"/><path d="M150,150 V70 H360" stroke="var(--pipe)" stroke-dasharray="6 6"/><path d="M750,150 V70 H540" stroke="var(--pipe)" stroke-dasharray="6 6"/></g>
@@ -791,12 +870,83 @@ setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEa
 const vis=new Set();
 
 /* ===== Jargon buster ===== */
-const JG=[['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 200.00 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
+const JG=[['Work bit','A sticky note inside the PLC','An internal bit such as 200.00 with no wire to the outside world. HMI buttons write to work bits, not to inputs.'],['Momentary','A doorbell button','A bit button that is ON only while you press it, like START and STOP in 5.1.'],['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 200.00 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
 $('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
 $$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
 setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000);
 
-/* ===== 5.1 component toolkit ===== */
+/* ===== 5.1 PLC and HMI: one address, three views (ladder, address table, HMI screen) ===== */
+(function(){
+  const AD={
+    '200.00':{c:'#2F6FB5',tag:'START_PB',type:'Bit (work bit)',lad:'NO contact on rung 0: starts the motor',hmi:'START bit button (momentary)',dir:'Writes'},
+    '200.01':{c:'#C22E29',tag:'STOP_PB',type:'Bit (work bit)',lad:'NC contact on rung 0: stops the motor',hmi:'STOP bit button (momentary)',dir:'Writes'},
+    '010.00':{c:'#2E7A39',tag:'MOTOR',type:'Bit (output)',lad:'Coil on rung 0, holding contact on rung 0, contact on rung 1',hmi:'MOTOR bit lamp',dir:'Reads'},
+    'T000':{c:'#B87F00',tag:'RUN_TIMER',type:'Word (timer present value)',lad:'TIM 000 #0050 on rung 1 (5 s); its contact TIM000 on rung 2',hmi:'Numeric display',dir:'Reads'},
+    '010.01':{c:'#7B3FB5',tag:'READY',type:'Bit (output)',lad:'Coil on rung 2',hmi:'READY bit lamp',dir:'Reads'}};
+  const m={'200.00':0,'200.01':0,'010.00':0,'010.01':0};let pv=50,done=false,sel=null,vis=true;
+  function scan(){m['010.00']=(m['200.00']||m['010.00'])&&!m['200.01']?1:0;pv=m['010.00']?Math.max(0,pv-1):50;done=!!m['010.00']&&pv===0;m['010.01']=done?1:0}
+  const chip=(ad,x,y)=>`<g data-ad="${ad}" style="cursor:pointer"><rect x="${x-30}" y="${y-12}" width="60" height="18" rx="9" fill="${AD[ad].c}"/><text x="${x}" y="${y+2}" text-anchor="middle" font-size="11" style="fill:#fff;font-weight:700;font-family:Consolas,monospace">${ad}</text></g>`;
+  function svg(){const P=[],a=!!m['200.00'],h=!!m['010.00'],s=!m['200.01'];
+    const w=(x1,y1,x2,y2,p)=>P.push(`<path class="w${p?' p':''}" d="M${x1},${y1}L${x2},${y2}"/>`);
+    const ring=(ad,x,y,wd,ht)=>P.push(`<rect class="ring${sel===ad?' on':''}" x="${x}" y="${y}" width="${wd}" height="${ht}" rx="6" style="stroke:${AD[ad].c}"/>`);
+    function ct(cx,y,ad,tag,nc,closed,label){P.push(`<rect class="cbg${closed?' p':''}" x="${cx-12}" y="${y-13}" width="24" height="26"/><path class="ct${closed?' p':''}" d="M${cx-12},${y-13}V${y+13}M${cx+12},${y-13}V${y+13}${nc?`M${cx-16},${y+13}L${cx+16},${y-13}`:''}"/>`);
+      P.push(label?`<text x="${cx}" y="${y-20}" text-anchor="middle" font-size="12" style="font-family:Consolas,monospace">${label}</text>`:chip(ad,cx,y-22));
+      P.push(`<text class="nm" x="${cx}" y="${y+30}" text-anchor="middle">${tag}</text>`);ring(ad,cx-40,y-38,80,76);P.push(`<rect class="hit" data-ad="${ad}" x="${cx-40}" y="${y-38}" width="80" height="76"/>`)}
+    function coil(cx,y,ad,on){P.push(`<circle class="coil${on?' on':''}" cx="${cx}" cy="${y}" r="14"/>`,chip(ad,cx,y-24),`<text class="nm" x="${cx}" y="${y+32}" text-anchor="middle">${AD[ad].tag}</text>`);ring(ad,cx-38,y-40,76,80);P.push(`<rect class="hit" data-ad="${ad}" x="${cx-38}" y="${y-40}" width="76" height="80"/>`)}
+    // rung 0: (START OR MOTOR) AND NOT STOP → MOTOR
+    w(24,60,98,60,1);ct(110,60,'200.00','START_PB',0,a);w(122,60,160,60,a);
+    w(60,60,60,140,1);w(60,140,98,140,1);ct(110,140,'010.00','MOTOR (hold)',0,h);w(122,140,160,140,h);w(160,140,160,60,h);
+    w(160,60,218,60,a||h);ct(230,60,'200.01','STOP_PB',1,s);w(242,60,456,60,(a||h)&&s);coil(470,60,'010.00',h);w(484,60,536,60,0);
+    // rung 1: MOTOR → TIM 000 #0050
+    w(24,230,98,230,1);ct(110,230,'010.00','MOTOR',0,h);w(122,230,380,230,h);
+    P.push(`<rect class="tbox${h?' p':''}${done?' done':''}" x="380" y="206" width="100" height="58" rx="3"/><text x="430" y="226" text-anchor="middle" font-size="14" style="font-weight:700">TIM 000</text><text x="430" y="248" text-anchor="middle" font-size="13">#0050</text>`,
+      chip('T000',430,190),`<text class="pvt" x="430" y="282" text-anchor="middle">PV ${String(pv).padStart(4,'0')}</text>`);
+    ring('T000',372,172,116,118);P.push(`<rect class="hit" data-ad="T000" x="372" y="172" width="116" height="118"/>`);
+    // rung 2: TIM000 → READY
+    w(24,345,98,345,1);ct(110,345,'T000','timer done',0,done,'TIM000');w(122,345,456,345,done);coil(470,345,'010.01',!!m['010.01']);w(484,345,536,345,0);
+    const H=410;P.unshift(`<path class="w p" d="M24,0V${H}" style="stroke-width:4"/><path class="rail" d="M536,0V${H}"/>`);
+    P.push(`<text x="30" y="${H-6}" font-size="11" class="nm" style="text-anchor:start">Green dashes = power flow. Tap an address to link it.</text>`);
+    return `<svg class="lad" viewBox="0 0 560 ${H}" role="img" aria-label="Ladder diagram: START and STOP latch the MOTOR output, a timer then turns on READY">${P.join('')}</svg>`}
+  const tb=$('#lkTab tbody');
+  // the table is built once and only its values change, so taps on it are never lost to a redraw
+  tb.innerHTML=Object.keys(AD).map(ad=>{const d=AD[ad];
+    return `<tr data-ad="${ad}"><td><button class="adr" data-ad="${ad}" style="background:${d.c}">${ad}</button></td><td>${d.tag}</td><td>${d.type}</td><td>${d.lad}</td><td>${d.hmi}</td><td><b>${d.dir}</b></td><td class="v"></td></tr>`}).join('');
+  function table(){$$('#lkTab tbody tr').forEach(tr=>{const ad=tr.dataset.ad,c=tr.querySelector('.v');tr.classList.toggle('hl',sel===ad);
+    c.textContent=ad==='T000'?String(pv).padStart(4,'0'):(m[ad]?'1 (ON)':'0 (OFF)');c.classList.toggle('on',ad!=='T000'&&!!m[ad])})}
+  function hmi(){$('#lkMotor').classList.toggle('on',!!m['010.00']);$('#lkReady').classList.toggle('on',!!m['010.01']);$('#lkPv').textContent=String(pv).padStart(4,'0');
+    $('#lkStart').classList.toggle('on',!!m['200.00']);$('#lkStop').classList.toggle('on',!!m['200.01']);
+    $$('#lkScr .lk-obj').forEach(o=>{const on=o.dataset.ad===sel;o.classList.toggle('hl',on);o.style.borderColor=on?AD[o.dataset.ad].c:'transparent'})}
+  function render(){$('#lkLad').innerHTML=svg();table();hmi()}
+  function pick(ad){sel=sel===ad?null:ad;if(sel){const d=AD[sel];$('#lkSay').innerHTML=`<b style="color:${d.c}">${sel} · ${d.tag}</b> (${d.type}). <b>In the ladder:</b> ${d.lad}. <b>On the HMI:</b> ${d.hmi}. The HMI <b>${d.dir.toLowerCase()}</b> this address${d.dir==='Writes'?': the operator changes it, the ladder uses it.':': the ladder changes it, the screen shows it.'}`}render()}
+  // the ladder is redrawn while the timer runs, so it reacts on pointerdown (a click could land on a replaced element)
+  $('#lkLad').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-ad]');if(t)pick(t.dataset.ad)});
+  ['#lkTab','#lkScr'].forEach(s=>$(s).addEventListener('click',e=>{const t=e.target.closest('[data-ad]');if(t&&!e.target.closest('.hbit'))pick(t.dataset.ad)}));
+  // HMI bit buttons are momentary: ON while pressed
+  [['#lkStart','200.00'],['#lkStop','200.01']].forEach(([s,ad])=>{const b=$(s);
+    const dn=e=>{e.preventDefault();m[ad]=1;sel=ad;scan();render()},up=()=>{if(m[ad]){m[ad]=0;scan();render()}};
+    b.addEventListener('pointerdown',dn);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,up));
+    b.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')dn(e)});b.addEventListener('keyup',up)});
+  // step-by-step trace
+  let st=-1;
+  const STEPS=[
+    [()=>{Object.keys(m).forEach(k=>m[k]=0);pv=50},null,'<b>Start.</b> Everything is OFF. The PLC scans the ladder again and again, and the HMI keeps reading 010.00, T000 and 010.01 to update its screen.'],
+    [()=>{m['200.00']=1},'200.00','<b>1. The operator presses START.</b> The HMI <b>writes</b> 1 into work bit <b>200.00</b> (blue).'],
+    [()=>{},'010.00','<b>2. Next PLC scan:</b> the 200.00 contact closes, power reaches coil <b>010.00</b> and the MOTOR output turns ON. The 010.00 contact under START now holds it ON.'],
+    [()=>{m['200.00']=0},'010.00','<b>3. The operator lets go.</b> The HMI writes 0 to 200.00, but the motor stays ON through the holding contact. The HMI <b>reads</b> 010.00 = 1, so the green MOTOR lamp lights.'],
+    [()=>{},'T000','<b>4. Rung 1:</b> contact 010.00 runs timer TIM 000 (5 s). The numeric display on the HMI <b>reads</b> the timer\'s present value, <b>T000</b>, and shows it counting down.'],
+    [()=>{},'010.01','<b>5. When the PV reaches 0</b>, contact TIM000 closes rung 2 and output <b>010.01</b> turns ON. The HMI reads it and the READY lamp lights.'],
+    [()=>{m['200.01']=1;setTimeout(()=>{m['200.01']=0},700)},'200.01','<b>6. The operator presses STOP.</b> The HMI writes 1 to <b>200.01</b>, the NC contact opens, the motor drops out, the timer resets and READY goes OFF. Now try the buttons yourself.']];
+  function step(i){st=i;const s=STEPS[i];s[0]();sel=s[1];scan();$('#lkSay').innerHTML=s[2];$('#lkN').textContent=`Step ${i} of ${STEPS.length-1}`;
+    $('#lkNext').hidden=i>=STEPS.length-1;render()}
+  $('#lkTrace').onclick=()=>step(0);$('#lkNext').onclick=()=>step(st+1);
+  $('#lkReset').onclick=()=>{Object.keys(m).forEach(k=>m[k]=0);pv=50;sel=null;st=-1;$('#lkN').textContent='';$('#lkNext').hidden=true;$('#lkSay').innerHTML='Tap an address to see where it appears, or press <b>START</b> on the HMI screen.';render()};
+  new IntersectionObserver(es=>es.forEach(e=>vis=e.isIntersecting),{rootMargin:'200px 0px'}).observe($('#s0'));
+  let last='';
+  setInterval(()=>{if(document.hidden)return;scan();const sig=JSON.stringify([m,pv,sel]);if(vis&&sig!==last){last=sig;render()}},100);
+  render();
+})();
+
+/* ===== 5.2 component toolkit ===== */
 const KM={'200.00':0,'200.01':0,'DM0100':500,'DM0101':52,'DM0102':0};
 const KUSE={'200.00':'bit button + bit lamp','200.01':'slide switch','DM0100':'numeric entry','DM0101':'numeric display','DM0102':'word button'};
 const KW=[['bb','Bit button','200.00','writes','A toggle that sends an ON/OFF signal to one bit in the PLC.','A light switch','Suis lampu: tekan sekali untuk hidup, tekan lagi untuk mati.'],
