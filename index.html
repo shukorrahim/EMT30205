@@ -92,8 +92,6 @@ a.tile:hover,a.tile:focus-visible{transform:scale(1.035);box-shadow:0 14px 30px 
 a.tile:focus-visible{outline:none;border-color:var(--gold)}
 .tile-top{background:linear-gradient(160deg,#25458C 0%,#172D63 100%);color:#fff;padding:20px 20px 16px;border-bottom:5px solid var(--gold);flex:1}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-.tlogo{display:inline-flex;align-items:center;background:#fff;border-radius:10px;padding:6px 10px}
-.tlogo img{display:block;width:86px;height:48px;object-fit:contain}
 .tbadge{background:#fff;color:#172D63;font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border-radius:20px;padding:5px 14px;white-space:nowrap}
 .tbadge.gold{background:var(--gold);color:#1D2433}
 .tkick{font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:#F0B429;margin:0 0 6px}
@@ -227,7 +225,7 @@ button,a,[role=button]{touch-action:manipulation}
   <h3 class="sub-head">Submit your lab work</h3>
   <div class="tiles">
     <a class="tile portal" href="https://script.google.com/a/macros/unimap.edu.my/s/AKfycbxcMv-USJsMtzQATBf1u0_Zi6yC9Km34OyR9jud6OYj29CERWFKfWJdT9snGR0RJD2-/exec" target="_blank" rel="noopener">
-      <div class="tile-top"><div class="trow"><span class="tlogo"><img src="unimap-logo.png" alt="" width="86" height="48"></span><span class="tbadge gold">Submit here</span></div>
+      <div class="tile-top"><div class="trow"><span class="tbadge gold">Submit here</span></div>
         <div class="tkick">Lab reports · Lab assessments · Attendance</div><div class="ttitle">Smart Portal</div>
         <div class="tsub">Answer and submit your lab reports and lab assessments, and check in for class. Sign in with your UniMAP account.</div>
         <div class="tmeta">Opens in a new tab · @unimap.edu.my account needed</div></div>
@@ -334,14 +332,13 @@ setThemeLabel();
 tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
 
 /* Lists: one tile per chapter or lab (the same tiles as the Smart Portal) */
-const LOGO='<img src="unimap-logo.png" alt="" width="86" height="48">';
 function card(c,kind,latest){
   const live=!!c.href, p=progress(c);
   const badge=!live?'Coming soon':c===latest?'Latest':'Available';
   const meta=live?`${c.sections} sections${c.quiz?` · ${c.quiz}-question quiz`:''}`:`Notes for this ${kind.toLowerCase()} will be posted during the semester`;
   const foot=live?`<span class="tf-l">${p.seen} of ${c.sections} sections visited${p.best?` · best quiz ${p.best} / ${c.quiz}`:''}<span class="bar"><i style="width:${p.pct}%"></i></span></span><span class="tf-go">Open →</span>`
     :'<span class="tf-l">Not open yet</span>';
-  const inner=`<div class="tile-top"><div class="trow"><span class="tlogo">${LOGO}</span><span class="tbadge${badge==='Latest'?' gold':''}">${badge}</span></div>
+  const inner=`<div class="tile-top"><div class="trow"><span class="tbadge${badge==='Latest'?' gold':''}">${badge}</span></div>
     <div class="tkick">${kind} ${c.n}${c.part?` · Part ${c.part}`:''} · EMT30205</div><div class="ttitle">${esc(titleOf(c,kind))}</div>
     <div class="tsub">${esc(c.desc||'')}</div><div class="tmeta">${meta}</div></div><div class="tile-foot">${foot}</div>`;
   return live?`<li class="tl" data-live="true"><a class="tile" href="${esc(c.href)}">${inner}</a></li>`
