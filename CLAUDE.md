@@ -11,6 +11,8 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
 - `lab1.html`, `lab2.html`, ... — Lab 1 is an interactive OMRON CPM1A / CX-Programmer simulation.
   Lab 3 (Timer, the module's "Lab 4") is theory only: the lecturer builds the lab tasks in Google Apps Script,
   so lab pages from Lab 3 on explain the topic and do not contain the task-sheet answers.
+  Lab 4 (Counter and Timer, the module's "Lab 5") shows the conveyor task running as described, but not its
+  ladder, mnemonic code or timing diagram. Labs have no jargon buster and no class game.
 - `game.html` — "HMI Challenge", a live Kahoot-style class game (10 Chapter 4 questions, linked from
   the Chapter 4 class game section). The lecturer hosts on the projector; students join on phones with
   a 6-character room code. Messages go through the same public MQTT brokers, AES-GCM encrypted with a

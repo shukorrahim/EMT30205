@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<title>Lab 4: Counter and Timer | Monitoring System Integration</title>
+<meta name="description" content="Interactive Lab 4 for EMT30205: PLC counters (up, down, up/down), the OMRON CNT instruction, counter applications, and a conveyor that uses a counter and a timer together.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#D9DCDF; --panel:#F3F4F5; --panel2:#E7E9EB; --ink:#1D2730; --ink2:#4B5661;
+  --line:#A3ACB3; --pipe:#5B6771; --sel:#1B5AA6; --sel-ink:#fff; --sel-soft:#DCE7F5;
+  --ok:#2E7A39; --warn:#B87F00; --alarm:#C22E29; --off:#9AA3AA;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --cond:"Barlow Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}}
+:root[data-theme="dark"]{
+  --canvas:#1E252B; --panel:#283037; --panel2:#313A42; --ink:#E3E7EA; --ink2:#A9B3BB;
+  --line:#56626B; --pipe:#8E9AA3; --sel:#71A6EA; --sel-ink:#0E1A27; --sel-soft:#233447;
+  --ok:#62BD6E; --warn:#E3B23F; --alarm:#EE6560; --off:#58636C;}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:400 17px/1.6 var(--body)}
+h1,h2,h3{font-family:var(--cond);font-weight:600;line-height:1.1;margin:0}
+p{margin:0 0 1em}
+button{font:inherit;color:inherit}
+a{color:var(--sel)}
+:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+img,svg{max-width:100%}
+button,a,input,label,select,[role=button]{touch-action:manipulation}
+
+/* Layout and nav (same as Chapter 1) */
+.layout{display:grid;grid-template-columns:minmax(0,1fr);min-height:100vh}
+@media (min-width:1080px){.layout{grid-template-columns:250px minmax(0,1fr)}}
+nav.side{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.side .brand{display:none}
+.side ol{list-style:none;margin:0;padding:8px 10px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.side a{display:block;white-space:nowrap;text-decoration:none;color:var(--ink2);font-size:15px;padding:6px 10px;border-radius:3px}
+.side a .n{font-family:var(--cond);font-weight:600;margin-right:6px;color:var(--ink2)}
+.side a.seen .n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:5px;vertical-align:2px}
+.side a.here{background:var(--sel);color:var(--sel-ink)} .side a.here .n{color:var(--sel-ink)}
+.side .home{display:none}
+@media (min-width:1080px){
+  nav.side{height:100vh;height:100dvh;border-bottom:0;border-right:1px solid var(--line);overflow-y:auto;padding-bottom:20px}
+  .side .brand{display:block;padding:22px 18px 12px}
+  .side .brand b{display:block;font-family:var(--cond);font-size:22px;font-weight:700;line-height:1.1}
+  .side .brand span{font-size:14px;color:var(--ink2)}
+  .side .home{display:block;margin:0 18px 6px;font-size:14px}
+  .side ol{flex-direction:column;overflow:visible;padding:6px 10px}
+  .side a{white-space:normal}
+  .side .progress{margin:14px 18px 0;font-size:14px;color:var(--ink2)}
+}
+.side .progress{display:none}
+@media (min-width:1080px){.side .progress{display:block}}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+main{padding:0 20px 60px;min-width:0}
+.wrap{max-width:1040px;margin:0 auto}
+.prose{max-width:720px}
+
+/* Hero */
+header.hero{padding:44px 0 34px}
+.hero .back{font-size:15px;text-decoration:none;display:inline-block;margin-bottom:6px;padding:10px 0}
+.hero .course{font-size:16px;color:var(--ink2);margin-bottom:10px}
+.hero h1{font-size:clamp(42px,7.5vw,88px);font-weight:700;letter-spacing:-.01em}
+.hero h1 small{display:block;font-size:.36em;font-weight:500;color:var(--ink2);letter-spacing:0;margin-top:8px}
+.hero .by{margin-top:16px;color:var(--ink2);font-size:15px}
+.hero-fig{margin:26px 0 0}
+.hero-fig svg{display:block;width:100%;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+.hero-fig svg text{fill:var(--ink);font-family:var(--body)}
+.hero-fig .lb{font-family:var(--cond);font-weight:600}
+.hero-fig .dim{fill:var(--ink2)}
+.hero-fig figcaption{font-size:14px;color:var(--ink2);margin-top:8px}
+.ticker{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.ticker div{background:var(--panel);padding:10px 14px}
+.ticker .k{font-size:14px;color:var(--ink2)}
+.ticker .v{font-family:var(--cond);font-size:28px;font-weight:600}
+.objectives{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:8px;max-width:760px}
+.objectives li{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px;font-size:16px}
+.objectives b{font-family:var(--cond);font-size:18px;margin-right:6px}
+
+/* Sections */
+section.topic{padding:44px 0 20px;border-top:1px solid var(--line)}
+.topic h2{font-size:clamp(30px,4vw,42px);margin-bottom:18px;display:flex;gap:14px;align-items:baseline}
+.topic h2 .n{font-size:.6em;color:var(--ink2);font-weight:600;min-width:2.2em}
+.topic h3{font-size:24px;margin:28px 0 10px}
+.note{background:var(--sel-soft);padding:12px 16px;border-radius:4px;font-size:16px;margin:16px 0}
+.note b{font-weight:600}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:18px}
+.muted{color:var(--ink2)}
+.bm{color:var(--ink2);font-style:italic}
+.topic h2{flex-wrap:wrap;row-gap:6px}
+.topic h2 .badge{white-space:nowrap;align-self:center}
+.badge{display:inline-block;font-family:var(--body);font-size:13px;font-weight:600;padding:2px 8px;border-radius:3px;background:var(--warn);color:#1D1600;vertical-align:4px;margin-left:8px}
+.twocol{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.twocol{grid-template-columns:1fr 1fr}}
+.twocol ul{padding-left:20px;margin:0}
+
+/* Buttons */
+.btn{background:var(--panel);border:1px solid var(--pipe);border-radius:3px;padding:7px 14px;cursor:pointer;font-weight:500;font-size:15px;color:var(--ink)}
+.btn:hover{background:var(--panel2)}
+.btn.primary{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.seg{display:inline-flex;border:1px solid var(--pipe);border-radius:3px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;background:var(--panel);padding:7px 14px;cursor:pointer;font-size:15px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+.side .home-m a{font-weight:600;color:var(--sel)}
+@media (min-width:1080px){.side .home-m{display:none}}
+.chip{border:1px solid var(--pipe);background:var(--panel);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:15px;color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--sel);color:var(--sel-ink);border-color:var(--sel)}
+.chip.right{background:var(--ok);color:#fff;border-color:var(--ok)}.chip.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.chip.used{opacity:.35}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.key{font-size:18px;font-weight:500;border-left:4px solid var(--sel);padding:8px 14px;margin:0 0 14px;background:var(--panel);border-radius:0 4px 4px 0;max-width:760px}
+.key b{display:block;font-family:var(--cond);font-size:14px;font-weight:600;color:var(--sel);text-transform:uppercase;letter-spacing:.06em}
+.fb{min-height:26px;font-size:16px;margin-top:8px}
+.fb.good{color:var(--ok)}.fb.bad{color:var(--alarm)}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.pan-hint{display:none;font-size:12px;color:var(--ink2);text-align:center;padding:4px 0}
+@media (max-width:700px){.pan-hint{display:block}}
+
+/* Ladder boards */
+.board{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px}
+.board svg{display:block;max-width:none}
+.board text{font-family:var(--body);fill:var(--ink)}
+.board .nm{fill:var(--sel);font-size:11px}
+.board .w{stroke:var(--ink);stroke-width:1.8;fill:none}
+.board .w.p{stroke:#16A34A;stroke-width:3.5;stroke-dasharray:9 6;animation:flow .7s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-15}}
+.board .ct{stroke:var(--ink);stroke-width:2.2;fill:none}
+.board .ct.p{stroke:#16A34A}
+.board .cbg{fill:transparent}.board .cbg.p{fill:rgba(22,163,74,.22)}
+.board .coil.on{fill:rgba(22,163,74,.3)}
+.board .hit{fill:transparent;cursor:pointer}
+.board .hit:hover{fill:rgba(27,90,166,.08)}
+.board .sel{fill:none;stroke:var(--sel);stroke-width:2.5;stroke-dasharray:5 3}
+.board .blk{fill:none;stroke:var(--pipe);stroke-width:1.5;stroke-dasharray:7 5;transition:stroke .3s}
+.board .blk.on{stroke:#E8A400;stroke-width:3;fill:rgba(232,164,0,.10)}
+.board .blkL{font-family:var(--cond);font-weight:600;font-size:14px;fill:var(--ink2)}
+.board .rail{stroke:var(--ink);stroke-width:3}
+.lad-hint{font-size:13px;color:var(--ink2);margin:6px 0 0}
+
+/* Mnemonic tables */
+.mn{border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums;min-width:280px}
+.mn th{background:#1F5FA8;color:#fff;font-weight:600;padding:6px 14px;text-align:left}
+.mn td{padding:5px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+.mn td:nth-child(2),.mn td:nth-child(3){background:#FCE7A0;color:#3A2A00;font-weight:600}
+.mn tr.hi td{background:var(--sel);color:var(--sel-ink)}
+.mn tbody tr{cursor:pointer}
+.pair{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+@media (min-width:900px){.pair{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}}
+.def{font-size:17px;margin:8px 0 4px}
+.ana{font-size:15px;color:var(--ink2);margin:0 0 10px}
+.cap{font-size:14px;color:var(--ink2);margin-top:6px}
+
+/* Push button cutaway (L2.2) */
+.nonc{display:grid;grid-template-columns:1fr;gap:16px;align-items:start}
+@media (min-width:900px){.nonc{grid-template-columns:260px minmax(0,1fr)}}
+.pb svg{display:block;width:100%;max-width:260px;margin:0 auto}
+.pb text{font-family:var(--body);fill:var(--ink)}
+#pbMove{transition:transform .18s}
+.pressed #pbMove{transform:translateY(22px)}
+.pbtn{display:block;margin:8px auto 0;padding:10px 18px;border-radius:24px;border:0;background:#C22E29;color:#fff;font-weight:600;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none}
+.pbtn.on{background:#7E1A1D}
+.three{display:grid;gap:10px}
+.three .r{display:grid;grid-template-columns:minmax(0,1fr) 70px;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.three .r b{font-family:var(--cond);font-size:17px;display:block}
+.three .r span{font-size:13px;color:var(--ink2)}
+.bulb{width:46px;height:46px;border-radius:50%;margin:0 auto;background:#4A3A12;border:3px solid #6B5A2A;transition:background .15s,box-shadow .15s}
+.bulb.on{background:radial-gradient(circle at 40% 35%,#FFF6C2,#FFC400 55%,#E09000);box-shadow:0 0 18px 6px rgba(255,196,0,.6);border-color:#FFE082}
+
+/* Motor and push buttons (L2.3, kit) */
+.rig{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:10px}
+.mbtn{width:84px;height:84px;border-radius:50%;border:4px solid #222;color:#fff;font:700 15px var(--cond);cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;box-shadow:0 5px 0 #222;transition:transform .08s,box-shadow .08s}
+.mbtn.go{background:#2E7A39}.mbtn.st{background:#C22E29}
+.mbtn.down{transform:translateY(5px);box-shadow:0 0 0 #222}
+.motor{width:110px;text-align:center;font-size:14px;color:var(--ink2)}
+.motor svg{width:90px;height:90px;display:block;margin:0 auto}
+.fan{transform-origin:45px 45px}
+.motor.on .fan{animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.explain{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:0 6px 6px 0;padding:10px 14px;font-size:16px;min-height:64px;margin-top:12px}
+.explain b{color:var(--sel)}
+
+/* Kit (inputs and lamps) */
+.kit{background:#2B3238;color:#E6EBEF;border-radius:8px;padding:12px;border:1px solid #11161A;box-shadow:inset 0 0 0 3px #3B444C;margin-top:12px}
+.kit h4{margin:0 0 6px;font:600 15px var(--cond);color:#AEB9C2}
+.kit-io{display:grid;grid-template-columns:1fr;gap:12px}
+@media (min-width:760px){.kit-io{grid-template-columns:3fr 2fr}}
+.swg{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.sw{background:#1E2429;border:1px solid #4A555E;border-radius:6px;padding:6px 2px;cursor:pointer;color:#E6EBEF;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;min-height:62px}
+.sw i{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FF8A80,#C62828 60%,#7F1010);box-shadow:0 3px 0 #5A0B0B}
+.sw[aria-pressed="true"]{border-color:#FFD54F}.sw[aria-pressed="true"] i{transform:translateY(3px);box-shadow:0 0 0 3px #FFD54F}
+.lmg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.lm{background:#1E2429;border:1px solid #4A555E;border-radius:6px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;min-height:62px}
+.lm i{width:24px;height:24px;border-radius:50%;background:#4A3A12;border:2px solid #6B5A2A}
+.lm.on i{background:radial-gradient(circle at 40% 35%,#FFF6C2,#FFC400 55%,#E09000);box-shadow:0 0 12px 4px rgba(255,196,0,.6)}
+.ir{display:inline-flex;align-items:center;gap:8px;background:#1E2429;border:1px solid #4A555E;border-radius:6px;padding:6px 12px;font-size:14px;margin-top:8px}
+.ir i{width:16px;height:16px;border-radius:3px;background:#3A4148}
+.ir.on i{background:#3FE36C;box-shadow:0 0 8px #3FE36C}
+
+/* Stepper (L2.5) */
+.stepcap{background:#FFF7DD;border:1px solid #E8A400;border-radius:6px;padding:10px 14px;font-size:16px;min-height:56px;margin-top:10px;color:#3A2A00}
+:root[data-theme="dark"] .stepcap{background:#3A2E10;color:#FCE7A0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stepcap{background:#3A2E10;color:#FCE7A0}}
+
+/* CX mnemonic editor (L2.6) */
+.cxw{background:#F0F0F0;color:#1A1A1A;border:1px solid #707070;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);font:14px/1.4 "Segoe UI",Tahoma,system-ui,sans-serif}
+.cxw .tt{background:#fff;padding:6px 10px;border-bottom:1px solid #DADADA;display:flex;gap:8px;align-items:center;white-space:nowrap;overflow:hidden}
+.cxw .tt i{width:14px;height:14px;border-radius:2px;background:linear-gradient(135deg,#1B6AC9,#00A3E0);flex:none}
+.cxw .tb{display:flex;flex-wrap:wrap;gap:6px;padding:6px 8px;background:#F7F7F7;border-bottom:1px solid #D5D5D5}
+.wb{font:inherit;font-size:13px;background:#E1E1E1;border:1px solid #ADADAD;border-radius:2px;padding:5px 12px;cursor:pointer;color:#1A1A1A}
+.wb:hover{background:#E5F1FB;border-color:#0078D7}
+.wb.pri{border-color:#0078D7;box-shadow:inset 0 0 0 1px #0078D7}
+.cxgrid{display:grid;grid-template-columns:1fr;gap:0}
+@media (min-width:900px){.cxgrid{grid-template-columns:380px minmax(0,1fr)}}
+.ed{background:#fff;padding:8px;border-right:1px solid #D5D5D5}
+.ed table{border-collapse:collapse;width:100%}
+.ed th{font-weight:600;color:#555;font-size:12px;text-align:left;padding:4px}
+.ed td{padding:2px 4px}
+.ed select,.ed input{font:14px Consolas,"Courier New",monospace;padding:4px 6px;border:1px solid #9A9A9A;border-radius:2px;width:100%;background:#fff;color:#1A1A1A}
+.ed td:first-child{font:13px Consolas,monospace;color:#666;width:56px}
+.ed tr.err select,.ed tr.err input{border-color:#C00000;background:#FFF0F0}
+.lv{background:#fff;padding:8px;min-height:180px}
+.lv .board{border:0;padding:0;background:#fff}
+.lv .board text{fill:#1A1A1A}
+.lv .board .w,.lv .board .ct{stroke:#1A1A1A}
+.cxout{background:#fff;border-top:1px solid #D5D5D5;font:12.5px/1.5 Consolas,monospace;padding:6px 10px;min-height:44px}
+.cxout .e{color:#C00000}.cxout .k{color:#007A33}
+.relay svg{display:block;width:100%;max-width:520px;height:auto}
+.relay text{font-family:var(--body);fill:var(--ink)}
+.qlinks{display:grid;gap:8px;margin-top:10px}
+.qlinks div{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 14px}
+
+/* Practice (L2.7) */
+.prac{display:grid;grid-template-columns:1fr;gap:16px}
+.built{min-height:44px;display:flex;flex-direction:column;gap:4px;margin:8px 0}
+.built div{font:15px Consolas,monospace;background:#FCE7A0;color:#3A2A00;border-radius:3px;padding:4px 10px}
+.opts3{display:grid;grid-template-columns:1fr;gap:10px}
+@media (min-width:900px){.opts3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.opt{border:2px solid var(--line);border-radius:6px;padding:6px;cursor:pointer;background:var(--panel);overflow-x:auto;text-align:left}
+.opt.right{border-color:var(--ok)}.opt.wrong{border-color:var(--alarm)}
+.opt .board{border:0;padding:0}
+
+/* Phones and tablets (iOS and Android) */
+@media (max-width:600px){.panel{padding:14px}main{padding:0 14px 60px}.seg{display:flex}.seg button{flex:1 1 auto;padding-left:10px;padding-right:10px}.swg{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (pointer:coarse){
+  .btn,.seg button,.chip,.wb{min-height:44px}
+  .q .opts button{min-height:48px;padding:11px 14px}
+  .ed select,.ed input{font-size:16px;min-height:38px}
+  .side a{padding:10px 12px}
+}
+@media (max-width:1079px){
+  .theme-btn{width:44px;height:44px;padding:0;border-radius:50%;font-size:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+  .theme-btn::before{content:"\25D0";font-size:22px;line-height:44px}
+  .score{margin-right:56px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* Quiz */
+.q{margin-bottom:22px}
+.q p{font-weight:600;margin-bottom:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:9px 12px;cursor:pointer;font-size:16px}
+.q .opts button:hover:not([disabled]){border-color:var(--sel)}
+.q .opts button.right{background:var(--ok);color:#fff;border-color:var(--ok)}
+.q .opts button.wrong{background:var(--alarm);color:#fff;border-color:var(--alarm)}
+.q .opts button[disabled]{cursor:default}
+.q .exp{font-size:15px;color:var(--ink2);margin-top:6px;display:none}
+.q.done .exp{display:block}
+.score{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);background:var(--panel);border:1px solid var(--pipe);border-radius:4px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.score b{font-family:var(--cond);font-size:22px}
+footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size:14px;color:var(--ink2)}
+.theme-btn{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+
+/* ===== Lab 3: timers ===== */
+.ttl{font-family:var(--cond);font-size:22px;display:block}
+.ana i{display:block;margin-top:4px}
+.tnum{font-variant-numeric:tabular-nums}
+code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding:1px 6px;border-radius:3px}
+/* Mini demo (L3.1) */
+.mini{background:#2B3238;border-radius:8px;padding:10px;color:#E6EBEF;margin-top:10px}
+.mini .mrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mini .mbar{flex:1 1 100%;height:8px;background:#1E2429;border-radius:4px;overflow:hidden}
+.mini .mbar i{display:block;height:100%;width:0;background:#E8A400}
+.mini .msay{font-size:14px;color:#C9D2D9;min-height:22px;margin-top:6px}
+.mini svg{display:block;width:100%;height:auto;margin-top:8px}
+.mini svg text{fill:#AEB9C2;font-family:var(--body)}
+/* Sorter */
+.sorter{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.sorter .it{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.sorter .it p{margin:0;font-size:16px}
+.sorter .it .row{gap:6px}
+.sorter .it.right{border-color:var(--ok);box-shadow:inset 4px 0 0 var(--ok)}
+.sorter .it.wrong{border-color:var(--alarm);box-shadow:inset 4px 0 0 var(--alarm)}
+.sorter .why{font-size:14px;color:var(--ink2)}
+/* TIM anatomy */
+.anat{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:900px){.anat{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.anat .explain{margin-top:0}}
+.board .part{fill:transparent;cursor:pointer}
+.board .part.on{fill:rgba(232,164,0,.18);stroke:#E8A400;stroke-width:2.5}
+.conv{display:grid;gap:8px}
+.conv input[type=number]{width:110px;font:600 18px var(--body);padding:6px 8px;border:1px solid var(--pipe);border-radius:3px;background:var(--panel);color:var(--ink)}
+.conv input[type=range]{flex:1;min-width:180px}
+.cvout{font-size:18px}
+.cvout code{font-size:18px}
+/* Timer box in ladders */
+.board .tbox{fill:var(--panel);stroke:var(--ink);stroke-width:2}
+.board .tbox.p{stroke:#16A34A;stroke-width:3}
+.board .tbox.done{fill:rgba(22,163,74,.18)}
+.board .pvt{font:700 12px Consolas,monospace;fill:#16A34A}
+.board .rn{font-size:11px;fill:var(--ink2)}
+/* Simulators */
+.sim .kit{margin-top:0}
+.kitrow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.kitrow .sw{min-width:84px;min-height:74px;font-size:13px}
+.kitrow .lm{min-width:84px;min-height:74px;font-size:13px}
+.kitrow .lm i{width:30px;height:30px}
+.pvbox{background:#11161A;border:1px solid #4A555E;border-radius:6px;padding:6px 10px;min-width:118px}
+.pvbox .l{font-size:12px;color:#AEB9C2}
+.pvbox .v{font:700 26px/1.1 Consolas,"Courier New",monospace;color:#3FE36C;letter-spacing:.04em}
+.pvbox .s{font-size:12px;color:#AEB9C2}
+.pvbox .pb{height:5px;background:#2B3238;border-radius:3px;margin-top:4px;overflow:hidden}
+.pvbox .pb i{display:block;height:100%;background:#E8A400;width:100%}
+.pvbox.done{border-color:#3FE36C;box-shadow:0 0 0 2px rgba(63,227,108,.35)}
+.td-wrap{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px}
+.td-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;font-family:var(--cond);font-size:19px}
+.td svg{display:block;min-width:600px;width:100%;height:auto}
+.td text{font-family:var(--body);fill:var(--ink)}
+.td .lbl{font-size:12px;font-weight:600}
+.td .sub{font-size:10px;fill:var(--ink2)}
+.td .ax{font-size:10px;fill:var(--ink2)}
+.td .grid{stroke:var(--line);stroke-width:1}
+.td .grid.m{stroke-dasharray:2 3;opacity:.6}
+.td .tr{fill:none;stroke-width:2.4}
+.td .area{opacity:.16}
+.td .cur{stroke:#E8A400;stroke-width:2.5}
+.td .ann{font-size:11px;font-weight:600;fill:var(--ink2)}
+.td .br{stroke:var(--ink2);stroke-width:1.2;fill:none}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.readout div{background:var(--panel2);border-radius:4px;padding:6px 10px;font-size:14px}
+.readout b{display:block;font-family:var(--cond);font-size:20px}
+.readout .on{color:var(--ok)}.readout .off{color:var(--ink2)}
+.pq{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px;margin-bottom:10px}
+.pq p{margin:0 0 8px;font-weight:600}
+.pq .exp{font-size:15px;color:var(--ink2);margin-top:6px}
+/* CX-Programmer mock (L3.7) */
+.cxw{background:#F0F0F0;color:#1A1A1A;border:1px solid #707070;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);font:14px/1.4 "Segoe UI",Tahoma,system-ui,sans-serif}
+.cxw .tbi{font:13px "Segoe UI",system-ui,sans-serif;background:#E1E1E1;border:1px solid #ADADAD;border-radius:2px;padding:4px 10px;white-space:nowrap}
+.cxw .tbi.hi{background:#FFE58A;border-color:#B87F00;box-shadow:0 0 0 2px #E8A400}
+.cxw .tbi.act{background:#CCE4F7;border-color:#0078D7}
+.cxw .tbsep{width:1px;background:#C8C8C8;margin:0 4px}
+.cxbody{position:relative;background:#fff}
+.cxbody .lv{min-height:230px}
+.dlg{position:absolute;left:50%;top:24px;transform:translateX(-50%);width:min(340px,92%);background:#F0F0F0;border:1px solid #707070;box-shadow:0 6px 18px rgba(0,0,0,.3);font-size:13px}
+.dlg .dt{background:#fff;padding:6px 10px;border-bottom:1px solid #DADADA;font-weight:600}
+.dlg .dbd{padding:10px}
+.dlg .fld{border:1px solid #7A7A7A;background:#fff;font:15px Consolas,monospace;padding:5px 8px;margin:4px 0 8px;min-height:30px}
+.dlg .fld .caret{display:inline-block;width:1px;height:16px;background:#1A1A1A;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.dlg .btns{display:flex;justify-content:flex-end;gap:6px}
+.dlg .btns span{border:1px solid #ADADAD;background:#E1E1E1;padding:3px 14px}
+.dlg .btns span.pri{border-color:#0078D7;box-shadow:inset 0 0 0 1px #0078D7}
+.cxwatch{background:#fff;border-top:1px solid #D5D5D5;padding:6px 10px;overflow-x:auto}
+.cxwatch table{border-collapse:collapse;font:13px Consolas,monospace;min-width:420px}
+.cxwatch th{background:#E8E8E8;font-weight:600;text-align:left;padding:3px 10px;border:1px solid #CFCFCF}
+.cxwatch td{padding:3px 10px;border:1px solid #CFCFCF}
+.cxw .lv .board{border:0;padding:0;background:#fff}
+.cxw .lv .board text{fill:#1A1A1A}
+.cxw .lv .board .w,.cxw .lv .board .ct{stroke:#1A1A1A}
+.cxw .lv .board .w.p,.cxw .lv .board .ct.p{stroke:#16A34A}
+.cxw .lv .board .tbox{fill:#fff;stroke:#1A1A1A}
+.cxw .lv .board .rn{fill:#666}
+.board .ghost{opacity:.18}
+.board .cxsel{fill:none;stroke:#0078D7;stroke-width:2;stroke-dasharray:4 3}
+/* Flip cards (jargon buster, same as Chapter 4) */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.flip{perspective:800px;background:none;border:0;padding:0;cursor:pointer;height:150px;text-align:left}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:4px;padding:14px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+.flip .f{background:var(--panel)}
+.flip .f b{font-family:var(--cond);font-size:24px;font-weight:600}
+.flip .f span{font-size:14px;color:var(--ink2)}
+.flip .b{background:var(--sel);color:var(--sel-ink);transform:rotateY(180deg);font-size:15px;line-height:1.4}
+@media (pointer:coarse){.sorter .it .chip,.pq .chip{min-height:44px}.conv input[type=number]{min-height:44px}}
+@media (max-width:600px){.kitrow .sw,.kitrow .lm{min-width:72px}.pvbox{min-width:104px}.pvbox .v{font-size:22px}}
+
+/* ===== Lab 4: counter and timer ===== */
+.hs-txt h3{margin:0 0 6px;font-size:22px}
+.hs-txt p{margin:0 0 8px}
+.board .bx{fill:#BFF3F5;stroke:var(--ink);stroke-width:2}
+.board .bx.done{fill:#A7F0B8}
+.board .lbl{font-family:var(--cond);font-weight:600;font-size:16px}
+.board .flash{fill:#E8A400}
+/* Timer vs counter */
+.tvc{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch;margin-top:8px}
+@media (min-width:760px){.tvc{grid-template-columns:200px 1fr 1fr}}
+.tvc-btn{border:0;border-radius:50%;width:150px;height:150px;margin:0 auto;background:radial-gradient(circle at 35% 30%,#FF8A80,#C62828 60%,#7F1010);color:#fff;font:700 18px var(--cond);cursor:pointer;box-shadow:0 8px 0 #5A0B0B;user-select:none;-webkit-user-select:none;touch-action:none;transition:transform .08s,box-shadow .08s}
+.tvc-btn.on{transform:translateY(6px);box-shadow:0 2px 0 #5A0B0B}
+.tvc .big{font:700 46px var(--cond);font-variant-numeric:tabular-nums;color:var(--sel)}
+/* Applications and up/down */
+.ap,.ud{display:grid;grid-template-columns:1fr;gap:12px;align-items:start;margin-top:10px}
+@media (min-width:900px){.ap,.ud{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+.ap svg{display:block;width:100%;min-width:560px;height:auto;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.ap text,.ud text{font-family:var(--body);fill:var(--ink)}
+/* Dark HMI screen (as in the chapters) */
+.hmi{--hb:#0D1317;--hp:#172028;--hbar:#222D35;--ht:#D6DEE4;--hd:#8A99A6;--hl:#34424D;background:var(--hb);color:var(--ht);border:1px solid #000;border-radius:6px;overflow:hidden;box-shadow:0 0 0 4px var(--pipe);font-size:13px}
+.hmi-title{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--hbar);padding:6px 12px;border-bottom:1px solid #000;flex-wrap:wrap}
+.hmi-title b{font-family:var(--cond);font-size:16px;font-weight:600}
+.hmi-title .meta{color:var(--hd);font-variant-numeric:tabular-nums}
+.hmi svg{display:block;width:100%;min-width:600px;height:auto}
+.hmi svg text{fill:var(--ht);font-family:var(--body)}
+.hmi-foot{background:var(--hp);border-top:1px solid var(--hl);padding:6px 10px;min-height:38px;display:flex;align-items:center}
+.hmi-foot .alm{flex:1;padding:4px 8px;border-radius:2px;color:var(--hd);font-size:14px}
+.hmi-foot .alm.go{background:#1F5130;color:#fff}
+.hmi-foot .alm.wait{background:#7A5A00;color:#fff}
+.hmi-foot .alm.done{background:#2F6FB5;color:#fff}
+.io-live{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.io-live span{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:4px 10px;font-size:14px}
+.io-live i{width:12px;height:12px;border-radius:50%;background:var(--off)}
+.io-live .on i{background:#3FE36C;box-shadow:0 0 6px #3FE36C}
+.io-live code{font:600 13px Consolas,monospace}
+/* Practice */
+.evs{margin:6px 0 0;padding-left:24px;display:grid;gap:4px}
+.evs li{font-size:16px}
+.evs li.now{background:var(--sel-soft);border-radius:4px}
+.evs li .pv{font:700 14px Consolas,monospace;color:var(--sel);margin-left:8px}
+.mn tr.hl td{background:var(--sel);color:var(--sel-ink)}
+@media (pointer:coarse){.ap .btn,.ud .btn{min-height:44px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side" aria-label="Lab sections">
+  <div class="brand"><b>Lab 4: Counter and Timer</b><span>Monitoring System Integration</span></div>
+  <a class="home" href="index.html">&larr; Course homepage</a>
+  <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
+  <div class="progress"><span id="progTxt">0 of 6 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+</nav>
+
+<main>
+<div class="wrap">
+<header class="hero" id="top">
+  <a class="back" href="index.html">&larr; Course homepage</a>
+  <div class="course">EMT30205 Monitoring System Integration · Laboratory 4</div>
+  <h1>Counter and Timer<small>Counting events, not seconds</small></h1>
+  <div class="by">Based on the lab module by Mohamad Shukor bin Abdul Rahim</div>
+  <div class="ticker">
+    <div><div class="k">Instruction</div><div class="v">CNT</div></div>
+    <div><div class="k">Counts on each</div><div class="v">OFF → ON</div></div>
+    <div><div class="k">After a power cut</div><div class="v">Keeps count</div></div>
+    <div><div class="k">Task</div><div class="v">5 products</div></div>
+  </div>
+  <ul class="objectives">
+    <li><b>Recognise</b>how a counter is used in a ladder diagram.</li>
+    <li><b>Program</b>the PLC with timer and counter instructions in CX-Programmer.</li>
+    <li><b>Convert</b>a ladder diagram to mnemonic code and back.</li>
+  </ul>
+  <div class="note">This page explains the theory. The lab task (the conveyor with 5 products) is on the separate task sheet from your lecturer.</div>
+</header>
+
+<!-- L4.1 -->
+<section class="topic" id="s1">
+  <h2><span class="n">L4.1</span>What is a counter?</h2>
+  <div class="key"><b>In one sentence</b>A counter captures and stores the number of times something happens: every OFF → ON change on its <strong>count line</strong> adds one, and its <strong>reset line</strong> sets it back to zero.</div>
+  <div class="ana"><b>Think of it</b>The clicker a guard uses at a stadium gate. Click once for every person who walks in. When it reaches 5,000 the gate closes. At the end of the day the guard presses reset and it goes back to 0.<br><i>(Seperti alat pembilang klik yang digunakan pengawal di pintu stadium. Klik sekali bagi setiap orang yang masuk. Apabila mencecah 5,000 pintu ditutup. Pada akhir hari pengawal menekan butang set semula dan ia kembali kepada 0.)</i></div>
+  <div class="prose"><p>This is the <b>block-formatted counter</b> from Figure 5.1. Press <b>Count pulse</b> a few times, then <b>Reset</b>. Tap any part of the block to see what it does.</p></div>
+  <div class="anat">
+    <div class="board scroll-x"><svg viewBox="0 0 640 250" id="blkSvg" style="min-width:560px" role="img" aria-label="Block-formatted counter with count line, reset line and output line"></svg></div>
+    <div>
+      <div class="row"><button class="btn primary" id="blkCnt">Count pulse</button><button class="btn" id="blkRst">Reset</button></div>
+      <div class="explain" id="blkExp" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="pan-hint">↔ Swipe sideways to see the whole block</div>
+  <h3>Timer or counter?</h3>
+  <div class="prose"><p>Counters are like timers, but a timer counts <b>time</b> from its own internal clock, while a counter counts <b>events</b> from outside (a sensor, a switch) or from the program. Hold the button, let go, tap it quickly: watch both.</p></div>
+  <div class="tvc">
+    <button class="tvc-btn" id="tvcBtn">Hold or tap me</button>
+    <div class="panel"><b class="ttl">Timer</b><div class="big" id="tvcT">0.0 s</div><p class="muted" id="tvcTs">Counts how long the input is ON.</p></div>
+    <div class="panel"><b class="ttl">Counter</b><div class="big" id="tvcC">0</div><p class="muted" id="tvcCs">Counts how many times the input turns ON.</p></div>
+  </div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="tvcClr">Clear both</button></div>
+</section>
+
+<!-- L4.2 -->
+<section class="topic" id="s2">
+  <h2><span class="n">L4.2</span>Counter applications</h2>
+  <div class="key"><b>In one sentence</b>Counters keep track of how many items move past a point, or how many times an action happens: products on a conveyor, metres of material, turns of a roller.</div>
+  <div class="prose"><p>The three examples of Figure 5.2. Pick one and press <b>Start</b>.</p></div>
+  <div class="row" id="apTabs" role="group" aria-label="Application"></div>
+  <div class="ap">
+    <div class="scroll-x"><svg viewBox="0 0 640 260" id="apSvg" role="img" aria-label="Counter application"></svg></div>
+    <div>
+      <div class="hs-txt" id="apTxt"></div>
+      <div class="row"><button class="btn primary" id="apGo">▶ Start</button><button class="btn" id="apRst">Reset</button></div>
+      <div class="explain" id="apSay" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+</section>
+
+<!-- L4.3 -->
+<section class="topic" id="s3">
+  <h2><span class="n">L4.3</span>Up, down and up/down counters</h2>
+  <div class="key"><b>In one sentence</b>An <strong>up counter</strong> adds 1 for every pulse until it reaches the preset; a <strong>down counter</strong> takes 1 away for every pulse until it reaches zero; an <strong>up/down counter</strong> does both.</div>
+  <div class="prose"><p>Most counters in industry are up counters, but some jobs need a down counter or an up/down counter (for example, cars entering and leaving a car park). PLC counters are normally <b>retentive</b>: after a power cut they still remember their count. Try the <b>Power cut</b> button.</p></div>
+  <div class="row" id="udMode" role="group" aria-label="Counter type"></div>
+  <div class="ud">
+    <div class="board scroll-x"><svg viewBox="0 0 640 230" id="udSvg" style="min-width:560px" role="img" aria-label="Pulse train and counter value"></svg></div>
+    <div>
+      <div class="row"><button class="btn primary" id="udUp">+ Pulse (count up)</button><button class="btn" id="udDn">− Pulse (count down)</button></div>
+      <div class="row" style="margin-top:8px"><label>Preset <input type="range" id="udP" min="3" max="9" value="5"> <b id="udPv">5</b></label></div>
+      <div class="row" style="margin-top:8px"><button class="btn" id="udRst">Reset</button><button class="btn" id="udPwr">⚡ Power cut</button></div>
+      <div class="explain" id="udSay" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+</section>
+
+<!-- L4.4 -->
+<section class="topic" id="s4">
+  <h2><span class="n">L4.4</span>The OMRON CNT instruction</h2>
+  <div class="key"><b>In one sentence</b><span>CNT N #SV has two inputs: the count input (CP) and the reset input (R). Each OFF → ON pulse on CP takes 1 off the present value (PV); at 0 the counter's contact CNT N turns ON.</span></div>
+  <div class="prose"><p>OMRON's CNT is a <b>down counter</b>: it starts at the set value (SV) and counts down to 0. Here CNT 000 #0005 lights lamp 01000 after 5 products. Press <b>COUNT</b> on the kit (each press is one product). Hold it down and see that holding counts only once. Then try <b>RESET</b> and <b>POWER</b>.</p></div>
+  <div class="pair">
+    <div><div class="board scroll-x" id="cnLad"></div><p class="cap">Tap a row of the mnemonic code to find it in the ladder.</p><div class="scroll-x" id="cnMn"></div></div>
+    <div>
+      <div class="kit"><h4>TRAINING KIT · press the buttons</h4><div class="kitrow">
+        <button class="sw" id="cnC" aria-pressed="false"><i></i>00000<span>COUNT</span></button>
+        <button class="sw" id="cnR" aria-pressed="false"><i></i>00001<span>RESET</span></button>
+        <div class="pvbox" id="cnBox"><div class="l">CNT 000 · PV</div><div class="v" id="cnPv">0005</div><div class="s" id="cnPs">5 to go</div><div class="pb"><i id="cnPb"></i></div></div>
+        <div class="lm" id="cnL"><i></i>01000<span>Lamp</span></div>
+        <button class="sw" id="cnPw" aria-pressed="false" style="border-color:#E3B23F"><i style="background:radial-gradient(circle at 35% 30%,#FFE08A,#E3B23F 60%,#8A6A10);box-shadow:0 3px 0 #5A4508"></i>⏻<span>POWER</span></button>
+      </div></div>
+      <div class="explain" id="cnSay" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="note"><b>Mnemonic order matters:</b> load the count input first, then the reset input, then CNT. <code>LD 00000</code> (CP) · <code>LD 00001</code> (R) · <code>CNT 000 #0005</code>. In CX-Programmer, the reset contact sits on its own line under the count contact, both joined to the CNT box. The counter's contact is written CNT000 (some models show C000).</div>
+</section>
+
+<!-- L4.5 -->
+<section class="topic" id="s5">
+  <h2><span class="n">L4.5</span>Counter and timer together: the conveyor</h2>
+  <div class="key"><b>In one sentence</b>Real machines use timers and counters together: a timer to wait, and a counter to know when a batch is complete.</div>
+  <div class="prose"><p>This is the process on your task sheet, running exactly as described. Watch it carefully: your job in the lab is to write the timing diagram, the ladder diagram and the mnemonic code that make it happen.</p></div>
+  <div class="cv-wrap">
+    <div class="hmi"><div class="hmi-title"><b>PACKING LINE · PRODUCT S</b><span class="meta" id="cvClk">Stopped</span></div>
+      <div class="scroll-x"><svg viewBox="0 0 760 300" id="cvSvg" role="img" aria-label="Conveyor 1 carries product S past sensor 1 and sensor 2 into a container on conveyor 2"></svg></div>
+      <div class="hmi-foot"><span class="alm" id="cvAlm">Press START</span></div>
+    </div>
+    <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="cvStart">● START (00000)</button><div class="seg" role="group" aria-label="Speed" id="cvSpd"><button aria-pressed="true" data-v="1">Real speed</button><button aria-pressed="false" data-v="4">4× faster</button></div><button class="btn" id="cvRst">Reset</button></div>
+    <div class="io-live" id="cvIo"></div>
+  </div>
+  <h3>Which instruction does each job?</h3>
+  <div class="prose"><p>Before you program, decide what each part of the sequence needs.</p></div>
+  <div class="sorter" id="cvSort"></div>
+  <div class="fb" id="cvFb" aria-live="polite"></div>
+</section>
+
+<!-- L4.6 -->
+<section class="topic" id="s6">
+  <h2><span class="n">L4.6</span>Practice: predict the counter</h2>
+  <div class="key"><b>In one sentence</b>Remember the three rules: one count per OFF → ON change, reset puts the PV back to the SV, and the PV never goes below 0.</div>
+  <div class="panel">
+    <p style="margin:0 0 6px">The counter is <code>CNT 000 #0003</code> (count input 00000, reset input 00001). These things happen, in order:</p>
+    <ol class="evs" id="prEv"></ol>
+    <p style="margin:10px 0 6px;font-weight:600">What is the PV at the end?</p>
+    <div class="chips" id="prOpt"></div>
+    <div class="explain" id="prSay" aria-live="polite">Choose an answer.</div>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="prNew">New sequence</button><span class="muted" id="prScore"></span></div>
+  </div>
+  <div class="note">Now do the lab task on your task sheet: the conveyor with 5 products. Use L4.4 and <a href="lab3.html">Lab 3 (Timer)</a> to check your thinking.</div>
+</section>
+
+<footer>
+  Monitoring System Integration, Laboratory 4: Counter and Timer. Content from the lab module of Mohamad Shukor bin Abdul Rahim (Experiment 5). Ladders, the kit and the conveyor on this page are simplified drawings for learning; they follow the OMRON CNT rules (counts down from the set value, retentive). OMRON and CX-Programmer are trademarks of OMRON Corporation.
+</footer>
+</div>
+</main>
+</div>
+<button class="btn theme-btn" id="themeBtn">Dark mode</button>
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const press=(g,b)=>g.forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* Theme */
+const tb=$('#themeBtn');
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches}
+function setThemeLabel(){tb.textContent=isDark()?'Light mode':'Dark mode';
+  $$('meta[name=theme-color]').forEach(m=>{m.content=isDark()?'#1E252B':'#D9DCDF';if(document.documentElement.dataset.theme)m.removeAttribute('media')})}
+const savedTheme=store.get('scada-theme'); if(savedTheme) document.documentElement.dataset.theme=savedTheme;
+setThemeLabel();
+tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset.theme=n;store.set('scada-theme',n);setThemeLabel()};
+
+/* Nav + progress */
+const secs=[...$$('section.topic')];const nav=$('#navlist');
+secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
+  nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
+let seen=new Set((store.get('lab4-seen')||[]).filter(id=>document.getElementById(id)));store.set('lab4-seen',[...seen]);
+function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
+  $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
+renderProg();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const id=e.target.id;
+  $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
+  /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
+  const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
+  if(!seen.has(id)){seen.add(id);store.set('lab4-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+secs.forEach(s=>io.observe(s));
+
+
+const isOn=(c,m)=>c.nc?!m[c.a]:!!m[c.a];
+const pad4=n=>String(n).padStart(4,'0');
+const secs1=t=>(t/10).toFixed(1);
+function mnTable(rows,hi){return `<table class="mn"><thead><tr><th>Address</th><th>Instruction</th><th>Operands</th></tr></thead><tbody>${rows.map((r,i)=>`<tr data-i="${i}"${i===hi?' class="hi"':''}><td>${String(i).padStart(5,'0')}</td><td>${r[0]}</td><td>${r[1]||'—'}</td></tr>`).join('')}</tbody></table>`}
+
+/* ===================== Timer ladder renderer =====================
+   rung: {s:[contacts in series], br: contact in parallel with s[0], out:{t:'coil',a} or {t:'tim',n,sv}}
+   contact: {a, nc, l (label), k (part key)}. Timer contacts use the address 'TIM000'. */
+function lad(rungs,m,o={}){const CW=96,OX=34,live=!!o.live,P=[];let y=4;
+  const cols=Math.max(1,...rungs.map(r=>r.s.length)),outX=OX+cols*CW,W=outX+150,xR=W-12;
+  const hasCoil=rungs.some(r=>r.out&&r.out.t==='coil');
+  const wire=(x1,y1,x2,y2,p)=>`<path class="w${p?' p':''}" d="M${x1},${y1}L${x2},${y2}"/>`;
+  const part=(k,x,yy,w,h)=>o.parts&&k?`<rect class="part${o.partOn===k?' on':''}" data-k="${k}" x="${x}" y="${yy}" width="${w}" height="${h}" rx="4"/>`:'';
+  function contact(c,x0,yy,pin,pout){const mid=x0+CW/2,cl=isOn(c,m),pass=live&&pin&&cl;
+    P.push(wire(x0,yy,mid-11,yy,live&&pin),wire(mid+11,yy,x0+CW,yy,pout===undefined?pass:pout));
+    P.push(`<rect class="cbg${live&&cl?' p':''}" x="${mid-11}" y="${yy-13}" width="22" height="26"/><path class="ct${live&&cl?' p':''}" d="M${mid-11},${yy-13}V${yy+13}M${mid+11},${yy-13}V${yy+13}${c.nc?`M${mid-15},${yy+13}L${mid+15},${yy-13}`:''}"/>`);
+    P.push(`<text x="${mid}" y="${yy-19}" font-size="12" text-anchor="middle">${c.a}</text>`);
+    if(c.l)P.push(`<text x="${mid}" y="${yy+29}" text-anchor="middle" class="nm">${c.l}</text>`);
+    if(o.sel===c.a)P.push(`<rect class="cxsel" x="${x0+6}" y="${yy-32}" width="${CW-12}" height="66"/>`);
+    P.push(part(c.k,x0+6,yy-32,CW-12,66));return pass}
+  rungs.forEach((r,ri)=>{const top=y,yy=top+34,h=r.br?150:96;
+    if(o.rn)P.push(`<text class="rn" x="3" y="${yy+4}">${ri}</text>`);
+    let p=true;
+    if(r.s.length){
+      if(r.br){const a=live&&isOn(r.s[0],m),b=live&&isOn(r.br,m);p=a||b;
+        contact(r.s[0],OX,yy,true,p);contact(r.br,OX,yy+60,true,b);
+        P.push(wire(OX,yy,OX,yy+60,live),wire(OX+CW,yy,OX+CW,yy+60,live&&p))}
+      else p=contact(r.s[0],OX,yy,true);
+      for(let i=1;i<r.s.length;i++)p=contact(r.s[i],OX+i*CW,yy,p)}
+    p=live&&p;
+    if(r.out){const endX=OX+r.s.length*CW;if(endX<outX)P.push(wire(endX,yy,outX,yy,p));
+      if(r.out.t==='coil'){const cx=outX+66,on=p;
+        P.push(wire(outX,yy,cx-14,yy,p),wire(cx+14,yy,xR,yy,false),`<circle class="coil${on?' on':''}" cx="${cx}" cy="${yy}" r="13" style="fill:${on?'rgba(22,163,74,.3)':'transparent'};stroke:var(--ink);stroke-width:2.2"/>`,
+          `<text x="${cx}" y="${yy-19}" font-size="12" text-anchor="middle">${r.out.a}</text>`);
+        if(r.out.l)P.push(`<text x="${cx}" y="${yy+30}" text-anchor="middle" class="nm">${r.out.l}</text>`);
+        if(o.sel===r.out.a)P.push(`<rect class="cxsel" x="${cx-34}" y="${yy-34}" width="68" height="70"/>`);
+        P.push(part(r.out.k,cx-34,yy-34,68,70))}
+      else{const bx=outX+12,by=yy-14,bw=100,bh=64,cx=bx+bw/2,fl=!!m['TIM'+r.out.n];
+        P.push(wire(outX,yy,bx,yy,p),`<rect class="tbox${p?' p':''}${live&&fl?' done':''}" x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="3"/>`,
+          `<text x="${cx}" y="${by+17}" font-size="14" text-anchor="middle" style="font-weight:700">TIM</text><text x="${cx}" y="${by+36}" font-size="13" text-anchor="middle">${r.out.n}</text><text x="${cx}" y="${by+55}" font-size="13" text-anchor="middle">#${r.out.sv}</text>`);
+        if(o.pv&&o.pv[r.out.n]!==undefined)P.push(`<text class="pvt" x="${cx}" y="${by-6}" text-anchor="middle">PV ${pad4(o.pv[r.out.n])}</text>`);
+        if(o.sel==='TIM'+r.out.n)P.push(`<rect class="cxsel" x="${bx-6}" y="${by-22}" width="${bw+12}" height="${bh+28}"/>`);
+        if(o.parts){P.push(part('tim',bx+4,by+3,bw-8,18),part('n',bx+4,by+22,bw-8,18),part('sv',bx+4,by+41,bw-8,19),part('pv',bx+4,by-21,bw-8,19))}}}
+    y+=h});
+  if(o.end){const yy=y+22,cx=outX+66;P.push(wire(OX-14,yy,cx-34,yy,false),`<rect x="${cx-34}" y="${yy-12}" width="68" height="24" rx="12" style="fill:var(--panel);stroke:var(--ink);stroke-width:1.6"/><text x="${cx}" y="${yy+5}" font-size="12" text-anchor="middle">END(01)</text>`);y=yy+22}
+  const H=y+6;P.unshift(`<path class="rail" d="M${OX-14},0V${H}"/>`+(hasCoil||o.end?`<path class="rail" d="M${xR},0V${H}"/>`:''));
+  if(live)P.unshift(`<path class="w p" d="M${OX-14},0V${H}" style="stroke-width:4"/>`);
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ladder diagram">${P.join('')}</svg>`}
+
+/* ===================== Timing diagram =====================
+   rows: [{l,sub,t:'pv'|undefined,c:colour var}], data: one array of values per tick (0.1 s), start: tick of data[0] */
+const TDN=200;
+function td(rows,data,start,o={}){const W=720,LW=118,PW=W-LW-12,RH=46,dx=PW/TDN,H=rows.length*RH+30,P=[];
+  for(let k=0;k<=TDN;k++){if((start+k)%10)continue;const x=LW+k*dx,big=(start+k)%50===0;
+    P.push(`<path class="grid${big?'':' m'}" d="M${x},2V${H-22}"/>`);if((start+k)%20===0)P.push(`<text class="ax" x="${x}" y="${H-8}" text-anchor="middle">${(start+k)/10}</text>`)}
+  P.push(`<text class="ax" x="${LW-8}" y="${H-8}" text-anchor="end">time (s)</text>`);
+  rows.forEach((r,i)=>{const y0=i*RH+4,hi=y0+8,lo=y0+RH-12,col=`var(--${r.c||'sel'})`;
+    P.push(`<text class="lbl" x="4" y="${y0+20}">${r.l}</text><text class="sub" x="4" y="${y0+33}">${r.sub||''}</text><path class="grid" d="M${LW},${lo}H${LW+PW}"/>`);
+    if(!data.length)return;let d='';
+    data.forEach((v,k)=>{const yy=r.t==='pv'?lo-(v[i]||0)*(lo-hi):(v[i]?hi:lo);const x1=LW+k*dx;d+=(k?'L':'M')+x1.toFixed(1)+','+yy.toFixed(1)+'L'+(x1+dx).toFixed(1)+','+yy.toFixed(1)});
+    const xe=LW+data.length*dx;P.push(`<path class="area" style="fill:${col}" d="${d}L${xe.toFixed(1)},${lo}L${LW},${lo}Z"/><path class="tr" style="stroke:${col}" d="${d}"/>`)});
+  (o.ann||[]).forEach(a=>{const x1=LW+a.k1*dx,x2=LW+a.k2*dx,yb=a.row*RH+4+RH-4;P.push(`<path class="br" d="M${x1},${yb-5}V${yb}H${x2}V${yb-5}"/><text class="ann" x="${(x1+x2)/2}" y="${yb+10}" text-anchor="middle">${a.t}</text>`)});
+  if(o.cur!==undefined){const x=LW+o.cur*dx;P.push(`<path class="cur" d="M${x},0V${H-22}"/>`)}
+  if(!data.length&&o.empty)P.push(`<text x="${LW+PW/2}" y="${H/2}" text-anchor="middle" class="sub" style="font-size:13px">${o.empty}</text>`);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Timing diagram">${P.join('')}</svg>`}
+
+/* One clock for every animation on the page: 1 tick = 0.1 s, the same as the TIM time base */
+const tickers=[];setInterval(()=>tickers.forEach(f=>f()),100);
+function watchVis(el,obj){new IntersectionObserver(es=>es.forEach(e=>obj.vis=e.isIntersecting),{rootMargin:'200px 0px'}).observe(el)}
+
+
+const tween=(ms,fn)=>new Promise(res=>{if(reduce)ms=1;const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/ms);fn(k);k<1?requestAnimationFrame(f):res()};requestAnimationFrame(f)});
+/* Momentary button: ON while pressed (mouse, finger or keyboard) */
+function hold(btn,dn,up){let on=false;const d=e=>{e.preventDefault();if(on)return;on=true;btn.classList.add('on');btn.setAttribute('aria-pressed','true');dn()},u=()=>{if(!on)return;on=false;btn.classList.remove('on');btn.setAttribute('aria-pressed','false');up&&up()};
+  btn.addEventListener('pointerdown',d);['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,u));
+  btn.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')d(e)});btn.addEventListener('keyup',u)}
+/* Sorting game: items [[text, key, why]], options [[key, label]] */
+function sorter(el,fb,items,opts){let ok=0,done=0;
+  el.innerHTML=items.map((s,i)=>`<div class="it" data-i="${i}"><p>${s[0]}</p><div class="row">${opts.map(o=>`<button class="chip" data-v="${o[0]}">${o[1]}</button>`).join('')}</div><div class="why" hidden></div></div>`).join('');
+  el.querySelectorAll('.it').forEach(it=>it.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(it.dataset.done)return;it.dataset.done=1;const s=items[+it.dataset.i],good=c.dataset.v===s[1];
+    c.classList.add(good?'right':'wrong');if(!good)it.querySelector(`.chip[data-v="${s[1]}"]`).classList.add('right');it.classList.add(good?'right':'wrong');
+    const w=it.querySelector('.why');w.hidden=false;w.textContent=(good?'Correct. ':'Not quite. ')+s[2];done++;if(good)ok++;
+    fb.className='fb'+(done===items.length?' good':'');fb.textContent=`${ok} of ${done} correct`+(done===items.length?'. All done!':'')}))}
+
+/* ===== L4.1 Block counter ===== */
+const BK={acc:0,pre:5,sel:null,flash:0};
+const BKP={count:['Count line','Each OFF → ON change on this line adds one count. Holding it ON does not add any more.'],
+ reset:['Reset line','An OFF → ON change here puts the count back to 0, ready for the next batch.'],
+ type:['Type of counter','Up counter, down counter or up/down counter (see L4.3). This one is an up counter.'],
+ pre:['Preset value','The target number. Here it is 5.'],
+ acc:['Accumulated value','How many counts so far. On OMRON PLCs this is called the present value (PV).'],
+ out:['Output line','Turns ON when the accumulated value reaches the preset value.']};
+function bkDraw(){const done=BK.acc>=BK.pre,s=BK.sel,hl=k=>s===k?' style="stroke:#E8A400;stroke-width:4"':'';
+  $('#blkSvg').innerHTML=`<path class="rail" d="M30,20V230M610,20V230"/>
+   <path class="w${BK.flash?' p':''}" d="M30,70H120M144,70H250"/><path class="ct${BK.flash?' p':''}" d="M120,56V84M144,56V84"/><text x="132" y="46" text-anchor="middle" font-size="13">COUNT</text>
+   <path class="w" d="M30,180H120M144,180H250"/><path class="ct" d="M120,166V194M144,166V194"/><text x="132" y="156" text-anchor="middle" font-size="13">RESET</text>
+   <text x="196" y="62" class="lbl" text-anchor="middle" style="fill:#1B5AA6">Count line</text><text x="196" y="208" class="lbl" text-anchor="middle" style="fill:#1B5AA6">Reset line</text>
+   <rect class="bx${done?' done':''}" x="250" y="30" width="180" height="190"${hl('type')}/>
+   <text x="340" y="66" text-anchor="middle" font-size="17" class="lbl">Type: UP counter</text>
+   <text x="340" y="112" text-anchor="middle" font-size="16">Preset value</text><text x="340" y="136" text-anchor="middle" font-size="22" style="font-weight:700">${BK.pre}</text>
+   <text x="340" y="172" text-anchor="middle" font-size="16">Accumulated value</text><text x="340" y="200" text-anchor="middle" font-size="26" style="font-weight:700;fill:${BK.flash?'#B87F00':'var(--ink)'}">${BK.acc}</text>
+   <path class="w${done?' p':''}" d="M430,125H520M548,125H610"/><circle cx="534" cy="125" r="14" style="fill:${done?'rgba(22,163,74,.35)':'var(--panel)'};stroke:var(--ink);stroke-width:2.2"/><text x="482" y="112" class="lbl" text-anchor="middle" style="fill:#C2185B">Output line</text><text x="534" y="160" text-anchor="middle" font-size="13">${done?'ON':'OFF'}</text>
+   ${[['count',100,40,160,60],['reset',100,150,160,60],['type',250,30,180,50],['pre',250,92,180,52],['acc',250,148,180,72],['out',436,92,170,80]].map(p=>`<rect class="part${s===p[0]?' on':''}" data-k="${p[0]}" x="${p[1]}" y="${p[2]}" width="${p[3]}" height="${p[4]}" rx="4"/>`).join('')}`;
+  $('#blkExp').innerHTML=s?`<b>${BKP[s][0]}:</b> ${BKP[s][1]}`:`Count ${BK.acc} (preset ${BK.pre}). ${done?'<b>Preset reached: the output is ON.</b> Further pulses do not matter until you reset.':'Press <b>Count pulse</b>.'}`}
+$('#blkSvg').addEventListener('click',e=>{const t=e.target.closest('[data-k]');if(!t)return;BK.sel=BK.sel===t.dataset.k?null:t.dataset.k;bkDraw()});
+hold($('#blkCnt'),()=>{if(BK.acc<99)BK.acc++;BK.flash=1;BK.sel=null;bkDraw()},()=>{BK.flash=0;bkDraw()});
+$('#blkRst').onclick=()=>{BK.acc=0;BK.sel=null;bkDraw();$('#blkExp').innerHTML='<b>Reset:</b> the accumulated value goes back to 0 and the output turns OFF.'};
+bkDraw();
+/* Timer vs counter */
+const TV={on:false,t:0,c:0};
+hold($('#tvcBtn'),()=>{TV.on=true;TV.c++;tvDraw()},()=>{TV.on=false;tvDraw()});
+function tvDraw(){$('#tvcT').textContent=(TV.t/10).toFixed(1)+' s';$('#tvcC').textContent=TV.c;
+  $('#tvcTs').textContent=TV.on?'Input ON: the timer keeps adding time…':'Counts how long the input is ON.';$('#tvcCs').textContent=TV.on?'One press = one count, however long you hold.':'Counts how many times the input turns ON.'}
+tickers.push(()=>{if(TV.on&&TV.t<999){TV.t++;tvDraw()}});
+$('#tvcClr').onclick=()=>{TV.t=0;TV.c=0;tvDraw()};tvDraw();
+
+/* ===== L4.2 Applications ===== */
+const AP=[
+ {k:'item',n:'Item counting',txt:'<p>A <b>photocell</b> shines a beam across the conveyor to a <b>reflector</b>. Every product that passes breaks the beam once, and the counter adds one. Here the counter decides when a stack of 10 is ready.</p>'},
+ {k:'len',n:'Length totalizer',txt:'<p>A <b>rotopulser</b> (a small wheel with a pulse sensor) rolls on the material. Every pulse means the material moved a fixed length, here <b>10 mm</b>. Counting pulses measures the total length.</p>'},
+ {k:'wind',n:'Footage windup control',txt:'<p>Material is wound onto a roll. A rotopulser counts how much has gone through; when the count reaches the preset (<b>50 m</b>), the winder stops so the roll can be cut.</p>'}];
+let apI=0,apRun=false;const AS={x:0,cnt:0,boxes:[40,170,300],stack:0,ang:0,len:0};
+$('#apTabs').innerHTML=AP.map((a,i)=>`<button class="chip" aria-pressed="${i===0}" data-i="${i}">${a.n}</button>`).join('');
+const apVis={vis:true};watchVis($('#apSvg'),apVis);
+function apReset(){apRun=false;Object.assign(AS,{x:0,cnt:0,boxes:[40,170,300],stack:0,ang:0,len:0});$('#apGo').textContent='▶ Start';apDraw()}
+function apDraw(){const a=AP[apI];let h='';
+  if(a.k==='item'){h=`<path d="M40,170 L520,170 L560,130 L80,130 Z" fill="#9AA3AA" stroke="var(--ink2)"/><ellipse cx="60" cy="150" rx="20" ry="22" fill="#7A858D"/><ellipse cx="540" cy="150" rx="20" ry="22" fill="#7A858D"/>
+    ${AS.boxes.map(x=>x<540?`<g transform="translate(${x},126)"><path d="M0,0 l18,-10 h34 l-18,10 z" fill="#D7DCE0" stroke="#5B6771"/><rect x="0" y="0" width="34" height="18" fill="#C5CCD2" stroke="#5B6771"/></g>`:'').join('')}
+    <circle cx="300" cy="96" r="8" fill="#C22E29"/><text x="300" y="80" text-anchor="middle" font-size="12">Reflector</text>
+    <rect x="340" y="150" width="26" height="20" fill="#C22E29"/><text x="392" y="196" text-anchor="middle" font-size="12">Photocell</text>
+    <path d="M300,96 L352,158" stroke="${AS.boxes.some(x=>x>286&&x<326)?'#C22E29':'#2F6FB5'}" stroke-width="2" stroke-dasharray="6 4"/>
+    <rect x="460" y="200" width="120" height="44" rx="4" fill="#F4C842" stroke="var(--ink)"/><rect x="472" y="208" width="96" height="18" fill="#7FE3FF" stroke="var(--ink)"/><text x="520" y="222" text-anchor="middle" font-size="14" style="font-weight:700;font-family:Consolas,monospace">${pad4(AS.cnt)}</text><text x="520" y="240" text-anchor="middle" font-size="11">Counter</text>
+    ${[...Array(AS.stack)].map((_,i)=>`<rect x="70" y="${232-i*6}" width="50" height="5" fill="#C5CCD2" stroke="#5B6771"/>`).join('')}<text x="95" y="254" text-anchor="middle" font-size="11">stack: ${AS.stack}/10</text>`}
+  if(a.k==='len'||a.k==='wind'){const wind=a.k==='wind',R=wind?30+Math.min(AS.len,50)*0.9:0;
+    h=`<path d="M40,150 H${wind?470:620}" stroke="#C5CCD2" stroke-width="14"/>${wind?'':`<path d="M40,150 H${40+(AS.len*10)%60}" stroke="#E8A400" stroke-width="4" opacity=".7"/>`}
+    <g transform="translate(250,120) rotate(${AS.ang})"><circle r="22" fill="#C22E29" stroke="var(--ink)" stroke-width="2"/>${[0,60,120,180,240,300].map(d=>`<path d="M0,0 L0,-20" transform="rotate(${d})" stroke="#fff" stroke-width="2"/>`).join('')}</g>
+    <text x="250" y="84" text-anchor="middle" font-size="12">Rotopulser</text><circle cx="250" cy="170" r="12" fill="#7A858D"/>
+    ${wind?`<circle cx="500" cy="150" r="${R}" fill="#D7DCE0" stroke="#5B6771" stroke-width="2"/><circle cx="500" cy="150" r="12" fill="#5B6771"/><g transform="translate(500,150) rotate(${AS.ang*1.5})"><path d="M0,-12 V${-R}" stroke="#9AA3AA" stroke-width="2"/></g><text x="500" y="${150+R+18}" text-anchor="middle" font-size="12">Windup roll</text>`:''}
+    <rect x="300" y="196" width="150" height="50" rx="4" fill="#F4C842" stroke="var(--ink)"/><rect x="312" y="204" width="126" height="20" fill="#7FE3FF" stroke="var(--ink)"/>
+    <text x="375" y="219" text-anchor="middle" font-size="14" style="font-weight:700;font-family:Consolas,monospace">${wind?(AS.len.toFixed(1)+' / 50 m'):(pad4(AS.cnt)+' pulses')}</text><text x="375" y="240" text-anchor="middle" font-size="11">${wind?'Footage counter':'= '+(AS.cnt*10/1000).toFixed(2)+' m'}</text>`}
+  $('#apSvg').innerHTML=h;$('#apTxt').innerHTML=`<h3>${a.n}</h3>${a.txt}`;
+  $('#apSay').innerHTML=a.k==='item'?`Products counted: <b>${AS.cnt}</b>. ${AS.stack>=10?'<b>Stack of 10 complete!</b>':''}`:a.k==='len'?`<b>${AS.cnt}</b> pulses × 10 mm = <b>${(AS.cnt*10/1000).toFixed(2)} m</b> of material.`:(AS.len>=50?'<b>50 m reached: the winder stops.</b> Cut the roll and press Reset for the next one.':`Wound so far: <b>${AS.len.toFixed(1)} m</b> of 50 m.`)}
+tickers.push(()=>{if(!apRun)return;const k=AP[apI].k;
+  if(k==='item'){AS.boxes=AS.boxes.map(x=>{const nx=x+6;if(x<=300&&nx>300){AS.cnt++;AS.stack=Math.min(10,AS.stack+1)}return nx>560?nx-560+20:nx});if(AS.stack>=10){apRun=false;$('#apGo').textContent='▶ Start'}}
+  if(k==='len'){AS.ang+=12;if(Math.round(AS.ang)%60===0)AS.cnt++}
+  if(k==='wind'){AS.ang+=12;if(Math.round(AS.ang)%60===0){AS.cnt++;AS.len=Math.min(50,AS.len+0.5)}if(AS.len>=50){apRun=false;$('#apGo').textContent='▶ Start'}}
+  if(apVis.vis)apDraw()});
+$$('#apTabs .chip').forEach(b=>b.onclick=()=>{press($$('#apTabs .chip'),b);apI=+b.dataset.i;apReset()});
+$('#apGo').onclick=()=>{apRun=!apRun;$('#apGo').textContent=apRun?'❚❚ Pause':'▶ Start'};$('#apRst').onclick=apReset;apReset();
+
+/* ===== L4.3 Up, down and up/down ===== */
+const UD={mode:'up',acc:0,pre:5,trace:[],msg:''};
+$('#udMode').innerHTML=[['up','Up counter'],['down','Down counter'],['updown','Up/down counter']].map((m,i)=>`<button class="chip" aria-pressed="${i===0}" data-m="${m[0]}">${m[1]}</button>`).join('');
+const udDone=()=>UD.mode==='down'?UD.acc<=0:UD.acc>=UD.pre;
+function udReset(){UD.acc=UD.mode==='down'?UD.pre:0;UD.trace=[];UD.msg=UD.mode==='down'?`A down counter starts at the preset (<b>${UD.pre}</b>) and counts down to 0.`:'The count starts at 0.';udDraw()}
+function udPulse(d){if(UD.mode==='up'&&d<0||UD.mode==='down'&&d>0){UD.msg=UD.mode==='up'?'An up counter only counts up.':'A down counter only counts down.';udDraw();return}
+  UD.acc=Math.max(UD.mode==='updown'?-9:0,Math.min(99,UD.acc+d));UD.trace.push(d);if(UD.trace.length>12)UD.trace.shift();
+  UD.msg=`${d>0?'+1':'−1'} → count = <b>${UD.acc}</b>.`+(udDone()?' <b>Output ON:</b> '+(UD.mode==='down'?'the count reached 0.':'the count reached the preset.'):'');udDraw()}
+function udDraw(){const on=udDone();let h=`<text x="20" y="34" font-size="13">UP input</text><text x="20" y="104" font-size="13">DOWN input</text>`;
+  const row=(y,col,sel)=>{let d=`M90,${y}`,x=90;UD.trace.forEach(t=>{if(t===sel){d+=` H${x+8} V${y-26} H${x+24} V${y}`}x+=26;d+=` H${x}`});return `<path d="${d}" stroke="${col}" stroke-width="3" fill="none"/>`};
+  h+=row(46,'#C22E29',1)+row(116,'#2F6FB5',-1);
+  h+=`<path d="M410,80 H450" stroke="var(--ink2)" stroke-width="2"/><path d="M444,74 l8,6 l-8,6" stroke="var(--ink2)" stroke-width="2" fill="none"/>
+   <rect x="460" y="30" width="150" height="100" class="bx${on?' done':''}"/><text x="535" y="56" text-anchor="middle" font-size="14" class="lbl">Counter value</text><text x="535" y="104" text-anchor="middle" font-size="40" style="font-weight:700">${UD.acc}</text>
+   <text x="535" y="150" text-anchor="middle" font-size="13">${UD.mode==='down'?'counts down to 0':'preset '+UD.pre}</text>
+   <circle cx="535" cy="190" r="18" style="fill:${on?'#F0C04A':'var(--panel2)'};stroke:var(--ink);stroke-width:2"/><text x="535" y="226" text-anchor="middle" font-size="12">Output ${on?'ON':'OFF'}</text>
+   <text x="90" y="170" font-size="12" class="nm">Pulses so far: ${UD.trace.filter(t=>t>0).length} up, ${UD.trace.filter(t=>t<0).length} down (last 12 shown)</text>`;
+  $('#udSvg').innerHTML=h;$('#udSay').innerHTML=UD.msg;$('#udDn').disabled=UD.mode==='up';$('#udUp').disabled=UD.mode==='down'}
+$$('#udMode .chip').forEach(b=>b.onclick=()=>{press($$('#udMode .chip'),b);UD.mode=b.dataset.m;udReset()});
+$('#udUp').onclick=()=>udPulse(1);$('#udDn').onclick=()=>udPulse(-1);
+$('#udP').oninput=e=>{UD.pre=+e.target.value;$('#udPv').textContent=UD.pre;udReset()};$('#udRst').onclick=udReset;
+$('#udPwr').onclick=async()=>{const b=$('#udPwr');b.disabled=true;$('#udSvg').style.opacity=.25;UD.msg='⚡ <b>Power cut…</b>';$('#udSay').innerHTML=UD.msg;await sleep(1500);$('#udSvg').style.opacity=1;b.disabled=false;
+  UD.msg=`<b>Power is back.</b> The counter still shows <b>${UD.acc}</b>: PLC counters are <b>retentive</b>, they keep their count through a power cut. (A TIM timer would have reset.)`;udDraw()};
+udReset();
+
+/* ===== L4.4 OMRON CNT ===== */
+const CN={sv:5,pv:5,c:0,r:0,lastC:0,pwr:1,hl:null,msg:'Press <b>COUNT</b> once for each product.'};
+function cnScan(){if(!CN.pwr)return;if(CN.r){CN.pv=CN.sv}else if(CN.c&&!CN.lastC&&CN.pv>0)CN.pv--;CN.lastC=CN.c}
+const CNM=[['LD','00000','c'],['LD','00001','r'],['CNT','000 #0005','box'],['LD','CNT000','f'],['OUT','01000','o'],['END(01)','','e']];
+function cnDraw(){const p=CN.pwr,done=p&&CN.pv===0,c=p&&CN.c,r=p&&CN.r,ring=k=>CN.hl===k?' style="stroke:#E8A400;stroke-width:4"':'';
+  const W=(d,on)=>`<path class="w${on?' p':''}" d="${d}"/>`,K=(x,y,a,l,on,k)=>`<rect class="cbg${on?' p':''}" x="${x-11}" y="${y-13}" width="22" height="26"${ring(k)}/><path class="ct${on?' p':''}" d="M${x-11},${y-13}V${y+13}M${x+11},${y-13}V${y+13}"/><text x="${x}" y="${y-19}" font-size="12" text-anchor="middle">${a}</text><text x="${x}" y="${y+29}" font-size="11" text-anchor="middle" class="nm">${l}</text>`;
+  const svg=`<svg viewBox="0 0 520 300" width="520" height="300" role="img" aria-label="CNT ladder"><path class="rail" d="M20,0V290M500,0V290"/>${p?'<path class="w p" d="M20,0V290" style="stroke-width:4"/>':''}
+   ${W('M20,60H88',p)}${K(100,60,'00000','COUNT',c,'c')}${W('M112,60H300',c)}<text x="290" y="54" font-size="12" text-anchor="end" style="font-weight:700">CP</text>
+   ${W('M20,140H88',p)}${K(100,140,'00001','RESET',r,'r')}${W('M112,140H300',r)}<text x="290" y="134" font-size="12" text-anchor="end" style="font-weight:700">R</text>
+   <rect class="tbox${done?' done':''}" x="300" y="34" width="110" height="130" rx="3"${ring('box')}/><text x="355" y="74" text-anchor="middle" font-size="16" style="font-weight:700">CNT</text><text x="355" y="102" text-anchor="middle" font-size="14">000</text><text x="355" y="128" text-anchor="middle" font-size="14">#0005</text>
+   <text class="pvt" x="355" y="26" text-anchor="middle">${p?'PV '+pad4(CN.pv):'(power off)'}</text>
+   ${W('M20,236H88',p)}${K(100,236,'CNT000','counter done',done,'f')}${W('M112,236H436',done)}<circle class="coil${done?' on':''}" cx="450" cy="236" r="14" style="fill:${done?'rgba(22,163,74,.35)':'var(--panel)'};stroke:var(--ink);stroke-width:2.2"${ring('o')}/><text x="450" y="216" font-size="12" text-anchor="middle">01000</text><text x="450" y="268" font-size="11" text-anchor="middle" class="nm">LAMP</text>${W('M464,236H500',0)}</svg>`;
+  $('#cnLad').innerHTML=svg;$('#cnMn').innerHTML=`<table class="mn"><thead><tr><th>Address</th><th>Instruction</th><th>Operands</th></tr></thead><tbody>${CNM.map((r,i)=>`<tr data-k="${r[2]}"${CN.hl===r[2]?' class="hl"':''}><td>${pad4(i).padStart(5,'0')}</td><td>${r[0]}</td><td>${r[1]||'—'}</td></tr>`).join('')}</tbody></table>`;
+  $$('#cnMn tr[data-k]').forEach(tr=>tr.onclick=()=>{CN.hl=CN.hl===tr.dataset.k?null:tr.dataset.k;cnDraw()});
+  $('#cnPv').textContent=p?pad4(CN.pv):'----';$('#cnPs').textContent=!p?'power off':CN.pv?`${CN.pv} to go`:'Done: CNT000 ON';$('#cnPb').style.width=(p?CN.pv/CN.sv*100:0)+'%';
+  $('#cnBox').classList.toggle('done',!!done);$('#cnL').classList.toggle('on',!!done);$('#cnSay').innerHTML=CN.msg}
+hold($('#cnC'),()=>{CN.c=1;const before=CN.pv;cnScan();CN.msg=!CN.pwr?'The PLC is off.':CN.r?'RESET is held, so counts are ignored: the PV stays at 0005.':before===0?'The PV is already 0000. It cannot go lower: the lamp stays ON until RESET.':`<b>OFF → ON on CP:</b> PV ${pad4(before)} → <b>${pad4(CN.pv)}</b>.`+(CN.pv===0?' <b>PV = 0: CNT000 turns ON and lamp 01000 lights.</b>':' Keep holding: no more counts until you let go and press again.');cnDraw()},
+  ()=>{CN.c=0;cnScan();cnDraw()});
+hold($('#cnR'),()=>{CN.r=1;cnScan();CN.msg=CN.pwr?'<b>RESET (R) ON:</b> the PV goes back to the SV, 0005, and the CNT000 contact turns OFF.':'The PLC is off.';cnDraw()},()=>{CN.r=0;cnScan();cnDraw()});
+$('#cnPw').onclick=async()=>{if(!CN.pwr)return;CN.pwr=0;CN.msg='⏻ <b>Power OFF…</b> the outputs drop out.';cnDraw();await sleep(1500);CN.pwr=1;
+  CN.msg=`⏻ <b>Power ON again:</b> the PV is still <b>${pad4(CN.pv)}</b>. CNT is retentive: it remembers its count through a power cut.`;cnDraw()};
+cnDraw();
+
+/* ===== L4.5 Conveyor process (the task sequence, as described on the sheet) ===== */
+const CV={st:'idle',x:-40,stk:false,wait:0,cnt:0,cx:560,drop:0,spd:1,start:0,c1:false,c2:false};
+const S1=270,S2=500,cvVis={vis:true};watchVis($('#cvSvg'),cvVis);
+function cvDraw(){const prod=CV.st==='run'||CV.st==='wait'||CV.st==='drop';
+  const py=CV.st==='drop'?122+CV.drop*40:122,px=CV.st==='drop'?S2+20+CV.drop*55:CV.x;
+  let h=`<rect x="0" y="0" width="760" height="300" fill="#0D1317"/>
+   <rect x="20" y="132" width="510" height="26" rx="13" fill="${CV.c1?'#3B4A55':'#2A333A'}" stroke="#4A5A66"/>${CV.c1?[...Array(12)].map((_,i)=>`<path d="M${30+((i*44+CV.x*0.6)%500+500)%500},136 v18" stroke="#56636D" stroke-width="3"/>`).join(''):''}
+   <rect x="480" y="176" width="270" height="30" rx="15" fill="${CV.c2?'#3B4A55':'#2A333A'}" stroke="#4A5A66"/>
+   <text x="40" y="186" font-size="13" style="fill:#8A99A6">Conveyor 1 · motor 01000 ${CV.c1?'<tspan style="fill:#3FE36C">RUN</tspan>':'stop'}</text>
+   <text x="560" y="228" font-size="13" style="fill:#8A99A6">Conveyor 2 · motor 01001 ${CV.c2?'<tspan style="fill:#3FE36C">RUN</tspan>':'stop'}</text>
+   <circle cx="${S1}" cy="126" r="7" fill="${prod&&Math.abs(CV.x-S1)<16&&CV.st!=='drop'?'#3FE36C':'#C22E29'}"/><text x="${S1}" y="102" text-anchor="middle" font-size="12">Sensor 1 (00001)</text>
+   <circle cx="${S2}" cy="126" r="7" fill="${prod&&CV.st!=='drop'&&Math.abs(CV.x-S2)<16?'#3FE36C':'#C22E29'}"/><text x="${S2}" y="102" text-anchor="middle" font-size="12">Sensor 2 (00002)</text>
+   <g transform="translate(${S1-10},26)"><circle cx="0" cy="0" r="12" fill="#E07BC0"/><rect x="-12" y="12" width="24" height="34" rx="6" fill="#E07BC0"/><text x="30" y="20" font-size="12" style="fill:#8A99A6">Operator</text></g>
+   <g transform="translate(${CV.cx},176)"><path d="M0,0 h90 l-8,-44 h-74 z" fill="#E8833A" stroke="#8A4A10" stroke-width="2"/><text x="45" y="-14" text-anchor="middle" font-size="16" style="fill:#fff;font-weight:700">${CV.cnt}/5</text></g>`;
+  if(prod)h+=`<g transform="translate(${px-14},${py-14})"><rect width="28" height="22" rx="2" fill="#F4E04A" stroke="#8A7A10"/>${CV.stk?'<rect x="6" y="6" width="16" height="9" fill="#fff"/><path d="M8,8v5M11,8v5M14,8v5M18,8v5" stroke="#000" stroke-width="1"/>':''}</g>`;
+  if(CV.st==='wait')h+=`<text x="${S1}" y="230" text-anchor="middle" font-size="15" style="fill:#F0C04A;font-weight:700">Timer: ${(CV.wait/10).toFixed(1)} s</text>`;
+  h+=`<rect x="20" y="20" width="60" height="44" rx="4" fill="#172028" stroke="#4A5A66"/><circle cx="50" cy="42" r="13" fill="${CV.start?'#3FB950':'#1C5A26'}"/><text x="50" y="80" text-anchor="middle" font-size="11" style="fill:#8A99A6">START 00000</text>`;
+  $('#cvSvg').innerHTML=h;
+  const io=[['00000','START',CV.start],['00001','Sensor 1',prod&&CV.st!=='drop'&&Math.abs(CV.x-S1)<16],['00002','Sensor 2',prod&&CV.st!=='drop'&&Math.abs(CV.x-S2)<16],['01000','Conveyor 1',CV.c1],['01001','Conveyor 2',CV.c2]];
+  $('#cvIo').innerHTML=io.map(r=>`<span class="${r[2]?'on':''}"><i></i><code>${r[0]}</code> ${r[1]}</span>`).join('')+`<span><code>Count</code> ${CV.cnt} of 5</span>`;
+  const al=$('#cvAlm'),A={idle:['Press START','',],run:[`Conveyor 1 running: product ${CV.cnt+1} of 5 ${CV.stk?'(sticker on, heading to sensor 2)':'heading to sensor 1'}`,'go'],wait:['Product at sensor 1: conveyor 1 stops for 10 s while the operator sticks the bar code','wait'],drop:[`Product ${CV.cnt+1} reached sensor 2 and drops into the container`,'go'],away:['Container full (5 products): conveyor 2 takes it to final packaging','done'],done:['Batch complete. Press START for the next container','done']}[CV.st];
+  al.textContent=A[0];al.className='alm '+(A[1]||'');$('#cvClk').textContent=CV.st==='idle'||CV.st==='done'?'Stopped':'Running'}
+function cvStep(){for(let n=0;n<CV.spd;n++){
+  if(CV.st==='run'){CV.c1=true;CV.x+=4;if(!CV.stk&&CV.x>=S1){CV.x=S1;CV.st='wait';CV.wait=100;CV.c1=false}else if(CV.stk&&CV.x>=S2){CV.x=S2;CV.st='drop';CV.drop=0}}
+  else if(CV.st==='wait'){CV.wait--;if(CV.wait===40)CV.stk=true;if(CV.wait<=0){CV.st='run'}}
+  else if(CV.st==='drop'){CV.drop=Math.min(1,CV.drop+0.08);if(CV.drop>=1){CV.cnt++;if(CV.cnt>=5){CV.st='away';CV.c1=false;CV.c2=true}else{CV.st='run';CV.x=-40;CV.stk=false}}}
+  else if(CV.st==='away'){CV.cx+=4;if(CV.cx>780){CV.st='done';CV.c2=false;CV.cnt=0;CV.cx=560}}
+  if(CV.start)CV.start--}
+  if(cvVis.vis)cvDraw()}
+tickers.push(()=>{if(CV.st!=='idle'&&CV.st!=='done'||CV.start)cvStep()});
+$('#cvStart').onclick=()=>{CV.start=6;if(CV.st==='idle'||CV.st==='done'){CV.st='run';CV.x=-40;CV.stk=false;CV.cnt=0;CV.cx=560}cvDraw()};
+$('#cvRst').onclick=()=>{Object.assign(CV,{st:'idle',x:-40,stk:false,wait:0,cnt:0,cx:560,drop:0,start:0,c1:false,c2:false});cvDraw()};
+$$('#cvSpd button').forEach(b=>b.onclick=()=>{press($$('#cvSpd button'),b);CV.spd=+b.dataset.v});
+cvDraw();
+sorter($('#cvSort'),$('#cvFb'),[
+ ['Wait 10 seconds at sensor 1 while the operator sticks the bar code','tim','Waiting a set time is a timer\'s job (Lab 3).'],
+ ['Know when the container has 5 products','cnt','Counting events is a counter\'s job: one count each time a product reaches sensor 2.'],
+ ['Tell the PLC that a product has reached the end of conveyor 1','in','Proximity sensor 2 is an input, 00002.'],
+ ['Move the full container to final packaging','out','Motor of conveyor 2 is an output, 01001.'],
+ ['Keep conveyor 1 running after the START button is released','hold','A momentary push button needs a self-holding (latching) circuit, from Lab 2.'],
+ ['Start the next container from zero','cnt','The counter must be reset, so its reset input needs a condition too.']],
+ [['tim','Timer'],['cnt','Counter'],['in','Input'],['out','Output'],['hold','Self-holding']]);
+
+/* ===== L4.6 Practice ===== */
+let PR=null,prOk=0,prN=0;
+function prNew(){const ev=[];let pv=3;const n=5+Math.floor(Math.random()*3);
+  for(let i=0;i<n;i++){const r=Math.random();let e;if(r<.62)e='c';else if(r<.8)e='h';else e='r';if(i===n-1&&e==='r')e='c';ev.push(e)}
+  const pvs=[];ev.forEach(e=>{if(e==='r')pv=3;else if(pv>0)pv--;pvs.push(pv)});PR={ev,pvs,ans:pv,done:false};
+  const T={c:'COUNT pressed and released',h:'COUNT pressed and <b>held for 3 seconds</b>',r:'RESET pressed and released'};
+  $('#prEv').innerHTML=ev.map((e,i)=>`<li>${T[e]}<span class="pv" hidden>PV ${pad4(pvs[i])}</span></li>`).join('');
+  $('#prOpt').innerHTML=[3,2,1,0].map(v=>`<button class="chip" data-v="${v}">PV ${pad4(v)}${v===0?' (lamp ON)':''}</button>`).join('');
+  $('#prSay').innerHTML='Choose an answer.';
+  $$('#prOpt .chip').forEach(c=>c.onclick=async()=>{if(PR.done)return;PR.done=true;const ok=+c.dataset.v===PR.ans;prN++;if(ok)prOk++;
+    c.classList.add(ok?'right':'wrong');if(!ok)$(`#prOpt .chip[data-v="${PR.ans}"]`).classList.add('right');$('#prScore').textContent=`Score: ${prOk} of ${prN}`;
+    $('#prSay').innerHTML=(ok?'<b>Correct!</b> ':'<b>Not quite.</b> ')+'Watch it step by step:';const lis=$$('#prEv li');
+    for(let i=0;i<lis.length;i++){lis.forEach(l=>l.classList.remove('now'));lis[i].classList.add('now');lis[i].querySelector('.pv').hidden=false;await sleep(700)}
+    lis.forEach(l=>l.classList.remove('now'));$('#prSay').innerHTML+=` final PV <b>${pad4(PR.ans)}</b>${PR.ans===0?', so CNT000 is ON and lamp 01000 lights':''}. Holding COUNT counts once; RESET puts the PV back to 0003; the PV never goes below 0000.`})}
+$('#prNew').onclick=prNew;prNew();
+})();
+</script>
+<!-- Phone remote (receiver). The same block is in every chapter and lab page and the homepage. -->
+<style>
+.rm-btn{position:fixed;left:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:30;padding:6px 12px;font-size:14px}
+.rm-btn.on{background:var(--ok);border-color:var(--ok);color:#fff}
+@media (pointer:coarse){.rm-btn{display:none}}
+.rm-panel{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:70;display:flex;align-items:center;justify-content:center;padding:16px}
+.rm-panel[hidden]{display:none}
+.rm-card{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;max-width:400px;width:100%;padding:18px;text-align:center;font-size:15px}
+.rm-card h3{margin:0 0 6px;font-size:24px}
+.rm-qr{display:inline-block;background:#fff;padding:8px;border-radius:6px;margin:8px 0;min-height:120px;min-width:120px}
+.rm-qr svg,.rm-qr img{display:block;width:240px;height:240px}
+.rm-code{font:700 26px var(--cond);letter-spacing:.08em}
+.rm-st{margin:6px 0;font-weight:600}
+.rm-st.ok{color:var(--ok)}.rm-st.bad{color:var(--alarm)}
+.rm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1D2730;color:#fff;padding:8px 16px;border-radius:20px;z-index:71;opacity:0;transition:opacity .3s;pointer-events:none;font-weight:600}
+.rm-toast.show{opacity:.94}
+</style>
+<button class="btn rm-btn" id="rmBtn" title="Control this page from your phone">📱 Phone remote</button>
+<div class="rm-panel" id="rmPanel" hidden><div class="rm-card" role="dialog" aria-label="Phone remote">
+  <h3>Phone remote</h3>
+  <div class="rm-st" id="rmSt">Connecting…</div>
+  <div class="rm-qr" id="rmQr"></div>
+  <div>Scan with your phone camera, or open <b id="rmLink"></b> and type:</div>
+  <div class="rm-code" id="rmCode"></div>
+  <p class="muted" style="font-size:13px;margin:8px 0">Only the first phone that connects can control this PC. Tip: pair before the projector shows this box. The remote keeps working when you open another chapter.</p>
+  <div class="row" style="justify-content:center"><button class="btn primary" id="rmClose">Close</button><button class="btn danger" id="rmStop">Stop remote</button></div>
+</div></div>
+<div class="rm-toast" id="rmToast" aria-live="polite"></div>
+<script>
+(function(){
+const L=k=>{try{return localStorage.getItem(k)}catch(e){return null}},S=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+const BROKERS=['wss://broker.hivemq.com:8884/mqtt','wss://broker.emqx.io:8084/mqtt'];
+const AB='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const $=id=>document.getElementById(id);
+const btn=$('rmBtn'),panel=$('rmPanel'),toast=$('rmToast');
+if(!window.crypto||!crypto.subtle){btn.hidden=true;return}
+let cli=null,code=null,key=null,bi=0,lastN=0,phone=false,started=false,stT=null;
+const load=src=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+const topic=x=>`emt30205/rm/${code.slice(0,4)}/${x}`;
+function say(t){toast.textContent=t;toast.classList.add('show');clearTimeout(say.t);say.t=setTimeout(()=>toast.classList.remove('show'),1600)}
+const secs=()=>[...document.querySelectorAll('section.topic')];
+function cur(){const a=secs();let c=null;const y=innerHeight*.35;for(const s of a){if(s.getBoundingClientRect().top<=y)c=s}return c}
+function info(s){const h=s.querySelector('h2');if(!h)return [s.id,'',''];const n=h.querySelector('.n');return [s.id,n?n.textContent:'',[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim()]}
+function stepBtn(s){return s?[...s.querySelectorAll('.btn.primary,.hbtn.go')].find(b=>!b.disabled&&b.offsetParent):null}
+let want=null,wantT=0;
+function state(){if(!cli||!cli.connected)return;const s=Date.now()<wantT?want:cur(),b=stepBtn(s);
+  cli.publish(topic('s'),JSON.stringify({t:document.title.split('|')[0].trim(),p:location.pathname.split('/').pop()||'index.html',secs:secs().map(info),cur:s?s.id:'',step:b?b.textContent.trim().slice(0,32):'',wheel:!!$('spinBtn')}),{retain:true})}
+const later=()=>{clearTimeout(stT);stT=setTimeout(state,500)};
+function toY(y){y=Math.max(0,Math.min(y,document.documentElement.scrollHeight-innerHeight));window.scrollTo({top:y});setTimeout(()=>{if(Math.abs(scrollY-y)>40)window.scrollTo({top:y,behavior:'instant'});later()},1200)}
+const go=s=>{if(s){want=s;wantT=Date.now()+1500;toY(s.getBoundingClientRect().top+scrollY-10)}};
+const b64d=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+async function verify(m){try{const o=JSON.parse(m);if(typeof o.n!=='number'||o.n<=lastN)return null;
+  const ok=await crypto.subtle.verify('HMAC',key,b64d(o.g),new TextEncoder().encode(o.n+'|'+o.c));if(!ok)return null;const x=JSON.parse(o.c),own=L('rm-sid');if(own?x.s!==own:x.a!=='hello')return null;lastN=o.n;S('rm-n',String(lastN));return x}catch(e){return null}}
+function run(c){if(!L('rm-sid')&&c.a==='hello'&&c.s)S('rm-sid',c.s);
+  const a=secs(),s=cur(),i=a.indexOf(s);
+  if(c.a==='hello'){phone=true;btn.textContent='📱 Phone connected';$('rmSt').textContent='Phone connected ✓';$('rmSt').className='rm-st ok';say('📱 Phone connected');setTimeout(()=>{panel.hidden=true},1200)}
+  else if(c.a==='next'){if(i<a.length-1){go(a[i+1]);say('Next section ▶')}}
+  else if(c.a==='prev'){if(i>0){go(a[i-1]);say('◀ Previous section')}}
+  else if(c.a==='down')toY(scrollY+innerHeight*.6);
+  else if(c.a==='up')toY(scrollY-innerHeight*.6);
+  else if(c.a==='top'){want=null;wantT=Date.now()+1500;toY(0)}
+  else if(c.a==='go'){const t=document.getElementById(c.id);if(t&&t.matches('section.topic'))go(t)}
+  else if(c.a==='step'){const b=stepBtn(s);if(b){const r=b.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)window.scrollBy({top:r.top-innerHeight*.3});b.click();say('▶ '+b.textContent.trim().slice(0,30))}else say('No step button in this section')}
+  else if(c.a==='spin'){const w=$('spinBtn');if(w){go(w.closest('section'));setTimeout(()=>w.click(),600);say('Spinning the wheel')}}
+  else if(c.a==='theme'){const t=$('themeBtn');if(t)t.click()}
+  else if(c.a==='open'){if(/^[a-z0-9-]+\.html$/.test(c.h||'')){say('Opening '+c.h);location.href=c.h;return}}
+  state();later()}
+function showPairing(){const url=new URL('remote.html',location.href);url.hash=code+'.'+bi;
+  $('rmLink').textContent=url.host+url.pathname;$('rmCode').textContent=code.match(/.{4}/g).join('-');
+  if(window.qrcode){const q=qrcode(0,'M');q.addData(url.href);q.make();$('rmQr').innerHTML=q.createSvgTag(5,2)}}
+function connect(){const c=mqtt.connect(BROKERS[bi],{clientId:'emtpc'+Math.random().toString(16).slice(2,10),connectTimeout:7000,reconnectPeriod:4000});cli=c;let ok=false;
+  c.on('connect',()=>{ok=true;S('rm-b',String(bi));c.subscribe(topic('c'));state();btn.classList.add('on');btn.textContent=phone?'📱 Phone connected':'📱 Remote ready';
+    if(!phone){$('rmSt').textContent='Ready: waiting for your phone';$('rmSt').className='rm-st'}showPairing()});
+  c.on('message',async(t,m)=>{if(t!==topic('c'))return;const x=await verify(m.toString());if(x)run(x)});
+  c.on('offline',()=>{btn.classList.remove('on');btn.textContent='📱 Reconnecting…'});
+  setTimeout(()=>{if(!ok&&cli===c&&bi+1<BROKERS.length){c.end(true);bi++;$('rmSt').textContent='Trying another server…';connect()}else if(!ok&&cli===c){$('rmSt').textContent='Cannot reach the remote server from this network.';$('rmSt').className='rm-st bad'}},8000)}
+async function start(show){if(started){if(show)panel.hidden=false;return}started=true;
+  code=L('rm-code');if(!code||!/^[A-Z2-9]{12}$/.test(code)){code=[...crypto.getRandomValues(new Uint8Array(12))].map(x=>AB[x%AB.length]).join('');S('rm-code',code);S('rm-n',null)}
+  S('rm-on','1');lastN=+L('rm-n')||0;bi=Math.min(+L('rm-b')||0,BROKERS.length-1);if(show)panel.hidden=false;btn.textContent='📱 Connecting…';
+  key=await crypto.subtle.importKey('raw',new TextEncoder().encode(code.slice(4)),{name:'HMAC',hash:'SHA-256'},false,['verify']);
+  try{if(!window.mqtt)await load('https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js');if(!window.qrcode)await load('https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js')}
+  catch(e){$('rmSt').textContent='Could not load the remote. Check the internet connection.';$('rmSt').className='rm-st bad';started=false;return}
+  connect()}
+function stop(){S('rm-on',null);S('rm-sid',null);S('rm-code',null);S('rm-n',null);if(cli){try{cli.publish(topic('s'),'',{retain:true});cli.end(true)}catch(e){}}cli=null;started=false;phone=false;panel.hidden=true;btn.classList.remove('on');btn.textContent='📱 Phone remote';$('rmQr').innerHTML='';say('Phone remote stopped')}
+btn.onclick=()=>start(true);$('rmClose').onclick=()=>{panel.hidden=true};$('rmStop').onclick=stop;
+panel.onclick=e=>{if(e.target===panel)panel.hidden=true};
+addEventListener('scroll',later,{passive:true});
+if(L('rm-on')==='1'){if(L('rm-sid'))phone=true;start(false)}
+})();
+</script>
+</body>
+</html>
