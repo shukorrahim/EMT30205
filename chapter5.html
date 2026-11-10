@@ -1013,8 +1013,8 @@ const CD=[['menu','<b>Step 1:</b> <b>File ▸ New Project</b>. Choose the HMI mo
  ['pal','<b>Step 3:</b> pick a <b>Bit button</b> from the objects toolbar.',''],
  ['scr','<b>Step 4:</b> draw it on <b>Screen 1</b>.',''],
  ['prop','<b>Step 5:</b> double-click it and set its <b>address</b> to <b>000.01</b> and its label to START.','Object: Bit button<br>Address: <b>000.01</b><br>Action: toggle<br>Label: START'],
- ['scr','<b>Step 6:</b> add a <b>Bit lamp</b> with the <b>same address, 000.01</b>.','Object: Bit lamp<br>Address: <b>000.01</b><br>ON colour: green'],
- ['menu','<b>Step 7:</b> <b>save</b>, then use <b>Test</b> to try the screen on the PC. Press START: the lamp lights.',''],
+ ['scr','<b>Step 6:</b> add a <b>Bit lamp</b> with address <b>010.00</b> (output 01000). The PLC program <b>LD 00001, OUT 01000</b> turns it ON when START is pressed.','Object: Bit lamp<br>Address: <b>010.00</b><br>ON colour: green'],
+ ['menu','<b>Step 7:</b> <b>save</b>, then test the screen with the PLC program running (on the PLC or in CX-Simulator). Press START: input 00001 turns ON, the PLC switches output 01000, and the lamp lights.',''],
  ['menu','<b>Step 8:</b> <b>transfer</b> the project to the HMI panel, connect it to the PLC and test it for real.','']];
 let cdI=-1,cdT=null;
 function cdShow(i){cdI=i;const s=CD[i];['menu','pal','scr','prop'].forEach(z=>$('#cdz-'+z).classList.toggle('hl',z===s[0]));
@@ -1025,8 +1025,11 @@ $('#cdNext').onclick=()=>cdShow(Math.min(CD.length-1,cdI+1));$('#cdBack').onclic
 $('#cdSay').innerHTML='Press <b>Next step</b> to walk through making a screen with a START button and a lamp.';$('#cdBack').disabled=true;
 
 /* ===== 5.4 Tutorial 1 builder ===== */
-const TT={bb:['Bit button','bit','000.01'],bl:['Bit lamp','bit','000.01'],sb:['Screen button','scr',2],bg:['Background picture','bg'],ss:['Slide switch','bit','000.02'],ne:['Numeric entry','word','DM0100'],nd:['Numeric display','word','DM0100'],wb:['Word button','word','DM0100']};
-const BITS=['000.01','000.02','000.03'],WORDS=['DM0100','DM0101'];
+const TT={bb:['Bit button','bit','000.01'],bl:['Bit lamp','lamp','010.00'],sb:['Screen button','scr',2],bg:['Background picture','bg'],ss:['Slide switch','bit','000.02'],ne:['Numeric entry','word','DM0100'],nd:['Numeric display','word','DM0100'],wb:['Word button','word','DM0100']};
+const BITS=['000.01','000.02','000.03'],WORDS=['DM0100','DM0101'],LAMPS=['010.00','010.01','010.02','000.01','000.02','000.03'];
+/* The PLC program in the kit: LD 00001 OUT 01000, LD 00002 OUT 01001, LD 00003 OUT 01002 */
+const t1Out=a=>a&&a.startsWith('000.0')?'010.0'+(+a.slice(-1)-1):a;
+function t1Scan(){BITS.forEach(a=>t1Mem[t1Out(a)]=t1Mem[a]?1:0)}
 const T1={1:{bg:false,o:[]},2:{bg:false,o:[]}};let t1S=1,t1M='edit',t1Sel=-1,t1Q=0;const t1Mem={};const t1Done={lamp:false,scr:false,num:false};
 const T1Q=[['Soalan 1','<i>Paparkan pada panel HMI fungsi berikut: a) Bit Button b) Bit Lamp</i><br>Show a bit button and a bit lamp on the HMI panel.'],
  ['Soalan 2','<i>Pada paparan screen1, anda dikehendaki memasukkan fungsi berikut: a) Bit Button b) Bit Lamp c) Screen Button d) Background picture</i>'],
@@ -1056,14 +1059,15 @@ function t1Draw(){const s=T1[t1S],cv=$('#t1Cv');cv.classList.toggle('pic',s.bg);
   $$('#t1Cv .wdg').forEach(d=>{const i=+d.dataset.i,o=s.o[i];
     if(t1M==='edit'){d.onclick=()=>{t1Sel=i;t1Draw()};d.querySelectorAll('button,input').forEach(x=>x.style.pointerEvents='none');return}
     const act=d.querySelector('[data-act]');if(!act)return;
-    if(o.k==='bb'||o.k==='ss')act.onclick=()=>{t1Mem[o.a]=t1Mem[o.a]?0:1;if(t1Mem[o.a]&&T1[t1S].o.some(x=>x.k==='bl'&&x.a===o.a))t1Done.lamp=true;t1Say(`You wrote <b>${t1Mem[o.a]}</b> into <b>${o.a}</b>.`);t1Draw();t1Chk()};
+    if(o.k==='bb'||o.k==='ss')act.onclick=()=>{t1Mem[o.a]=t1Mem[o.a]?0:1;t1Scan();const out=t1Out(o.a);if(t1Mem[o.a]&&T1[t1S].o.some(x=>x.k==='bl'&&x.a===out))t1Done.lamp=true;t1Say(`You wrote <b>${t1Mem[o.a]}</b> into input <b>${o.a}</b>. The PLC program copies it to output <b>${out}</b>${T1[t1S].o.some(x=>x.k==='bl'&&x.a===out)?', so the lamp '+(t1Mem[o.a]?'lights':'goes off'):''}.`);t1Draw();t1Chk()};
     if(o.k==='sb')act.onclick=()=>{if(o.a===t1S){t1Say('This button points to the screen you are already on. Set its target to the other screen.');return}t1S=o.a;t1Done.scr=true;t1Say(`The screen button took you to <b>Screen ${o.a}</b>. Add a screen button there to come back.`);t1Draw();t1Chk()};
     if(o.k==='ne')act.onchange=e=>{t1Mem[o.a]=Math.round(+e.target.value||0);t1Num(o.a);t1Draw();t1Chk()};
     if(o.k==='wb')act.onclick=()=>{t1Mem[o.a]=o.v;t1Num(o.a);t1Draw();t1Chk()}});
   t1Prop();t1Chk()}
 function t1Num(a){t1Say(`<b>${a}</b> now holds <b>${t1Mem[a]}</b>.`);if(T1[t1S].o.some(x=>x.k==='nd'&&x.a===a))t1Done.num=true}
 function t1Prop(){const p=$('#t1Prop'),o=T1[t1S].o[t1Sel];if(t1M!=='edit'||!o){p.innerHTML=t1M==='run'?'Run mode: properties are locked.':'Select a component on the screen.';return}const t=TT[o.k];
-  let h=`<b>${t[0]}</b>`;if(t[1]==='bit')h+=`<label>Address<select id="t1A">${BITS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label>`;
+  let h=`<b>${t[0]}</b>`;if(t[1]==='lamp')h+=`<label>Address<select id="t1A">${LAMPS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label><span class="muted" style="font-size:13px">010.00 is output 01000: the PLC turns it ON when input 000.01 is ON.</span>`;
+  if(t[1]==='bit')h+=`<label>Address<select id="t1A">${BITS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label>`;
   if(t[1]==='word')h+=`<label>Address<select id="t1A">${WORDS.map(a=>`<option${a===o.a?' selected':''}>${a}</option>`).join('')}</select></label>`;
   if(o.k==='sb')h+=`<label>Go to<select id="t1A">${[1,2].map(n=>`<option value="${n}"${n===o.a?' selected':''}>Screen ${n}</option>`).join('')}</select></label>`;
   if(o.k==='bb')h+=`<label>Label<input id="t1L" maxlength="8" value="${o.l}"></label>`;if(o.k==='wb')h+=`<label>Value to write<input id="t1V" type="number" value="${o.v}"></label>`;
@@ -1072,7 +1076,7 @@ function t1Prop(){const p=$('#t1Prop'),o=T1[t1S].o[t1Sel];if(t1M!=='edit'||!o){p
   $('#t1Del').onclick=()=>{T1[t1S].o.splice(t1Sel,1);t1Sel=-1;t1Draw()}}
 function t1DrawKeep(){const s=T1[t1S],slots=$$('#t1Cv .slot');s.o.forEach((o,i)=>{if(o.k==='bb'){const b=slots[i].querySelector('.hbit');if(b)b.textContent=o.l||'BUTTON'}})}
 function t1Chk(){const s1=T1[1].o,has=k=>s1.some(o=>o.k===k);let L=[];
-  if(t1Q===0){const bb=s1.find(o=>o.k==='bb'),bl=s1.find(o=>o.k==='bl');L=[['Bit button on Screen 1',!!bb],['Bit lamp on Screen 1',!!bl],['The lamp uses the same address as the button',!!(bb&&bl&&s1.some(x=>x.k==='bl'&&x.a===bb.a))],['Tested in Run: pressing the button lights the lamp',t1Done.lamp]]}
+  if(t1Q===0){const bb=s1.find(o=>o.k==='bb'),bl=s1.find(o=>o.k==='bl');L=[['Bit button on Screen 1',!!bb],['Bit lamp on Screen 1',!!bl],['The lamp shows the output the button switches (button 000.01 → lamp 010.00)',!!(bb&&bl&&s1.some(x=>x.k==='bl'&&x.a===t1Out(bb.a)))],['Tested in Run: pressing the button lights the lamp',t1Done.lamp]]}
   if(t1Q===1)L=[['Bit button on Screen 1',has('bb')],['Bit lamp on Screen 1',has('bl')],['Screen button going to Screen 2',s1.some(o=>o.k==='sb'&&o.a===2)],['Background picture on Screen 1',T1[1].bg],['Tested in Run: the screen button changes screen',t1Done.scr]];
   if(t1Q===2)L=[['Slide switch',has('ss')],['Numeric entry',has('ne')],['Numeric display',has('nd')],['Word button',has('wb')],['Tested in Run: the display shows a number you typed or wrote (same address)',t1Done.num]];
   $('#t1Chk').innerHTML=L.map(([t,ok])=>`<li class="${ok?'ok':''}">${t}</li>`).join('');$('#t1Task').innerHTML=`<b>${T1Q[t1Q][0]}:</b> ${T1Q[t1Q][1]}`;
