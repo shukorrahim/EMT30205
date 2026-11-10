@@ -729,7 +729,7 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
         <div class="wdg"><span class="nm">Target (numeric entry)</span><input class="hnum" id="ctSv" type="number" min="1" max="99" value="5" aria-label="Target"><small>DM0100</small></div>
         <div class="wdg"><span class="nm">Count (numeric display)</span><span class="hdisp" id="ctCnt">0</span><small>shows SV − PV</small></div>
         <div class="wdg"><span class="nm">Count +1 (bit button)</span><button class="hbit" id="ctBtn">COUNT</button><small>000.01</small></div>
-        <div class="wdg"><span class="nm">Target reached (bit lamp)</span><span class="hlamp g" id="ctLamp"></span><small>200.02</small></div>
+        <div class="wdg"><span class="nm">Target reached (bit lamp)</span><span class="hlamp g" id="ctLamp"></span><small>010.00</small></div>
         <div class="wdg"><span class="nm">Reset (bit button)</span><button class="hbit" id="ctRst">RESET</button><small>000.02</small></div>
         <div class="wdg"><span class="nm">Product sensor</span><button class="hbit" id="ctAuto">▶ AUTO</button><small>one product every 1.5 s</small></div>
       </div></div>
@@ -1081,13 +1081,13 @@ function ctLad(){const on='var(--ok)',off='var(--pipe)',p=ctPulse,cnt=ctSv-ctPv;
    <rect x="200" y="36" width="160" height="104" rx="4" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="280" y="62" text-anchor="middle" font-size="15" style="font-weight:700">CNT 000</text><text x="210" y="64" font-size="11" class="dim">CP</text><text x="210" y="124" font-size="11" class="dim">R</text>
    <text x="280" y="88" text-anchor="middle" font-size="13">SV: DM0100 = ${ctSv}</text><text x="280" y="112" text-anchor="middle" font-size="15" style="font-weight:700;fill:${ctDone?'var(--ok)':'var(--sel)'}">PV: ${ctPv}</text>
    <path d="M20,195 H90 M120,195 H360" stroke="${ctDone?on:off}" stroke-width="3"/><path d="M90,181 V209 M120,181 V209" stroke="${ctDone?on:off}" stroke-width="3"/><text x="105" y="175" text-anchor="middle" font-size="12">C000</text>
-   <circle cx="380" cy="195" r="16" fill="${ctDone?'#F0C04A':'var(--panel)'}" stroke="var(--ink)" stroke-width="2"/><path d="M396,195 H440" stroke="${off}" stroke-width="3"/><text x="380" y="172" text-anchor="middle" font-size="12">200.02</text><text x="380" y="230" text-anchor="middle" font-size="10" class="dim">LAMP</text>`;
+   <circle cx="380" cy="195" r="16" fill="${ctDone?'#F0C04A':'var(--panel)'}" stroke="var(--ink)" stroke-width="2"/><path d="M396,195 H440" stroke="${off}" stroke-width="3"/><text x="380" y="172" text-anchor="middle" font-size="12">010.00</text><text x="380" y="230" text-anchor="middle" font-size="10" class="dim">LAMP</text>`;
   $('#ctCnt').textContent=cnt;$('#ctLamp').classList.toggle('on',ctDone);$('#ctBtn').classList.toggle('on',p)}
 function ctStep(n){$$('#ctSteps div').forEach((d,i)=>{d.classList.toggle('on',i===n);d.classList.toggle('done',i<n)})}
 function ctCount(){if(ctDone){$('#ctSay').innerHTML='The target is already reached. Press <b>RESET</b> to start again.';return}
   ctPulse=true;ctStep(1);ctLad();$('#ctSay').innerHTML='<b>Step 2:</b> a count pulse: input bit 000.01 goes ON for a moment.';
   setTimeout(()=>{ctPulse=false;ctPv--;if(ctPv<=0){ctPv=0;ctDone=true}ctLad();
-    if(ctDone){ctStep(3);clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';$('#ctSay').innerHTML=`<b>Step 4:</b> the count reached the target (<b>${ctSv}</b>). Counter C000 turns ON, so 200.02 lights the <b>bit lamp</b>.`}
+    if(ctDone){ctStep(3);clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';$('#ctSay').innerHTML=`<b>Step 4:</b> the count reached the target (<b>${ctSv}</b>). Counter C000 turns ON, so output <b>010.00</b> (01000) lights the <b>bit lamp</b>.`}
     else{ctStep(2);$('#ctSay').innerHTML=`<b>Step 3:</b> the PLC counter drops PV to <b>${ctPv}</b>; the numeric display shows <b>${ctSv-ctPv}</b> of ${ctSv}.`}},500)}
 $('#ctBtn').onclick=ctCount;
 $('#ctRst').onclick=()=>{clearInterval(ctAutoT);ctAutoT=null;$('#ctAuto').textContent='▶ AUTO';ctPv=ctSv;ctDone=false;ctStep(0);ctLad();$('#ctSay').innerHTML='Reset: 000.02 resets the counter, PV goes back to the set value.'};
