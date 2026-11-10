@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#D9DCDF" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
-<title>Lab 4: Counter and Timer | Monitoring System Integration</title>
-<meta name="description" content="Interactive Lab 4 for EMT30205: PLC counters (up, down, up/down), the OMRON CNT instruction, counter applications, and a conveyor that uses a counter and a timer together.">
+<title>Lab 5: Counter and Timer | Monitoring System Integration</title>
+<meta name="description" content="Interactive Lab 5 for EMT30205: PLC counters (up, down, up/down), the OMRON CNT instruction, counter applications, and a conveyor that uses a counter and a timer together.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -399,7 +399,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 @media (pointer:coarse){.sorter .it .chip,.pq .chip{min-height:44px}.conv input[type=number]{min-height:44px}}
 @media (max-width:600px){.kitrow .sw,.kitrow .lm{min-width:72px}.pvbox{min-width:104px}.pvbox .v{font-size:22px}}
 
-/* ===== Lab 4: counter and timer ===== */
+/* ===== Lab 5: counter and timer ===== */
 .hs-txt h3{margin:0 0 6px;font-size:22px}
 .hs-txt p{margin:0 0 8px}
 .board .bx{fill:#BFF3F5;stroke:var(--ink);stroke-width:2}
@@ -446,7 +446,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <body>
 <div class="layout">
 <nav class="side" aria-label="Lab sections">
-  <div class="brand"><b>Lab 4: Counter and Timer</b><span>Monitoring System Integration</span></div>
+  <div class="brand"><b>Lab 5: Counter and Timer</b><span>Monitoring System Integration</span></div>
   <a class="home" href="index.html">&larr; Course homepage</a>
   <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
   <div class="progress"><span id="progTxt">0 of 6 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
@@ -456,26 +456,13 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <div class="wrap">
 <header class="hero" id="top">
   <a class="back" href="index.html">&larr; Course homepage</a>
-  <div class="course">EMT30205 Monitoring System Integration · Laboratory 4</div>
+  <div class="course">EMT30205 Monitoring System Integration · Laboratory 5</div>
   <h1>Counter and Timer<small>Counting events, not seconds</small></h1>
-  <div class="by">Based on the lab module by Mohamad Shukor bin Abdul Rahim</div>
-  <div class="ticker">
-    <div><div class="k">Instruction</div><div class="v">CNT</div></div>
-    <div><div class="k">Counts on each</div><div class="v">OFF → ON</div></div>
-    <div><div class="k">After a power cut</div><div class="v">Keeps count</div></div>
-    <div><div class="k">Task</div><div class="v">5 products</div></div>
-  </div>
-  <ul class="objectives">
-    <li><b>Recognise</b>how a counter is used in a ladder diagram.</li>
-    <li><b>Program</b>the PLC with timer and counter instructions in CX-Programmer.</li>
-    <li><b>Convert</b>a ladder diagram to mnemonic code and back.</li>
-  </ul>
-  <div class="note">This page explains the theory. The lab task (the conveyor with 5 products) is on the separate task sheet from your lecturer.</div>
 </header>
 
-<!-- L4.1 -->
+<!-- L5.1 -->
 <section class="topic" id="s1">
-  <h2><span class="n">L4.1</span>What is a counter?</h2>
+  <h2><span class="n">L5.1</span>What is a counter?</h2>
   <div class="key"><b>In one sentence</b>A counter captures and stores the number of times something happens: every OFF → ON change on its <strong>count line</strong> adds one, and its <strong>reset line</strong> sets it back to zero.</div>
   <div class="ana"><b>Think of it</b>The clicker a guard uses at a stadium gate. Click once for every person who walks in. When it reaches 5,000 the gate closes. At the end of the day the guard presses reset and it goes back to 0.<br><i>(Seperti alat pembilang klik yang digunakan pengawal di pintu stadium. Klik sekali bagi setiap orang yang masuk. Apabila mencecah 5,000 pintu ditutup. Pada akhir hari pengawal menekan butang set semula dan ia kembali kepada 0.)</i></div>
   <div class="prose"><p>This is the <b>block-formatted counter</b> from Figure 5.1. Press <b>Count pulse</b> a few times, then <b>Reset</b>. Tap any part of the block to see what it does.</p></div>
@@ -497,9 +484,9 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="row" style="margin-top:8px"><button class="btn" id="tvcClr">Clear both</button></div>
 </section>
 
-<!-- L4.2 -->
+<!-- L5.2 -->
 <section class="topic" id="s2">
-  <h2><span class="n">L4.2</span>Counter applications</h2>
+  <h2><span class="n">L5.2</span>Counter applications</h2>
   <div class="key"><b>In one sentence</b>Counters keep track of how many items move past a point, or how many times an action happens: products on a conveyor, metres of material, turns of a roller.</div>
   <div class="prose"><p>The three examples of Figure 5.2. Pick one and press <b>Start</b>.</p></div>
   <div class="row" id="apTabs" role="group" aria-label="Application"></div>
@@ -514,9 +501,9 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
 </section>
 
-<!-- L4.3 -->
+<!-- L5.3 -->
 <section class="topic" id="s3">
-  <h2><span class="n">L4.3</span>Up, down and up/down counters</h2>
+  <h2><span class="n">L5.3</span>Up, down and up/down counters</h2>
   <div class="key"><b>In one sentence</b>An <strong>up counter</strong> adds 1 for every pulse until it reaches the preset; a <strong>down counter</strong> takes 1 away for every pulse until it reaches zero; an <strong>up/down counter</strong> does both.</div>
   <div class="prose"><p>Most counters in industry are up counters, but some jobs need a down counter or an up/down counter (for example, cars entering and leaving a car park). PLC counters are normally <b>retentive</b>: after a power cut they still remember their count. Try the <b>Power cut</b> button.</p></div>
   <div class="row" id="udMode" role="group" aria-label="Counter type"></div>
@@ -532,9 +519,9 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
 </section>
 
-<!-- L4.4 -->
+<!-- L5.4 -->
 <section class="topic" id="s4">
-  <h2><span class="n">L4.4</span>The OMRON CNT instruction</h2>
+  <h2><span class="n">L5.4</span>The OMRON CNT instruction</h2>
   <div class="key"><b>In one sentence</b><span>CNT N #SV has two inputs: the count input (CP) and the reset input (R). Each OFF → ON pulse on CP takes 1 off the present value (PV); at 0 the counter's contact CNT N turns ON.</span></div>
   <div class="prose"><p>OMRON's CNT is a <b>down counter</b>: it starts at the set value (SV) and counts down to 0. Here CNT 000 #0005 lights lamp 01000 after 5 products. Press <b>COUNT</b> on the kit (each press is one product). Hold it down and see that holding counts only once. Then try <b>RESET</b> and <b>POWER</b>.</p></div>
   <div class="pair">
@@ -553,9 +540,9 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="note"><b>Mnemonic order matters:</b> load the count input first, then the reset input, then CNT. <code>LD 00000</code> (CP) · <code>LD 00001</code> (R) · <code>CNT 000 #0005</code>. In CX-Programmer, the reset contact sits on its own line under the count contact, both joined to the CNT box. The counter's contact is written CNT000 (some models show C000).</div>
 </section>
 
-<!-- L4.5 -->
+<!-- L5.5 -->
 <section class="topic" id="s5">
-  <h2><span class="n">L4.5</span>Counter and timer together: the conveyor</h2>
+  <h2><span class="n">L5.5</span>Counter and timer together: the conveyor</h2>
   <div class="key"><b>In one sentence</b>Real machines use timers and counters together: a timer to wait, and a counter to know when a batch is complete.</div>
   <div class="prose"><p>This is the process on your task sheet, running exactly as described. Watch it carefully: your job in the lab is to write the timing diagram, the ladder diagram and the mnemonic code that make it happen.</p></div>
   <div class="cv-wrap">
@@ -573,9 +560,9 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="fb" id="cvFb" aria-live="polite"></div>
 </section>
 
-<!-- L4.6 -->
+<!-- L5.6 -->
 <section class="topic" id="s6">
-  <h2><span class="n">L4.6</span>Practice: predict the counter</h2>
+  <h2><span class="n">L5.6</span>Practice: predict the counter</h2>
   <div class="key"><b>In one sentence</b>Remember the three rules: one count per OFF → ON change, reset puts the PV back to the SV, and the PV never goes below 0.</div>
   <div class="panel">
     <p style="margin:0 0 6px">The counter is <code>CNT 000 #0003</code> (count input 00000, reset input 00001). These things happen, in order:</p>
@@ -585,11 +572,11 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
     <div class="explain" id="prSay" aria-live="polite">Choose an answer.</div>
     <div class="row" style="margin-top:8px"><button class="btn primary" id="prNew">New sequence</button><span class="muted" id="prScore"></span></div>
   </div>
-  <div class="note">Now do the lab task on your task sheet: the conveyor with 5 products. Use L4.4 and <a href="lab3.html">Lab 3 (Timer)</a> to check your thinking.</div>
+  <div class="note">Now do the lab task on your task sheet: the conveyor with 5 products. Use L5.4 and <a href="lab3.html">Lab 3 (Timer)</a> to check your thinking.</div>
 </section>
 
 <footer>
-  Monitoring System Integration, Laboratory 4: Counter and Timer. Content from the lab module of Mohamad Shukor bin Abdul Rahim (Experiment 5). Ladders, the kit and the conveyor on this page are simplified drawings for learning; they follow the OMRON CNT rules (counts down from the set value, retentive). OMRON and CX-Programmer are trademarks of OMRON Corporation.
+  Monitoring System Integration, Laboratory 5: Counter and Timer. Content from the lab module of Mohamad Shukor bin Abdul Rahim (Experiment 5). Ladders, the kit and the conveyor on this page are simplified drawings for learning; they follow the OMRON CNT rules (counts down from the set value, retentive). OMRON and CX-Programmer are trademarks of OMRON Corporation.
 </footer>
 </div>
 </main>
@@ -616,7 +603,7 @@ tb.onclick=()=>{const n=isDark()?'light':'dark';document.documentElement.dataset
 const secs=[...$$('section.topic')];const nav=$('#navlist');
 secs.forEach(s=>{const h=s.querySelector('h2');const n=h.querySelector('.n').textContent;const t=[...h.childNodes].filter(x=>x.nodeType===3).map(x=>x.textContent).join('').trim();
   nav.insertAdjacentHTML('beforeend',`<li><a href="#${s.id}" data-s="${s.id}"><span class="n">${n}</span>${t}</a></li>`)});
-let seen=new Set((store.get('lab4-seen')||[]).filter(id=>document.getElementById(id)));store.set('lab4-seen',[...seen]);
+let seen=new Set((store.get('lab5-seen')||[]).filter(id=>document.getElementById(id)));store.set('lab5-seen',[...seen]);
 function renderProg(){$$('.side a[data-s]').forEach(a=>a.classList.toggle('seen',seen.has(a.dataset.s)));
   $('#progTxt').textContent=`${seen.size} of ${secs.length} sections visited`;$('#progBar').style.width=(seen.size/secs.length*100)+'%'}
 renderProg();
@@ -624,7 +611,7 @@ const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){const
   $$('.side a[data-s]').forEach(a=>a.classList.toggle('here',a.dataset.s===id));
   /* Scroll only the menu sideways; scrollIntoView would also move the page and stop a swipe on iPhone. */
   const cur=$(`.side a[data-s="${id}"]`); if(cur&&innerWidth<1080){const d=cur.getBoundingClientRect().left-nav.getBoundingClientRect().left;nav.scrollLeft=nav.scrollLeft+d-(nav.clientWidth-cur.offsetWidth)/2}
-  if(!seen.has(id)){seen.add(id);store.set('lab4-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
+  if(!seen.has(id)){seen.add(id);store.set('lab5-seen',[...seen]);renderProg()}}})},{rootMargin:'-40% 0px -55% 0px'});
 secs.forEach(s=>io.observe(s));
 
 
@@ -712,11 +699,11 @@ function sorter(el,fb,items,opts){let ok=0,done=0;
     const w=it.querySelector('.why');w.hidden=false;w.textContent=(good?'Correct. ':'Not quite. ')+s[2];done++;if(good)ok++;
     fb.className='fb'+(done===items.length?' good':'');fb.textContent=`${ok} of ${done} correct`+(done===items.length?'. All done!':'')}))}
 
-/* ===== L4.1 Block counter ===== */
+/* ===== L5.1 Block counter ===== */
 const BK={acc:0,pre:5,sel:null,flash:0};
 const BKP={count:['Count line','Each OFF → ON change on this line adds one count. Holding it ON does not add any more.'],
  reset:['Reset line','An OFF → ON change here puts the count back to 0, ready for the next batch.'],
- type:['Type of counter','Up counter, down counter or up/down counter (see L4.3). This one is an up counter.'],
+ type:['Type of counter','Up counter, down counter or up/down counter (see L5.3). This one is an up counter.'],
  pre:['Preset value','The target number. Here it is 5.'],
  acc:['Accumulated value','How many counts so far. On OMRON PLCs this is called the present value (PV).'],
  out:['Output line','Turns ON when the accumulated value reaches the preset value.']};
@@ -744,7 +731,7 @@ function tvDraw(){$('#tvcT').textContent=(TV.t/10).toFixed(1)+' s';$('#tvcC').te
 tickers.push(()=>{if(TV.on&&TV.t<999){TV.t++;tvDraw()}});
 $('#tvcClr').onclick=()=>{TV.t=0;TV.c=0;tvDraw()};tvDraw();
 
-/* ===== L4.2 Applications ===== */
+/* ===== L5.2 Applications ===== */
 const AP=[
  {k:'item',n:'Item counting',txt:'<p>A <b>photocell</b> shines a beam across the conveyor to a <b>reflector</b>. Every product that passes breaks the beam once, and the counter adds one. Here the counter decides when a stack of 10 is ready.</p>'},
  {k:'len',n:'Length totalizer',txt:'<p>A <b>rotopulser</b> (a small wheel with a pulse sensor) rolls on the material. Every pulse means the material moved a fixed length, here <b>10 mm</b>. Counting pulses measures the total length.</p>'},
@@ -778,7 +765,7 @@ tickers.push(()=>{if(!apRun)return;const k=AP[apI].k;
 $$('#apTabs .chip').forEach(b=>b.onclick=()=>{press($$('#apTabs .chip'),b);apI=+b.dataset.i;apReset()});
 $('#apGo').onclick=()=>{apRun=!apRun;$('#apGo').textContent=apRun?'❚❚ Pause':'▶ Start'};$('#apRst').onclick=apReset;apReset();
 
-/* ===== L4.3 Up, down and up/down ===== */
+/* ===== L5.3 Up, down and up/down ===== */
 const UD={mode:'up',acc:0,pre:5,trace:[],msg:''};
 $('#udMode').innerHTML=[['up','Up counter'],['down','Down counter'],['updown','Up/down counter']].map((m,i)=>`<button class="chip" aria-pressed="${i===0}" data-m="${m[0]}">${m[1]}</button>`).join('');
 const udDone=()=>UD.mode==='down'?UD.acc<=0:UD.acc>=UD.pre;
@@ -802,7 +789,7 @@ $('#udPwr').onclick=async()=>{const b=$('#udPwr');b.disabled=true;$('#udSvg').st
   UD.msg=`<b>Power is back.</b> The counter still shows <b>${UD.acc}</b>: PLC counters are <b>retentive</b>, they keep their count through a power cut. (A TIM timer would have reset.)`;udDraw()};
 udReset();
 
-/* ===== L4.4 OMRON CNT ===== */
+/* ===== L5.4 OMRON CNT ===== */
 const CN={sv:5,pv:5,c:0,r:0,lastC:0,pwr:1,hl:null,msg:'Press <b>COUNT</b> once for each product.'};
 function cnScan(){if(!CN.pwr)return;if(CN.r){CN.pv=CN.sv}else if(CN.c&&!CN.lastC&&CN.pv>0)CN.pv--;CN.lastC=CN.c}
 const CNM=[['LD','00000','c'],['LD','00001','r'],['CNT','000 #0005','box'],['LD','CNT000','f'],['OUT','01000','o'],['END(01)','','e']];
@@ -825,7 +812,7 @@ $('#cnPw').onclick=async()=>{if(!CN.pwr)return;CN.pwr=0;CN.msg='⏻ <b>Power OFF
   CN.msg=`⏻ <b>Power ON again:</b> the PV is still <b>${pad4(CN.pv)}</b>. CNT is retentive: it remembers its count through a power cut.`;cnDraw()};
 cnDraw();
 
-/* ===== L4.5 Conveyor process (the task sequence, as described on the sheet) ===== */
+/* ===== L5.5 Conveyor process (the task sequence, as described on the sheet) ===== */
 const CV={st:'idle',x:-40,stk:false,wait:0,cnt:0,cx:560,drop:0,spd:1,start:0,c1:false,c2:false};
 const S1=270,S2=500,cvVis={vis:true};watchVis($('#cvSvg'),cvVis);
 function cvDraw(){const prod=CV.st==='run'||CV.st==='wait'||CV.st==='drop';
@@ -868,7 +855,7 @@ sorter($('#cvSort'),$('#cvFb'),[
  ['Start the next container from zero','cnt','The counter must be reset, so its reset input needs a condition too.']],
  [['tim','Timer'],['cnt','Counter'],['in','Input'],['out','Output'],['hold','Self-holding']]);
 
-/* ===== L4.6 Practice ===== */
+/* ===== L5.6 Practice ===== */
 let PR=null,prOk=0,prN=0;
 function prNew(){const ev=[];let pv=3;const n=5+Math.floor(Math.random()*3);
   for(let i=0;i<n;i++){const r=Math.random();let e;if(r<.62)e='c';else if(r<.8)e='h';else e='r';if(i===n-1&&e==='r')e='c';ev.push(e)}
