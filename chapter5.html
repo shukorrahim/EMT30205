@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#1E252B" media="(prefers-color-scheme: dark)">
 <meta name="format-detection" content="telephone=no">
 <title>HMI Part 2: Components and CX-Designer | Monitoring System Integration</title>
-<meta name="description" content="Chapter 5 of EMT30205 (HMI Part 2): HMI components, how the HMI reads and writes PLC addresses, CX-Designer, and interactive versions of Tutorial 1 and Tutorial 2.">
+<meta name="description" content="Chapter 5 of EMT30205 (HMI Part 2): HMI components, how the HMI reads and writes PLC addresses, CX-Designer, and interactive versions of Tutorial 1, Tutorial 2 and Tutorial 3.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
@@ -598,11 +598,11 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     </div>
     <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
   </div>
-  <p class="lead">In <a href="chapter4.html">Chapter 4 (HMI Part 1)</a> you learned what makes a good HMI. Now you build one. This chapter covers how a ladder diagram links to HMI graphics through PLC addresses, the components on an HMI screen, how they talk to the PLC, and the CX-Designer tutorials from the notes: Tutorial 1 (your first screen) and Tutorial 2 (a production counter and three products).</p>
+  <p class="lead">In <a href="chapter4.html">Chapter 4 (HMI Part 1)</a> you learned what makes a good HMI. Now you build one. This chapter covers how a ladder diagram links to HMI graphics through PLC addresses, the components on an HMI screen, how they talk to the PLC, and the CX-Designer tutorials from the notes: Tutorial 1 (your first screen), Tutorial 2 (a production counter) and Tutorial 3 (three products in three hours).</p>
   <div class="ticker">
     <div><div class="k">Components</div><div class="v">7</div></div>
     <div><div class="k">Software</div><div class="v">CX-Designer</div></div>
-    <div><div class="k">Tutorials</div><div class="v">2</div></div>
+    <div><div class="k">Tutorials</div><div class="v">3</div></div>
     <div><div class="k">HMI Part 1</div><div class="v"><a href="chapter4.html" style="text-decoration:none">← Design rules</a></div></div>
   </div>
 </header>
@@ -741,9 +741,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
 
 <!-- 5.7 -->
 <section class="topic" id="s6">
-  <h2><span class="n">5.7</span>Tutorial 2: three products in three hours</h2>
+  <h2><span class="n">5.7</span>Tutorial 3: three products in three hours</h2>
   <div class="key"><b>Key idea</b>A good HMI puts a complex job on one clear overview screen: which product is running, which is next, and how many have been made.</div>
-  <div class="task"><b>Tutorial 2, Soalan 1:</b> <i>Dalam masa 3 jam, sebuah mesin menghasilkan 3 jenis produk yang berlainan dari segi saiz dan bahan.</i> In 3 hours one machine makes 3 products: <b>Product 1</b> 40 mm × 40 mm (iron), <b>Product 2</b> 30 mm × 30 mm (plastic), <b>Product 3</b> 50 mm × 50 mm (aluminium). Solve it with an HMI.</div>
+  <div class="task"><b>Tutorial 3:</b> <i>Dalam masa 3 jam, sebuah mesin menghasilkan 3 jenis produk yang berlainan dari segi saiz dan bahan.</i> In 3 hours one machine makes 3 products: <b>Product 1</b> 40 mm × 40 mm (iron), <b>Product 2</b> 30 mm × 30 mm (plastic), <b>Product 3</b> 50 mm × 50 mm (aluminium). Solve it with an HMI.</div>
   <div class="ctrl"><button class="btn primary" id="bpGo">▶ Start the 3-hour shift</button><button class="btn" id="bpPause">❚❚ Pause</button><button class="btn" id="bpReset">Reset</button><span class="muted" style="font-size:14px">1 hour here = 20 seconds</span></div>
   <div class="hmi"><div class="hmi-title"><b>MACHINE M-1 · BATCH OVERVIEW</b><span class="meta">Shift time <span class="clock" id="bpClk">0:00</span> / 3:00</span></div><div class="trk" id="bpTrk"></div><div class="hmi-foot"><span class="alm" id="bpAlm">Ready to start</span></div></div>
   <p class="muted" style="font-size:14px">For this example each product runs for one hour. The real split and rates would come from the production plan.</p>
@@ -772,16 +772,9 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <a href="chapter4.html#s1"><span class="n">Ch 4.1 to 4.4</span><b>The HMI</b>A two-way window between people and machines, used in every industry.</a>
     <a href="chapter4.html#s5"><span class="n">Ch 4.5 to 4.10</span><b>Good design</b>Schematic, colour, layout, values and labels, consistency and navigation.</a>
     <a href="#s1"><span class="n">5.1 to 5.3</span><b>Components</b>Buttons write, lamps and displays read, all through PLC addresses.</a>
-    <a href="#s4"><span class="n">5.4 to 5.6</span><b>Tutorials</b>Your first screen, a production counter and a batch overview.</a>
+    <a href="#s4"><span class="n">5.5 to 5.7</span><b>Tutorials 1 to 3</b>Your first screen, a production counter and a batch overview.</a>
   </div>
   <p style="margin-top:14px">HMIs keep evolving, from the push of a button to touchscreens, and next to AI assistants and virtual reality (<a href="chapter4.html#s3">Chapter 4.3</a>).</p>
-</section>
-
-<!-- A-Z -->
-<section class="topic" id="s8">
-  <h2><span class="n">A–Z</span>Jargon buster</h2>
-  <div class="prose"><p>HMI component words in everyday language. Tap a card to flip it.</p></div>
-  <div class="jargon" style="margin-top:0"><div class="cards" id="jargon"></div></div>
 </section>
 
 <!-- Class game -->
@@ -868,10 +861,6 @@ secs.forEach(s=>io.observe(s));
 setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEach(c=>c.textContent=t)},1000);
 const vis=new Set();
 
-/* ===== Jargon buster ===== */
-const JG=[['Work bit','A sticky note inside the PLC','An internal bit such as 200.00 with no wire to the outside world, used to store a result inside the program.'],['Momentary','A doorbell button','A bit button that is ON only while you press it, like START and STOP in 5.1.'],['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 000.01 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
-$('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
-$$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
 setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000);
 
 /* ===== 5.1 PLC and HMI: one address, three views (ladder, address table, HMI screen) ===== */
