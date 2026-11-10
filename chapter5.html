@@ -626,8 +626,8 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     <div class="lk-pane lk-c"><div class="lk-h"><span class="lk-no">3</span>HMI screen (CX-Designer)</div>
       <div class="hmi"><div class="hmi-title"><b>SCREEN 1 · MOTOR M-1</b><span class="meta">Run mode</span></div>
         <div class="lk-scr" id="lkScr">
-          <div class="lk-obj" data-ad="200.00"><button class="hbit lk-start" id="lkStart">START</button><span class="lk-cap">Bit button</span></div>
-          <div class="lk-obj" data-ad="200.01"><button class="hbit lk-stop" id="lkStop">STOP</button><span class="lk-cap">Bit button</span></div>
+          <div class="lk-obj" data-ad="000.01"><button class="hbit lk-start" id="lkStart">START</button><span class="lk-cap">Bit button</span></div>
+          <div class="lk-obj" data-ad="000.02"><button class="hbit lk-stop" id="lkStop">STOP</button><span class="lk-cap">Bit button</span></div>
           <div class="lk-obj" data-ad="010.00"><div class="hlamp g" id="lkMotor"></div><span class="lk-cap">MOTOR · Bit lamp</span></div>
           <div class="lk-obj" data-ad="T000"><div class="hdisp" id="lkPv">0050</div><span class="lk-cap">Run timer PV · Numeric display</span></div>
           <div class="lk-obj" data-ad="010.01"><div class="hlamp" id="lkReady"></div><span class="lk-cap">READY · Bit lamp</span></div>
@@ -639,7 +639,6 @@ footer{border-top:1px solid var(--line);margin-top:40px;padding:24px 0;font-size
     </div>
   </div>
   <div class="say" id="lkSay" aria-live="polite">Tap an address to see where it appears, or press <b>START</b> on the HMI screen.</div>
-  <div class="note"><b>Why are START and STOP work bits (200.00, 200.01) and not inputs (000.00)?</b> The input area holds the real switches wired to the PLC terminals. At the start of every scan the PLC copies the terminals into 000.00 to 000.11, so anything the HMI writes there is wiped out straight away. HMI buttons therefore write to <a href="lab2.html#s4">work bits (internal relays, Lab 2)</a>, and the ladder uses those bits as contacts.</div>
 </section>
 
 <!-- 5.2 -->
@@ -870,7 +869,7 @@ setInterval(()=>{const t=new Date().toLocaleTimeString('en-GB');$$('.clk').forEa
 const vis=new Set();
 
 /* ===== Jargon buster ===== */
-const JG=[['Work bit','A sticky note inside the PLC','An internal bit such as 200.00 with no wire to the outside world. HMI buttons write to work bits, not to inputs.'],['Momentary','A doorbell button','A bit button that is ON only while you press it, like START and STOP in 5.1.'],['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 200.00 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
+const JG=[['Work bit','A sticky note inside the PLC','An internal bit such as 200.00 with no wire to the outside world, used to store a result inside the program.'],['Momentary','A doorbell button','A bit button that is ON only while you press it, like START and STOP in 5.1.'],['Bit','A light switch','The smallest piece of PLC memory: ON (1) or OFF (0).'],['Word','A number on a scoreboard','16 bits together, holding a number such as 500.'],['Address','A locker number','Where a value lives in the PLC, e.g. 200.00 or DM0100.'],['Bit button','A light switch','An HMI button that turns one PLC bit ON or OFF.'],['Bit lamp','The rice-cooker light','An HMI light that shows whether one bit is ON.'],['Numeric entry','The aircon remote','A box where the operator types a number into the PLC.'],['Numeric display','A speedometer','Shows a live number from the PLC; it cannot be changed.'],['Slide switch','The phone on/off slider','A switch you slide; you can see its position.'],['Word button','A radio preset button','Writes one fixed number into a PLC word.'],['Screen button','A website tab','Jumps to another HMI screen.'],['Object','A piece of LEGO','Any component placed on a CX-Designer screen.'],['Transfer','Copying a song to your phone','Sending the finished project from the PC to the HMI panel.'],['Counter (CNT)','A tally counter clicker','PLC instruction that counts pulses.'],['SV and PV','The target and the score','Set value: the target. Present value: where the counter is now.'],['DM area','A notebook of numbers','Data Memory words in the PLC, e.g. DM0100.']];
 $('#jargon').innerHTML=JG.map(c=>`<button class="flip" aria-pressed="false"><div class="in"><div class="f"><b>${c[0]}</b><span>Tap to see</span></div><div class="b"><b style="font-size:18px;font-family:var(--cond)">${c[1]}</b><span style="margin-top:4px">${c[2]}</span></div></div></button>`).join('');
 $$('#jargon .flip').forEach(f=>f.onclick=()=>{f.classList.toggle('on');f.setAttribute('aria-pressed',f.classList.contains('on'))});
 setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000);
@@ -878,15 +877,15 @@ setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000
 /* ===== 5.1 PLC and HMI: one address, three views (ladder, address table, HMI screen) ===== */
 (function(){
   const AD={
-    '200.00':{c:'#2F6FB5',tag:'START_PB',type:'Bit (work bit)',lad:'NO contact on rung 0: starts the motor',hmi:'START bit button (momentary)',dir:'Writes'},
-    '200.01':{c:'#C22E29',tag:'STOP_PB',type:'Bit (work bit)',lad:'NC contact on rung 0: stops the motor',hmi:'STOP bit button (momentary)',dir:'Writes'},
+    '000.01':{c:'#2F6FB5',tag:'START_PB',type:'Bit (input)',lad:'NO contact on rung 0: starts the motor',hmi:'START bit button (momentary)',dir:'Writes'},
+    '000.02':{c:'#C22E29',tag:'STOP_PB',type:'Bit (input)',lad:'NC contact on rung 0: stops the motor',hmi:'STOP bit button (momentary)',dir:'Writes'},
     '010.00':{c:'#2E7A39',tag:'MOTOR',type:'Bit (output)',lad:'Coil on rung 0, holding contact on rung 0, contact on rung 1',hmi:'MOTOR bit lamp',dir:'Reads'},
     'T000':{c:'#B87F00',tag:'RUN_TIMER',type:'Word (timer present value)',lad:'TIM 000 #0050 on rung 1 (5 s); its contact TIM000 on rung 2',hmi:'Numeric display',dir:'Reads'},
     '010.01':{c:'#7B3FB5',tag:'READY',type:'Bit (output)',lad:'Coil on rung 2',hmi:'READY bit lamp',dir:'Reads'}};
-  const m={'200.00':0,'200.01':0,'010.00':0,'010.01':0};let pv=50,done=false,sel=null,vis=true;
-  function scan(){m['010.00']=(m['200.00']||m['010.00'])&&!m['200.01']?1:0;pv=m['010.00']?Math.max(0,pv-1):50;done=!!m['010.00']&&pv===0;m['010.01']=done?1:0}
+  const m={'000.01':0,'000.02':0,'010.00':0,'010.01':0};let pv=50,done=false,sel=null,vis=true;
+  function scan(){m['010.00']=(m['000.01']||m['010.00'])&&!m['000.02']?1:0;pv=m['010.00']?Math.max(0,pv-1):50;done=!!m['010.00']&&pv===0;m['010.01']=done?1:0}
   const chip=(ad,x,y)=>`<g data-ad="${ad}" style="cursor:pointer"><rect x="${x-30}" y="${y-12}" width="60" height="18" rx="9" fill="${AD[ad].c}"/><text x="${x}" y="${y+2}" text-anchor="middle" font-size="11" style="fill:#fff;font-weight:700;font-family:Consolas,monospace">${ad}</text></g>`;
-  function svg(){const P=[],a=!!m['200.00'],h=!!m['010.00'],s=!m['200.01'];
+  function svg(){const P=[],a=!!m['000.01'],h=!!m['010.00'],s=!m['000.02'];
     const w=(x1,y1,x2,y2,p)=>P.push(`<path class="w${p?' p':''}" d="M${x1},${y1}L${x2},${y2}"/>`);
     const ring=(ad,x,y,wd,ht)=>P.push(`<rect class="ring${sel===ad?' on':''}" x="${x}" y="${y}" width="${wd}" height="${ht}" rx="6" style="stroke:${AD[ad].c}"/>`);
     function ct(cx,y,ad,tag,nc,closed,label){P.push(`<rect class="cbg${closed?' p':''}" x="${cx-12}" y="${y-13}" width="24" height="26"/><path class="ct${closed?' p':''}" d="M${cx-12},${y-13}V${y+13}M${cx+12},${y-13}V${y+13}${nc?`M${cx-16},${y+13}L${cx+16},${y-13}`:''}"/>`);
@@ -894,9 +893,9 @@ setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000
       P.push(`<text class="nm" x="${cx}" y="${y+30}" text-anchor="middle">${tag}</text>`);ring(ad,cx-40,y-38,80,76);P.push(`<rect class="hit" data-ad="${ad}" x="${cx-40}" y="${y-38}" width="80" height="76"/>`)}
     function coil(cx,y,ad,on){P.push(`<circle class="coil${on?' on':''}" cx="${cx}" cy="${y}" r="14"/>`,chip(ad,cx,y-24),`<text class="nm" x="${cx}" y="${y+32}" text-anchor="middle">${AD[ad].tag}</text>`);ring(ad,cx-38,y-40,76,80);P.push(`<rect class="hit" data-ad="${ad}" x="${cx-38}" y="${y-40}" width="76" height="80"/>`)}
     // rung 0: (START OR MOTOR) AND NOT STOP → MOTOR
-    w(24,60,98,60,1);ct(110,60,'200.00','START_PB',0,a);w(122,60,160,60,a);
+    w(24,60,98,60,1);ct(110,60,'000.01','START_PB',0,a);w(122,60,160,60,a);
     w(60,60,60,140,1);w(60,140,98,140,1);ct(110,140,'010.00','MOTOR (hold)',0,h);w(122,140,160,140,h);w(160,140,160,60,h);
-    w(160,60,218,60,a||h);ct(230,60,'200.01','STOP_PB',1,s);w(242,60,456,60,(a||h)&&s);coil(470,60,'010.00',h);w(484,60,536,60,0);
+    w(160,60,218,60,a||h);ct(230,60,'000.02','STOP_PB',1,s);w(242,60,456,60,(a||h)&&s);coil(470,60,'010.00',h);w(484,60,536,60,0);
     // rung 1: MOTOR → TIM 000 #0050
     w(24,230,98,230,1);ct(110,230,'010.00','MOTOR',0,h);w(122,230,380,230,h);
     P.push(`<rect class="tbox${h?' p':''}${done?' done':''}" x="380" y="206" width="100" height="58" rx="3"/><text x="430" y="226" text-anchor="middle" font-size="14" style="font-weight:700">TIM 000</text><text x="430" y="248" text-anchor="middle" font-size="13">#0050</text>`,
@@ -914,7 +913,7 @@ setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000
   function table(){$$('#lkTab tbody tr').forEach(tr=>{const ad=tr.dataset.ad,c=tr.querySelector('.v');tr.classList.toggle('hl',sel===ad);
     c.textContent=ad==='T000'?String(pv).padStart(4,'0'):(m[ad]?'1 (ON)':'0 (OFF)');c.classList.toggle('on',ad!=='T000'&&!!m[ad])})}
   function hmi(){$('#lkMotor').classList.toggle('on',!!m['010.00']);$('#lkReady').classList.toggle('on',!!m['010.01']);$('#lkPv').textContent=String(pv).padStart(4,'0');
-    $('#lkStart').classList.toggle('on',!!m['200.00']);$('#lkStop').classList.toggle('on',!!m['200.01']);
+    $('#lkStart').classList.toggle('on',!!m['000.01']);$('#lkStop').classList.toggle('on',!!m['000.02']);
     $$('#lkScr .lk-obj').forEach(o=>{const on=o.dataset.ad===sel;o.classList.toggle('hl',on);o.style.borderColor=on?AD[o.dataset.ad].c:'transparent'})}
   function render(){$('#lkLad').innerHTML=svg();table();hmi()}
   function pick(ad){sel=sel===ad?null:ad;if(sel){const d=AD[sel];$('#lkSay').innerHTML=`<b style="color:${d.c}">${sel} · ${d.tag}</b> (${d.type}). <b>In the ladder:</b> ${d.lad}. <b>On the HMI:</b> ${d.hmi}. The HMI <b>${d.dir.toLowerCase()}</b> this address${d.dir==='Writes'?': the operator changes it, the ladder uses it.':': the ladder changes it, the screen shows it.'}`}render()}
@@ -922,7 +921,7 @@ setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000
   $('#lkLad').addEventListener('pointerdown',e=>{const t=e.target.closest('[data-ad]');if(t)pick(t.dataset.ad)});
   ['#lkTab','#lkScr'].forEach(s=>$(s).addEventListener('click',e=>{const t=e.target.closest('[data-ad]');if(t&&!e.target.closest('.hbit'))pick(t.dataset.ad)}));
   // HMI bit buttons are momentary: ON while pressed
-  [['#lkStart','200.00'],['#lkStop','200.01']].forEach(([s,ad])=>{const b=$(s);
+  [['#lkStart','000.01'],['#lkStop','000.02']].forEach(([s,ad])=>{const b=$(s);
     const dn=e=>{e.preventDefault();m[ad]=1;sel=ad;scan();render()},up=()=>{if(m[ad]){m[ad]=0;scan();render()}};
     b.addEventListener('pointerdown',dn);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,up));
     b.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter')dn(e)});b.addEventListener('keyup',up)});
@@ -930,12 +929,12 @@ setInterval(()=>{const h=$('#heroCnt');if(h)h.textContent=+h.textContent+1},2000
   let st=-1;
   const STEPS=[
     [()=>{Object.keys(m).forEach(k=>m[k]=0);pv=50},null,'<b>Start.</b> Everything is OFF. The PLC scans the ladder again and again, and the HMI keeps reading 010.00, T000 and 010.01 to update its screen.'],
-    [()=>{m['200.00']=1},'200.00','<b>1. The operator presses START.</b> The HMI <b>writes</b> 1 into work bit <b>200.00</b> (blue).'],
-    [()=>{},'010.00','<b>2. Next PLC scan:</b> the 200.00 contact closes, power reaches coil <b>010.00</b> and the MOTOR output turns ON. The 010.00 contact under START now holds it ON.'],
-    [()=>{m['200.00']=0},'010.00','<b>3. The operator lets go.</b> The HMI writes 0 to 200.00, but the motor stays ON through the holding contact. The HMI <b>reads</b> 010.00 = 1, so the green MOTOR lamp lights.'],
+    [()=>{m['000.01']=1},'000.01','<b>1. The operator presses START.</b> The HMI <b>writes</b> 1 into input bit <b>000.01</b> (blue).'],
+    [()=>{},'010.00','<b>2. Next PLC scan:</b> the 000.01 contact closes, power reaches coil <b>010.00</b> and the MOTOR output turns ON. The 010.00 contact under START now holds it ON.'],
+    [()=>{m['000.01']=0},'010.00','<b>3. The operator lets go.</b> The HMI writes 0 to 000.01, but the motor stays ON through the holding contact. The HMI <b>reads</b> 010.00 = 1, so the green MOTOR lamp lights.'],
     [()=>{},'T000','<b>4. Rung 1:</b> contact 010.00 runs timer TIM 000 (5 s). The numeric display on the HMI <b>reads</b> the timer\'s present value, <b>T000</b>, and shows it counting down.'],
     [()=>{},'010.01','<b>5. When the PV reaches 0</b>, contact TIM000 closes rung 2 and output <b>010.01</b> turns ON. The HMI reads it and the READY lamp lights.'],
-    [()=>{m['200.01']=1;setTimeout(()=>{m['200.01']=0},700)},'200.01','<b>6. The operator presses STOP.</b> The HMI writes 1 to <b>200.01</b>, the NC contact opens, the motor drops out, the timer resets and READY goes OFF. Now try the buttons yourself.']];
+    [()=>{m['000.02']=1;setTimeout(()=>{m['000.02']=0},700)},'000.02','<b>6. The operator presses STOP.</b> The HMI writes 1 to <b>000.02</b>, the NC contact opens, the motor drops out, the timer resets and READY goes OFF. Now try the buttons yourself.']];
   function step(i){st=i;const s=STEPS[i];s[0]();sel=s[1];scan();$('#lkSay').innerHTML=s[2];$('#lkN').textContent=`Step ${i} of ${STEPS.length-1}`;
     $('#lkNext').hidden=i>=STEPS.length-1;render()}
   $('#lkTrace').onclick=()=>step(0);$('#lkNext').onclick=()=>step(st+1);
