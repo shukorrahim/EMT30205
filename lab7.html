@@ -524,7 +524,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="brand"><b>Lab 7: Linking CX-Programmer and CX-Designer</b><span>Monitoring System Integration</span></div>
   <a class="home" href="index.html">&larr; Course homepage</a>
   <ol id="navlist"><li class="home-m"><a href="index.html">&#8962; Home</a></li></ol>
-  <div class="progress"><span id="progTxt">0 of 7 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
+  <div class="progress"><span id="progTxt">0 of 5 sections visited</span><div class="bar"><i id="progBar"></i></div></div>
 </nav>
 
 <main>
@@ -551,13 +551,13 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <section class="topic" id="s2">
   <h2><span class="n">L7.2</span>The address is the link</h2>
   <div class="key"><b>In one sentence</b><span>An HMI object does nothing by itself: a <strong>bit button</strong> writes ON/OFF to a PLC address, and a <strong>bit lamp</strong> reads a PLC address. If the address on the screen and the address in the ladder are the same, they are linked.</span></div>
-  <div class="prose"><p>The ladder below is fixed: input <b>0.00</b> turns on output <b>100.00</b>. Hold <b>START</b> on the HMI screen. Then change the address of the button or the lamp and try again. Which addresses make the motor lamp work?</p></div>
+  <div class="prose"><p>The ladder below is fixed: input <b>0.00</b> turns on output <b>01000</b>. Hold <b>START</b> on the HMI screen. Then change the address of the button or the lamp and try again. Which addresses make the motor lamp work?</p></div>
   <div class="adgrid">
     <div class="h7">
       <div class="h7t"><b>HMI · Screen 1</b><span>Test</span></div>
       <div class="h7b">
-        <div class="h7obj"><button class="h7btn" id="adBtn" aria-pressed="false">START</button><label>Bit button address <select id="adBA"><option>0.00</option><option>0.01</option><option>100.00</option></select></label></div>
-        <div class="h7obj"><div class="h7lamp" id="adLamp"><i></i>MOTOR</div><label>Bit lamp address <select id="adLA"><option>100.00</option><option>100.01</option><option>0.00</option></select></label></div>
+        <div class="h7obj"><button class="h7btn" id="adBtn" aria-pressed="false">START</button><label>Bit button address <select id="adBA"><option>0.00</option><option>0.01</option><option>01000</option></select></label></div>
+        <div class="h7obj"><div class="h7lamp" id="adLamp"><i></i>MOTOR</div><label>Bit lamp address <select id="adLA"><option>01000</option><option>01001</option><option>0.00</option></select></label></div>
       </div>
     </div>
     <div class="memcol"><div class="memh">PLC memory</div><table class="mem" id="adMem"></table><div class="memf">the meeting point</div></div>
@@ -570,10 +570,10 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <section class="topic" id="s3">
   <h2><span class="n">L7.3</span>Step 1: write the ladder in CX-Programmer</h2>
   <div class="key"><b>In one sentence</b><span>Make the PLC program first: choose the PLC model, draw the rung, compile it, and save it where you can find it again.</span></div>
-  <div class="prose"><p>We use a small example: an HMI button on <b>0.00</b> runs a motor lamp on <b>100.00</b>. Start by making your own folder, then step through it, then do the same on the lab PC.</p></div>
+  <div class="prose"><p>We use a small example: an HMI button on <b>0.00</b> runs a motor lamp on <b>01000</b>. Start by making your own folder, then step through it, then do the same on the lab PC.</p></div>
   <h3>The example: 1 switch, 1 output</h3>
-  <div class="prose"><p>A switch is wired to input <b>0.00</b> of the CP1L, and a motor to output <b>100.00</b>. The ladder joins them. Hold the switch and follow the signal.</p></div>
-  <div class="board scroll-x"><svg id="swSvg" viewBox="0 0 720 220" style="min-width:600px" role="img" aria-label="A START switch wired to input 0.00 of a CP1L PLC, and a motor wired to output 100.00"></svg></div>
+  <div class="prose"><p>A switch is wired to input <b>0.00</b> of the CP1L, and a motor to output <b>01000</b>. The ladder joins them. Hold the switch and follow the signal.</p></div>
+  <div class="board scroll-x"><svg id="swSvg" viewBox="0 0 720 220" style="min-width:600px" role="img" aria-label="A START switch wired to input 0.00 of a CP1L PLC, and a motor wired to output 01000"></svg></div>
   <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
   <div class="row" style="margin:10px 0"><button class="btn primary" id="swBtn" aria-pressed="false">Hold the START switch</button></div>
   <div class="board scroll-x" id="swLad"></div>
@@ -589,8 +589,8 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <h2><span class="n">L7.4</span>Step 2: draw the screen in CX-Designer</h2>
   <div class="key"><b>In one sentence</b><span>Make a new screen, place a bit button and a bit lamp, and give each one the <strong>same address</strong> you used in the ladder.</span></div>
   <div class="prose"><p>How to place and set up objects is in <a href="chapter5.html">Chapter 5</a> (5.2 to 5.5). Here we only build what the link needs.</p></div>
-  <div class="note"><b>Same bit, two ways of writing it.</b> CX-Designer writes the PLC name (<b>SERIALA</b>) and the word with 5 digits:
-    <table class="mem" style="margin:8px 0 0"><tr><td>CX-Programmer</td><td>CX-Designer</td></tr><tr><td>0.00</td><td>SERIALA:00000.00</td></tr><tr><td>0.01</td><td>SERIALA:00000.01</td></tr><tr><td>100.00</td><td>SERIALA:00100.00</td></tr><tr><td>100.01</td><td>SERIALA:00100.01</td></tr></table></div>
+  <div class="note"><b>Same bit, two ways of writing it.</b> CX-Designer writes the PLC name (<b>SERIALA</b>), then the word with 5 digits, a dot and the bit. Output <b>01000</b> is word <b>010</b>, bit <b>00</b>, so it becomes <b>SERIALA:00010.00</b>:
+    <table class="mem" style="margin:8px 0 0"><tr><td>CX-Programmer</td><td>CX-Designer</td></tr><tr><td>0.00</td><td>SERIALA:00000.00</td></tr><tr><td>0.01</td><td>SERIALA:00000.01</td></tr><tr><td>01000</td><td>SERIALA:00010.00</td></tr><tr><td>01001</td><td>SERIALA:00010.01</td></tr></table></div>
   <div class="cxw st cxd" id="dsWin"></div>
   <div class="stepcap" id="dsCap" aria-live="polite"></div>
   <div class="row" style="margin-top:10px"><button class="btn" id="dsBack">◀ Back</button><button class="btn primary" id="dsNext">Next step ▶</button><span class="muted" id="dsNum"></span></div>
@@ -616,28 +616,12 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
       <div class="h7b">
         <div class="h7obj"><button class="h7btn" id="lvA" aria-pressed="false">PUMP A</button><small>0.00</small></div>
         <div class="h7obj"><button class="h7btn" id="lvB" aria-pressed="false">PUMP B</button><small>0.01</small></div>
-        <div class="h7obj"><div class="h7lamp" id="lvLA"><i></i>PUMP A</div><small>100.00</small></div>
-        <div class="h7obj"><div class="h7lamp" id="lvLB"><i></i>PUMP B</div><small>100.01</small></div>
+        <div class="h7obj"><div class="h7lamp" id="lvLA"><i></i>PUMP A</div><small>01000</small></div>
+        <div class="h7obj"><div class="h7lamp" id="lvLB"><i></i>PUMP B</div><small>01001</small></div>
       </div>
     </div>
   </div>
   <div class="explain" id="lvSay" aria-live="polite"></div>
-</section>
-
-<!-- L7.6 -->
-<section class="topic" id="s6">
-  <h2><span class="n">L7.6</span>When the lamp does not light</h2>
-  <div class="key"><b>In one sentence</b><span>Almost every link problem is one of a few simple mistakes. Check them in this order.</span></div>
-  <div class="prose"><p>Tap a problem to see the fix.</p></div>
-  <div class="tshoot" id="tsList"></div>
-</section>
-
-<!-- L7.7 -->
-<section class="topic" id="s7">
-  <h2><span class="n">L7.7</span>Quick check</h2>
-  <div class="key"><b>In one sentence</b><span>Five short questions to check you can link the two programs before the lab task.</span></div>
-  <div id="qcList"></div>
-  <div class="fb" id="qcScore"></div>
 </section>
 
 <footer>
@@ -738,7 +722,7 @@ function hold(btn,dn,up){let on=false;const d=e=>{e.preventDefault();if(on)retur
 const LK={mode:'sim',sel:null};
 const LKB={
  sim:[['cxp',30,40,'CX-Programmer','writes the ladder','<b>CX-Programmer</b> is where you write and compile the ladder. In integrated simulation it opens your project and goes <b>online to CX-Simulator</b>, so you can watch the rungs light up.'],
-      ['sim',270,40,'CX-Simulator','a PLC inside your PC','<b>CX-Simulator</b> is a pretend PLC that runs inside the PC. It holds the PLC memory (0.00, 100.00, …) and scans your ladder, exactly like a real PLC would.'],
+      ['sim',270,40,'CX-Simulator','a PLC inside your PC','<b>CX-Simulator</b> is a pretend PLC that runs inside the PC. It holds the PLC memory (0.00, 01000, …) and scans your ladder, exactly like a real PLC would.'],
       ['cxd',510,40,'CX-Designer','draws the HMI screen','<b>CX-Designer</b> is where you draw the screen. Its <b>test</b> window acts like the HMI panel: pressing a button there writes to the simulator\'s memory.']],
  real:[['cxp',30,40,'CX-Programmer','on the laptop','On a real machine you still write the ladder in <b>CX-Programmer</b>, then <b>transfer</b> it to the PLC over USB or Ethernet. After that the laptop can be unplugged.'],
        ['sim',270,40,'PLC','the real controller','The <b>PLC</b> holds the memory and scans the ladder. Its inputs come from real switches and sensors; its outputs drive real motors and lamps.'],
@@ -749,7 +733,7 @@ function lkDraw(){const B=LKB[LK.mode],sim=LK.mode==='sim';let h='';
   h+=link(210,270,sim?'online':'transfer',sim?'(simulation)':'USB');h+=link(450,510,'reads /','writes');
   B.forEach(b=>{const on=LK.sel===b[0];h+=`<g class="lkb" data-k="${b[0]}" style="cursor:pointer"><rect x="${b[1]}" y="${b[2]}" width="180" height="110" rx="8" style="fill:var(--panel);stroke:${on?'#E8A400':'var(--ink)'};stroke-width:${on?4:2}"/>
     <text x="${b[1]+90}" y="${b[2]+48}" text-anchor="middle" font-size="18" style="font-weight:700;font-family:var(--cond)">${b[3]}</text><text x="${b[1]+90}" y="${b[2]+72}" text-anchor="middle" font-size="13" style="fill:var(--ink2)">${b[4]}</text></g>`});
-  h+=`<rect x="200" y="190" width="320" height="52" rx="8" style="fill:rgba(232,164,0,.12);stroke:#E8A400;stroke-width:2"/><text x="360" y="212" text-anchor="middle" font-size="14" style="font-weight:600">The link = the same PLC address</text><text x="360" y="231" text-anchor="middle" font-size="13" style="fill:var(--ink2)">button 0.00 → ladder 0.00 · ladder 100.00 → lamp 100.00</text>`;
+  h+=`<rect x="200" y="190" width="320" height="52" rx="8" style="fill:rgba(232,164,0,.12);stroke:#E8A400;stroke-width:2"/><text x="360" y="212" text-anchor="middle" font-size="14" style="font-weight:600">The link = the same PLC address</text><text x="360" y="231" text-anchor="middle" font-size="13" style="fill:var(--ink2)">button 0.00 → ladder 0.00 · ladder 01000 → lamp 01000</text>`;
   $('#lkSvg').innerHTML=h;
   $$('#lkSvg .lkb').forEach(g=>g.onclick=()=>{LK.sel=g.dataset.k;lkDraw()});
   const b=B.find(x=>x[0]===LK.sel);
@@ -758,28 +742,28 @@ $$('#lkSeg button').forEach(b=>b.onclick=()=>{press($$('#lkSeg button'),b);LK.mo
 lkDraw();
 
 /* ===== L7.2 The address is the link ===== */
-const AD={btn:false,mem:{'0.00':0,'0.01':0,'100.00':0,'100.01':0}};
-const AD_RUNG=[{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'100.00',l:'MOTOR'}}];
+const AD={btn:false,mem:{'0.00':0,'0.01':0,'01000':0,'01001':0}};
+const AD_RUNG=[{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'01000',l:'MOTOR'}}];
 function adScan(){const ba=$('#adBA').value,m=AD.mem;
   m['0.00']=0;m['0.01']=0;if(AD.btn&&(ba==='0.00'||ba==='0.01'))m[ba]=1;   // the button writes its address while it is held
-  m['100.00']=m['0.00'];                                                       // the ladder: 0.00 → 100.00 (written every scan)
+  m['01000']=m['0.00'];                                                       // the ladder: 0.00 → 01000 (written every scan)
   return ba}
 function adDraw(){const ba=adScan(),la=$('#adLA').value,m=AD.mem,lampOn=!!m[la];
   $('#adLamp').classList.toggle('on',lampOn);
   $('#adMem').innerHTML='<tr><td>Address</td><td>Value</td></tr>'+Object.keys(m).map(k=>`<tr class="${m[k]?'on':''}${k===ba||k===la?' hl':''}"><td>${k}</td><td class="v">${m[k]}</td></tr>`).join('');
   $('#adLad').innerHTML=lad(AD_RUNG,m,{live:true});
   let s;
-  if(ba==='0.00'&&la==='100.00')s=AD.btn?'<b>Linked!</b> START writes <b>1</b> to 0.00 → the ladder contact 0.00 closes → coil 100.00 turns ON → the lamp reads 100.00 and lights.':'Both addresses match the ladder. Hold <b>START</b>.';
+  if(ba==='0.00'&&la==='01000')s=AD.btn?'<b>Linked!</b> START writes <b>1</b> to 0.00 → the ladder contact 0.00 closes → coil 01000 turns ON → the lamp reads 01000 and lights.':'Both addresses match the ladder. Hold <b>START</b>.';
   else if(ba==='0.01')s=AD.btn?'The button writes to <b>0.01</b>, but the ladder looks at <b>0.00</b>. Nothing happens: the addresses do not match.':'The button now writes to <b>0.01</b>. Hold START and watch the memory.';
-  else if(ba==='100.00')s='The button writes to <b>100.00</b>, but 100.00 is an <b>output</b> of the ladder: the PLC writes it again on every scan, so your press is lost straight away. Buttons should write to the input (0.00) or a work bit.';
+  else if(ba==='01000')s='The button writes to <b>01000</b>, but 01000 is an <b>output</b> of the ladder: the PLC writes it again on every scan, so your press is lost straight away. Buttons should write to the input (0.00) or a work bit.';
   else s='';
-  if(ba==='0.00'&&la==='100.01')s=AD.btn?'Coil <b>100.00</b> is ON, but the lamp watches <b>100.01</b>. The motor runs but the screen shows it OFF: a dangerous mistake!':'The lamp now reads <b>100.01</b>. Hold START.';
-  if(ba==='0.00'&&la==='0.00')s=AD.btn?'The lamp lights, but it shows the <b>button</b> (0.00), not the motor (100.00). If the ladder had a stop condition, the screen would lie to you. A lamp should read the <b>output</b>.':'The lamp now reads <b>0.00</b>, the button\'s own address. Hold START.';
+  if(ba==='0.00'&&la==='01001')s=AD.btn?'Coil <b>01000</b> is ON, but the lamp watches <b>01001</b>. The motor runs but the screen shows it OFF: a dangerous mistake!':'The lamp now reads <b>01001</b>. Hold START.';
+  if(ba==='0.00'&&la==='0.00')s=AD.btn?'The lamp lights, but it shows the <b>button</b> (0.00), not the motor (01000). If the ladder had a stop condition, the screen would lie to you. A lamp should read the <b>output</b>.':'The lamp now reads <b>0.00</b>, the button\'s own address. Hold START.';
   $('#adSay').innerHTML=s}
 hold($('#adBtn'),()=>{AD.btn=true;adDraw()},()=>{AD.btn=false;adDraw()});
 $('#adBA').onchange=adDraw;$('#adLA').onchange=adDraw;adDraw();
 
-/* ===== L7.3 example: 1 switch → input 0.00, output 100.00 → 1 motor ===== */
+/* ===== L7.3 example: 1 switch → input 0.00, output 01000 → 1 motor ===== */
 function swDraw(on){const w=on?'var(--ok)':'var(--pipe)',led=on?'var(--ok)':'var(--off)',t='font-family:var(--cond);font-weight:600';
   let h=`<text x="100" y="52" text-anchor="middle" font-size="16" style="${t};fill:var(--ink)">START switch</text>
   <path d="M70,${on?122:110}H130M100,${on?122:110}V${on?96:84}M88,${on?96:84}H112" style="stroke:var(--ink);stroke-width:3;fill:none"/>
@@ -790,8 +774,8 @@ function swDraw(on){const w=on?'var(--ok)':'var(--pipe)',led=on?'var(--ok)':'var
   <text x="360" y="66" text-anchor="middle" font-size="17" style="${t};fill:var(--ink)">CP1L PLC</text>
   <text x="360" y="88" text-anchor="middle" font-size="13" style="fill:var(--ink2)">runs the ladder</text>
   <rect x="272" y="120" width="16" height="16" rx="3" style="fill:${led}"/><text x="294" y="133" font-size="14" style="${t};fill:var(--ink)">IN 0.00</text>
-  <rect x="432" y="120" width="16" height="16" rx="3" style="fill:${led}"/><text x="426" y="133" text-anchor="end" font-size="14" style="${t};fill:var(--ink)">OUT 100.00</text>
-  <text x="360" y="166" text-anchor="middle" font-size="13" style="fill:var(--ink2)">0.00 = ${+on} → 100.00 = ${+on}</text>
+  <rect x="432" y="120" width="16" height="16" rx="3" style="fill:${led}"/><text x="426" y="133" text-anchor="end" font-size="14" style="${t};fill:var(--ink)">OUT 01000</text>
+  <text x="360" y="166" text-anchor="middle" font-size="13" style="fill:var(--ink2)">0.00 = ${+on} → 01000 = ${+on}</text>
   <path d="M458,128H568" style="stroke:${w};stroke-width:4;fill:none"/>
   <circle cx="606" cy="128" r="36" style="fill:${on?'var(--ok)':'var(--panel)'};stroke:var(--ink);stroke-width:2"/>
   <text x="606" y="137" text-anchor="middle" font-size="26" style="${t};fill:${on?'#fff':'var(--ink)'}">M</text>
@@ -799,9 +783,9 @@ function swDraw(on){const w=on?'var(--ok)':'var(--pipe)',led=on?'var(--ok)':'var
   <text x="606" y="186" text-anchor="middle" font-size="13" style="fill:var(--ink2)">${on?'running':'stopped'}</text>
   <text x="360" y="212" text-anchor="middle" font-size="12" style="fill:var(--ink2)">Power wiring (24 V and COM) is left out to keep the picture simple.</text>`;
   $('#swSvg').innerHTML=h;
-  $('#swLad').innerHTML=lad([{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'100.00',l:'MOTOR'}}],{'0.00':+on,'100.00':+on},{live:true,end:true});
-  $('#swSay').innerHTML=on?'<b>Switch pressed:</b> input <b>0.00 = 1</b> → contact 0.00 in the ladder closes → coil <b>100.00 = 1</b> → the motor runs. Let go and it stops.'
-    :'<b>Switch released:</b> input 0.00 = 0, so the ladder keeps output 100.00 OFF. In L7.5 an <b>HMI button</b> on 0.00 does the same job as this switch.'}
+  $('#swLad').innerHTML=lad([{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'01000',l:'MOTOR'}}],{'0.00':+on,'01000':+on},{live:true,end:true});
+  $('#swSay').innerHTML=on?'<b>Switch pressed:</b> input <b>0.00 = 1</b> → contact 0.00 in the ladder closes → coil <b>01000 = 1</b> → the motor runs. Let go and it stops.'
+    :'<b>Switch released:</b> input 0.00 = 0, so the ladder keeps output 01000 OFF. In L7.5 an <b>HMI button</b> on 0.00 does the same job as this switch.'}
 hold($('#swBtn'),()=>swDraw(true),()=>swDraw(false));swDraw(false);
 
 /* ===== Step-by-step windows (drawn after the lecturer's CX-One screens) ===== */
@@ -815,7 +799,7 @@ function stepper(id,steps){let i=0;const w=$('#'+id+'Win'),cap=$('#'+id+'Cap');
 stepper('pg',[
  {cap:'<b>Make your folder first.</b> On the <b>Desktop</b>, right-click → <b>New → Folder</b> and name it with <b>your full name</b>. Save <b>both</b> files of this lab in it: the CX-Programmer project (.cxp) and the CX-Designer project. CX-Designer needs to find your .cxp file later, so keep them together.'},
  {cap:'Open <b>CX-Programmer</b> and choose <b>File → New</b>. Type a device name and choose the <b>Device Type</b> on your lab sheet (our lab PLC is the <b>CP1L</b>). Press OK.'},
- {cap:'Draw the rung. Place a <b>contact</b> (shortcut C) and type <b>0.00</b>, then a <b>coil</b> (shortcut O) and type <b>100.00</b>. Give them comments START and MOTOR so they are easy to find.'},
+ {cap:'Draw the rung. Place a <b>contact</b> (shortcut C) and type <b>0.00</b>, then a <b>coil</b> (shortcut O) and type <b>01000</b>. Give them comments START and MOTOR so they are easy to find.'},
  {cap:'Choose <b>Program → Compile</b>. Read the Output window: it must say <b>0 errors</b>. A program with errors cannot run in the simulator.'},
  {cap:'Choose <b>File → Save As</b> and save the project in <b>your folder</b> (the one you made in step 1). Remember this place: CX-Designer will ask for this file (<b>.cxp</b>) in Step 3.'}
 ]);
@@ -825,54 +809,31 @@ stepper('ds',[
  {shot:['new-screen','New Screen dialog with No. 0 and title Screen Page0000'],cap:'A <b>New Screen</b> box appears. Keep <b>No. 0</b> and the title <b>Screen Page0000</b> (or type your own), then OK. You get an empty black screen.'},
  {shot:['object-toolbar','CX-Designer object toolbar: PB is the bit button and B is the bit lamp',1],cap:'On the object toolbar, click <b>PB</b> (<b>Bit Button</b>) and drag a box on the screen. Double-click the button to open its properties.'},
  {shot:['bit-button','Bit Button properties: Action Type Momentary and Write Address SERIALA:00000.00'],cap:'In the <b>General</b> tab, choose Action Type <b>Momentary</b> and set the <b>Write Address</b> with <b>Set1…</b> to <b>SERIALA:00000.00</b>. That is address <b>0.00</b>, the START contact in the ladder. Put the text START in the <b>Label</b> tab, then OK.'},
- {shot:['bit-lamp','Bit Lamp properties: Display Address SERIALA:00000.00 (change it to SERIALA:00100.00)',0,'Here the lamp still shows the default address 00000.00. Change it to <b>SERIALA:00100.00</b> so it reads the MOTOR coil.'],cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00100.00</b>: address <b>100.00</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.'},
- {cap:'Choose <b>File → Save</b>. Your screen is ready: one button writing 0.00 and one lamp reading 100.00.'}
+ {shot:['bit-lamp','Bit Lamp properties: Display Address SERIALA:00000.00 (change it to SERIALA:00010.00)',0,'Here the lamp still shows the default address 00000.00. Change it to <b>SERIALA:00010.00</b> so it reads the MOTOR coil.'],cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00010.00</b>: address <b>01000</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.'},
+ {cap:'Choose <b>File → Save</b>. Your screen is ready: one button writing 0.00 and one lamp reading 01000.'}
 ]);
 
 stepper('ln',[
  {shot:['tools-menu','CX-Designer Tools menu with Test… Ctrl+T at the top'],cap:'In <b>CX-Designer</b>, open the <b>Tools</b> menu and choose <b>Test…</b> (or press <b>Ctrl+T</b>).'},
  {shot:['test-dialog','CX-Designer Test box with Connect to CX-Simulator selected, Host Name SERIALA and a Browse button for the File Name'],cap:'In the <b>Test</b> box choose <b>Connect to CX-Simulator</b> (this is the integrated simulation). Host Name stays <b>SERIALA</b>. Press <b>Browse</b> and choose your CX-Programmer file <b>Lab7 Example.cxp</b> from Step 1, then press <b>Start</b>.'},
  {title:'CX-Programmer · Lab7 Example · Online (simulator)',cap:'CX-Programmer opens your ladder, starts <b>CX-Simulator</b> and goes <b>online</b>. The ladder now shows live power flow. Leave it open.'},
- {title:'CX-Designer · Test · Screen Page0000',cap:'The <b>test window</b> opens with your screen. Press <b>START</b>: in CX-Programmer, contact 0.00 and coil 100.00 turn green, and the <b>MOTOR</b> lamp lights. You have linked them! Close the test window when you finish.'}
+ {title:'CX-Designer · Test · Screen Page0000',cap:'The <b>test window</b> opens with your screen. Press <b>START</b>: in CX-Programmer, contact 0.00 and coil 01000 turn green, and the <b>MOTOR</b> lamp lights. You have linked them! Close the test window when you finish.'}
 ]);
 
 /* Live: both programs on the same memory */
 const LV={a:false,b:false,force:false};
-const LV_R=[{s:[{a:'0.00',l:'PUMP A'}],out:{t:'coil',a:'100.00',l:'PUMP A'}},{s:[{a:'0.01',l:'PUMP B'}],out:{t:'coil',a:'100.01',l:'PUMP B'}}];
-function lvDraw(msg){const m={'0.00':+LV.a,'0.01':+(LV.b||LV.force)};m['100.00']=m['0.00'];m['100.01']=m['0.01'];
+const LV_R=[{s:[{a:'0.00',l:'PUMP A'}],out:{t:'coil',a:'01000',l:'PUMP A'}},{s:[{a:'0.01',l:'PUMP B'}],out:{t:'coil',a:'01001',l:'PUMP B'}}];
+function lvDraw(msg){const m={'0.00':+LV.a,'0.01':+(LV.b||LV.force)};m['01000']=m['0.00'];m['01001']=m['0.01'];
   $('#lvLad').innerHTML=lad(LV_R,m,{live:true,rn:true});
-  $('#lvLA').classList.toggle('on',!!m['100.00']);$('#lvLB').classList.toggle('on',!!m['100.01']);
+  $('#lvLA').classList.toggle('on',!!m['01000']);$('#lvLB').classList.toggle('on',!!m['01001']);
   $('#lvF').classList.toggle('act',LV.force);
   $('#lvSay').innerHTML=msg||'Hold <b>PUMP A</b> or <b>PUMP B</b> on the HMI, or press <b>Force ON 0.01</b> in CX-Programmer.'}
-hold($('#lvA'),()=>{LV.a=true;lvDraw('The HMI wrote <b>0.00 = 1</b>. Rung 0 sees it, so coil <b>100.00</b> turns ON and the PUMP A lamp lights.')},()=>{LV.a=false;lvDraw()});
-hold($('#lvB'),()=>{LV.b=true;lvDraw('The HMI wrote <b>0.01 = 1</b>. Rung 1 turns <b>100.01</b> ON and the PUMP B lamp lights.')},()=>{LV.b=false;lvDraw()});
+hold($('#lvA'),()=>{LV.a=true;lvDraw('The HMI wrote <b>0.00 = 1</b>. Rung 0 sees it, so coil <b>01000</b> turns ON and the PUMP A lamp lights.')},()=>{LV.a=false;lvDraw()});
+hold($('#lvB'),()=>{LV.b=true;lvDraw('The HMI wrote <b>0.01 = 1</b>. Rung 1 turns <b>01001</b> ON and the PUMP B lamp lights.')},()=>{LV.b=false;lvDraw()});
 $('#lvF').onclick=()=>{LV.force=true;lvDraw('You forced <b>0.01</b> ON in CX-Programmer. The HMI lamp PUMP B lights too: <b>both programs share the same memory</b>. Press Cancel force when you finish.')};
 $('#lvC').onclick=()=>{LV.force=false;lvDraw('Force cancelled. 0.01 follows the HMI button again.')};
 lvDraw();
 
-/* ===== L7.6 Trouble-shooting ===== */
-const TS=[
- ['Nothing happens when I press the button.','Check the <b>address</b> first. The bit button must use the same address as the ladder contact (here 0.00 = <b>SERIALA:00000.00</b>). Compare them side by side.'],
- ['The ladder does not move at all in CX-Programmer.','The simulation is not <b>online</b>. In CX-Designer use <b>Tools → Test…</b> and choose <b>Connect to CX-Simulator</b> (not <i>Start testing offline</i>), and check that CX-Programmer says <i>Online</i> and is in run or monitor mode.'],
- ['Integrated simulation will not start, or it shows an error.','<b>Compile</b> the ladder in CX-Programmer (0 errors), then <b>save</b> it. Also check that you chose the right .cxp file and the PLC model on the lab sheet.'],
- ['The lamp lights, but the motor coil is OFF in the ladder.','The lamp is reading the <b>button</b> address (0.00) instead of the <b>output</b> (100.00). A lamp should show the result of the ladder, so give it the coil address.'],
- ['The button only works while I keep pressing it.','That is a <b>momentary</b> button: ON while pressed. To keep a motor running after you let go, the <b>ladder</b> needs a self-holding (latch) rung, as you learned in <a href="lab2.html">Lab 2</a>.'],
- ['I changed the ladder but the simulation still runs the old one.','Stop the simulation, make the change, <b>compile and save</b> again, then start the test again (Tools → Test… → Connect to CX-Simulator).']];
-$('#tsList').innerHTML=TS.map(t=>`<details><summary>${t[0]}</summary><p>${t[1]}</p></details>`).join('');
-
-/* ===== L7.7 Quick check ===== */
-const QC=[
- ['Which software do you use to draw the HMI screen?',['CX-Programmer','CX-Designer','CX-Simulator'],1,'CX-Designer draws the screen; CX-Programmer writes the ladder; CX-Simulator runs the ladder on the PC.'],
- ['The ladder uses contact <b>0.00</b> for START. Which Write Address do you give the START bit button in CX-Designer?',['SERIALA:00000.00','SERIALA:00100.00','SERIALA:00000.01'],0,'0.00 in CX-Programmer is written SERIALA:00000.00 in CX-Designer: the same bit.'],
- ['The ladder turns ON coil <b>100.01</b> for a fan. Which address do you give the FAN bit lamp?',['0.01','100.00','100.01'],2,'A lamp reads the output that the ladder turns ON: 100.01.'],
- ['What must you do in CX-Programmer before you start integrated simulation?',['Compile the ladder and save the project','Print the ladder','Close CX-Programmer'],0,'The simulator needs a compiled, saved project (.cxp) with 0 errors; you choose that file in the Test box.'],
- ['You press START on the screen but the lamp stays OFF. The button is set to <b>0.01</b> and the ladder contact is <b>0.00</b>. What is wrong?',['The PLC is broken','The addresses do not match','The lamp is too small'],1,'Change the button address to 0.00 so it matches the ladder.']];
-let qcOk=0,qcDone=0;
-$('#qcList').innerHTML=QC.map((q,i)=>`<div class="q" data-i="${i}"><p>${i+1}. ${q[0]}</p><div class="row">${q[1].map((o,j)=>`<button class="chip" data-j="${j}">${o}</button>`).join('')}</div><div class="fb" aria-live="polite"></div></div>`).join('');
-$$('#qcList .q').forEach(el=>el.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(el.dataset.done)return;el.dataset.done=1;const q=QC[+el.dataset.i],ok=+c.dataset.j===q[2];
-  c.classList.add(ok?'right':'wrong');if(!ok)el.querySelector(`.chip[data-j="${q[2]}"]`).classList.add('right');
-  const f=el.querySelector('.fb');f.className='fb '+(ok?'good':'bad');f.textContent=(ok?'Correct. ':'Not quite. ')+q[3];
-  qcDone++;if(ok)qcOk++;$('#qcScore').className='fb'+(qcDone===QC.length?' good':'');$('#qcScore').textContent=`${qcOk} of ${qcDone} correct`+(qcDone===QC.length?(qcOk===QC.length?'. Well done! You are ready for the lab task.':'. Read the explanations, then try the lab task.'):'')}));
 })();
 </script>
 <!-- Phone remote (receiver). The same block is in every chapter and lab page and the homepage. -->
