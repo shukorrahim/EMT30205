@@ -14,7 +14,7 @@ served by GitHub Pages at https://shukorrahim.github.io/EMT30205/. Students use 
   Lab 5 (`lab5.html`, Counter and Timer, the same number as the module's "Lab 5") shows the conveyor task running as described, but not its
   ladder, mnemonic code or timing diagram.
   Lab 7 (`lab7.html`, Linking CX-Programmer and CX-Designer, the module's "Lab Assessment 3 (HMI 1)") teaches the link (addresses,
-  integrated simulation) with its own small example (0.00 → 10.00); it does not show the five assessment ladders as HMI answers.
+  integrated simulation) with its own small example (0.00 → 100.00, CP1L); it does not show the five assessment ladders as HMI answers.
   Labs have no jargon buster and no class game.
 - `game.html` — "HMI Challenge", a live Kahoot-style class game (10 Chapter 4 questions, linked from
   the Chapter 4 class game section). The lecturer hosts on the projector; students join on phones with

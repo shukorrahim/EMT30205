@@ -551,13 +551,13 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <section class="topic" id="s2">
   <h2><span class="n">L7.2</span>The address is the link</h2>
   <div class="key"><b>In one sentence</b><span>An HMI object does nothing by itself: a <strong>bit button</strong> writes ON/OFF to a PLC address, and a <strong>bit lamp</strong> reads a PLC address. If the address on the screen and the address in the ladder are the same, they are linked.</span></div>
-  <div class="prose"><p>The ladder below is fixed: input <b>0.00</b> turns on output <b>10.00</b>. Hold <b>START</b> on the HMI screen. Then change the address of the button or the lamp and try again. Which addresses make the motor lamp work?</p></div>
+  <div class="prose"><p>The ladder below is fixed: input <b>0.00</b> turns on output <b>100.00</b>. Hold <b>START</b> on the HMI screen. Then change the address of the button or the lamp and try again. Which addresses make the motor lamp work?</p></div>
   <div class="adgrid">
     <div class="h7">
       <div class="h7t"><b>HMI · Screen 1</b><span>Test</span></div>
       <div class="h7b">
-        <div class="h7obj"><button class="h7btn" id="adBtn" aria-pressed="false">START</button><label>Bit button address <select id="adBA"><option>0.00</option><option>0.01</option><option>10.00</option></select></label></div>
-        <div class="h7obj"><div class="h7lamp" id="adLamp"><i></i>MOTOR</div><label>Bit lamp address <select id="adLA"><option>10.00</option><option>10.01</option><option>0.00</option></select></label></div>
+        <div class="h7obj"><button class="h7btn" id="adBtn" aria-pressed="false">START</button><label>Bit button address <select id="adBA"><option>0.00</option><option>0.01</option><option>100.00</option></select></label></div>
+        <div class="h7obj"><div class="h7lamp" id="adLamp"><i></i>MOTOR</div><label>Bit lamp address <select id="adLA"><option>100.00</option><option>100.01</option><option>0.00</option></select></label></div>
       </div>
     </div>
     <div class="memcol"><div class="memh">PLC memory</div><table class="mem" id="adMem"></table><div class="memf">the meeting point</div></div>
@@ -570,7 +570,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 <section class="topic" id="s3">
   <h2><span class="n">L7.3</span>Step 1: write the ladder in CX-Programmer</h2>
   <div class="key"><b>In one sentence</b><span>Make the PLC program first: choose the PLC model, draw the rung, compile it, and save it where you can find it again.</span></div>
-  <div class="prose"><p>We use a small example: an HMI button on <b>0.00</b> runs a motor lamp on <b>10.00</b>. Step through it, then do the same on the lab PC.</p></div>
+  <div class="prose"><p>We use a small example: an HMI button on <b>0.00</b> runs a motor lamp on <b>100.00</b>. Start by making your own folder, then step through it, then do the same on the lab PC.</p></div>
   <div class="cxw st" id="pgWin"></div>
   <div class="stepcap" id="pgCap" aria-live="polite"></div>
   <div class="row" style="margin-top:10px"><button class="btn" id="pgBack">◀ Back</button><button class="btn primary" id="pgNext">Next step ▶</button><span class="muted" id="pgNum"></span></div>
@@ -582,7 +582,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <div class="key"><b>In one sentence</b><span>Make a new screen, place a bit button and a bit lamp, and give each one the <strong>same address</strong> you used in the ladder.</span></div>
   <div class="prose"><p>How to place and set up objects is in <a href="chapter5.html">Chapter 5</a> (5.2 to 5.5). Here we only build what the link needs.</p></div>
   <div class="note"><b>Same bit, two ways of writing it.</b> CX-Designer writes the PLC name (<b>SERIALA</b>) and the word with 5 digits:
-    <table class="mem" style="margin:8px 0 0"><tr><td>CX-Programmer</td><td>CX-Designer</td></tr><tr><td>0.00</td><td>SERIALA:00000.00</td></tr><tr><td>0.01</td><td>SERIALA:00000.01</td></tr><tr><td>10.00</td><td>SERIALA:00010.00</td></tr><tr><td>10.01</td><td>SERIALA:00010.01</td></tr></table></div>
+    <table class="mem" style="margin:8px 0 0"><tr><td>CX-Programmer</td><td>CX-Designer</td></tr><tr><td>0.00</td><td>SERIALA:00000.00</td></tr><tr><td>0.01</td><td>SERIALA:00000.01</td></tr><tr><td>100.00</td><td>SERIALA:00100.00</td></tr><tr><td>100.01</td><td>SERIALA:00100.01</td></tr></table></div>
   <div class="cxw st cxd" id="dsWin"></div>
   <div class="stepcap" id="dsCap" aria-live="polite"></div>
   <div class="row" style="margin-top:10px"><button class="btn" id="dsBack">◀ Back</button><button class="btn primary" id="dsNext">Next step ▶</button><span class="muted" id="dsNum"></span></div>
@@ -608,8 +608,8 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
       <div class="h7b">
         <div class="h7obj"><button class="h7btn" id="lvA" aria-pressed="false">PUMP A</button><small>0.00</small></div>
         <div class="h7obj"><button class="h7btn" id="lvB" aria-pressed="false">PUMP B</button><small>0.01</small></div>
-        <div class="h7obj"><div class="h7lamp" id="lvLA"><i></i>PUMP A</div><small>10.00</small></div>
-        <div class="h7obj"><div class="h7lamp" id="lvLB"><i></i>PUMP B</div><small>10.01</small></div>
+        <div class="h7obj"><div class="h7lamp" id="lvLA"><i></i>PUMP A</div><small>100.00</small></div>
+        <div class="h7obj"><div class="h7lamp" id="lvLB"><i></i>PUMP B</div><small>100.01</small></div>
       </div>
     </div>
   </div>
@@ -633,7 +633,7 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 </section>
 
 <footer>
-  Monitoring System Integration, Laboratory 7: Linking CX-Programmer and CX-Designer. Prepared for the lab module of Mohamad Shukor bin Abdul Rahim (Lab Assessment 3, HMI 1). The windows, screens and ladders on this page are simplified drawings for learning; menu names differ slightly between CX-One versions. OMRON, CX-Programmer, CX-Designer and CX-Simulator are trademarks of OMRON Corporation.
+  Monitoring System Integration, Laboratory 7: Linking CX-Programmer and CX-Designer. Prepared for the lab module of Mohamad Shukor bin Abdul Rahim (Lab Assessment 3, HMI 1). The CX-Designer screenshots are the lecturer's own. The HMI screens and ladders in the activities are simplified drawings for learning; menu names differ slightly between CX-One versions. OMRON, CX-Programmer, CX-Designer and CX-Simulator are trademarks of OMRON Corporation.
 </footer>
 </div>
 </main>
@@ -730,7 +730,7 @@ function hold(btn,dn,up){let on=false;const d=e=>{e.preventDefault();if(on)retur
 const LK={mode:'sim',sel:null};
 const LKB={
  sim:[['cxp',30,40,'CX-Programmer','writes the ladder','<b>CX-Programmer</b> is where you write and compile the ladder. In integrated simulation it opens your project and goes <b>online to CX-Simulator</b>, so you can watch the rungs light up.'],
-      ['sim',270,40,'CX-Simulator','a PLC inside your PC','<b>CX-Simulator</b> is a pretend PLC that runs inside the PC. It holds the PLC memory (0.00, 10.00, …) and scans your ladder, exactly like a real PLC would.'],
+      ['sim',270,40,'CX-Simulator','a PLC inside your PC','<b>CX-Simulator</b> is a pretend PLC that runs inside the PC. It holds the PLC memory (0.00, 100.00, …) and scans your ladder, exactly like a real PLC would.'],
       ['cxd',510,40,'CX-Designer','draws the HMI screen','<b>CX-Designer</b> is where you draw the screen. Its <b>test</b> window acts like the HMI panel: pressing a button there writes to the simulator\'s memory.']],
  real:[['cxp',30,40,'CX-Programmer','on the laptop','On a real machine you still write the ladder in <b>CX-Programmer</b>, then <b>transfer</b> it to the PLC over USB or Ethernet. After that the laptop can be unplugged.'],
        ['sim',270,40,'PLC','the real controller','The <b>PLC</b> holds the memory and scans the ladder. Its inputs come from real switches and sensors; its outputs drive real motors and lamps.'],
@@ -738,10 +738,10 @@ const LKB={
 function lkDraw(){const B=LKB[LK.mode],sim=LK.mode==='sim';let h='';
   if(sim)h+=`<rect x="12" y="14" width="696" height="150" rx="10" style="fill:none;stroke:var(--pipe);stroke-width:2;stroke-dasharray:8 6"/><text x="24" y="32" font-size="13" style="fill:var(--ink2)">Your lab PC</text>`;
   const link=(x1,x2,l1,l2)=>`<path d="M${x1},95H${x2}" style="stroke:var(--sel);stroke-width:3;fill:none"/><path d="M${x2-9},89l9,6l-9,6M${x1+9},89l-9,6l9,6" style="stroke:var(--sel);stroke-width:3;fill:none"/><text x="${(x1+x2)/2}" y="84" text-anchor="middle" font-size="12" style="fill:var(--sel)">${l1}</text><text x="${(x1+x2)/2}" y="116" text-anchor="middle" font-size="12" style="fill:var(--ink2)">${l2}</text>`;
-  h+=link(210,270,sim?'online':'transfer',sim?'(simulation)':'USB');h+=link(450,510,'reads / writes','0.00, 10.00');
+  h+=link(210,270,sim?'online':'transfer',sim?'(simulation)':'USB');h+=link(450,510,'reads /','writes');
   B.forEach(b=>{const on=LK.sel===b[0];h+=`<g class="lkb" data-k="${b[0]}" style="cursor:pointer"><rect x="${b[1]}" y="${b[2]}" width="180" height="110" rx="8" style="fill:var(--panel);stroke:${on?'#E8A400':'var(--ink)'};stroke-width:${on?4:2}"/>
     <text x="${b[1]+90}" y="${b[2]+48}" text-anchor="middle" font-size="18" style="font-weight:700;font-family:var(--cond)">${b[3]}</text><text x="${b[1]+90}" y="${b[2]+72}" text-anchor="middle" font-size="13" style="fill:var(--ink2)">${b[4]}</text></g>`});
-  h+=`<rect x="200" y="190" width="320" height="52" rx="8" style="fill:rgba(232,164,0,.12);stroke:#E8A400;stroke-width:2"/><text x="360" y="212" text-anchor="middle" font-size="14" style="font-weight:600">The link = the same PLC address</text><text x="360" y="231" text-anchor="middle" font-size="13" style="fill:var(--ink2)">button 0.00 → ladder 0.00 · ladder 10.00 → lamp 10.00</text>`;
+  h+=`<rect x="200" y="190" width="320" height="52" rx="8" style="fill:rgba(232,164,0,.12);stroke:#E8A400;stroke-width:2"/><text x="360" y="212" text-anchor="middle" font-size="14" style="font-weight:600">The link = the same PLC address</text><text x="360" y="231" text-anchor="middle" font-size="13" style="fill:var(--ink2)">button 0.00 → ladder 0.00 · ladder 100.00 → lamp 100.00</text>`;
   $('#lkSvg').innerHTML=h;
   $$('#lkSvg .lkb').forEach(g=>g.onclick=()=>{LK.sel=g.dataset.k;lkDraw()});
   const b=B.find(x=>x[0]===LK.sel);
@@ -750,100 +750,69 @@ $$('#lkSeg button').forEach(b=>b.onclick=()=>{press($$('#lkSeg button'),b);LK.mo
 lkDraw();
 
 /* ===== L7.2 The address is the link ===== */
-const AD={btn:false,mem:{'0.00':0,'0.01':0,'10.00':0,'10.01':0}};
-const AD_RUNG=[{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'10.00',l:'MOTOR'}}];
+const AD={btn:false,mem:{'0.00':0,'0.01':0,'100.00':0,'100.01':0}};
+const AD_RUNG=[{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'100.00',l:'MOTOR'}}];
 function adScan(){const ba=$('#adBA').value,m=AD.mem;
   m['0.00']=0;m['0.01']=0;if(AD.btn&&(ba==='0.00'||ba==='0.01'))m[ba]=1;   // the button writes its address while it is held
-  m['10.00']=m['0.00'];                                                       // the ladder: 0.00 → 10.00 (written every scan)
+  m['100.00']=m['0.00'];                                                       // the ladder: 0.00 → 100.00 (written every scan)
   return ba}
 function adDraw(){const ba=adScan(),la=$('#adLA').value,m=AD.mem,lampOn=!!m[la];
   $('#adLamp').classList.toggle('on',lampOn);
   $('#adMem').innerHTML='<tr><td>Address</td><td>Value</td></tr>'+Object.keys(m).map(k=>`<tr class="${m[k]?'on':''}${k===ba||k===la?' hl':''}"><td>${k}</td><td class="v">${m[k]}</td></tr>`).join('');
   $('#adLad').innerHTML=lad(AD_RUNG,m,{live:true});
   let s;
-  if(ba==='0.00'&&la==='10.00')s=AD.btn?'<b>Linked!</b> START writes <b>1</b> to 0.00 → the ladder contact 0.00 closes → coil 10.00 turns ON → the lamp reads 10.00 and lights.':'Both addresses match the ladder. Hold <b>START</b>.';
+  if(ba==='0.00'&&la==='100.00')s=AD.btn?'<b>Linked!</b> START writes <b>1</b> to 0.00 → the ladder contact 0.00 closes → coil 100.00 turns ON → the lamp reads 100.00 and lights.':'Both addresses match the ladder. Hold <b>START</b>.';
   else if(ba==='0.01')s=AD.btn?'The button writes to <b>0.01</b>, but the ladder looks at <b>0.00</b>. Nothing happens: the addresses do not match.':'The button now writes to <b>0.01</b>. Hold START and watch the memory.';
-  else if(ba==='10.00')s='The button writes to <b>10.00</b>, but 10.00 is an <b>output</b> of the ladder: the PLC writes it again on every scan, so your press is lost straight away. Buttons should write to the input (0.00) or a work bit.';
+  else if(ba==='100.00')s='The button writes to <b>100.00</b>, but 100.00 is an <b>output</b> of the ladder: the PLC writes it again on every scan, so your press is lost straight away. Buttons should write to the input (0.00) or a work bit.';
   else s='';
-  if(ba==='0.00'&&la==='10.01')s=AD.btn?'Coil <b>10.00</b> is ON, but the lamp watches <b>10.01</b>. The motor runs but the screen shows it OFF: a dangerous mistake!':'The lamp now reads <b>10.01</b>. Hold START.';
-  if(ba==='0.00'&&la==='0.00')s=AD.btn?'The lamp lights, but it shows the <b>button</b> (0.00), not the motor (10.00). If the ladder had a stop condition, the screen would lie to you. A lamp should read the <b>output</b>.':'The lamp now reads <b>0.00</b>, the button\'s own address. Hold START.';
+  if(ba==='0.00'&&la==='100.01')s=AD.btn?'Coil <b>100.00</b> is ON, but the lamp watches <b>100.01</b>. The motor runs but the screen shows it OFF: a dangerous mistake!':'The lamp now reads <b>100.01</b>. Hold START.';
+  if(ba==='0.00'&&la==='0.00')s=AD.btn?'The lamp lights, but it shows the <b>button</b> (0.00), not the motor (100.00). If the ladder had a stop condition, the screen would lie to you. A lamp should read the <b>output</b>.':'The lamp now reads <b>0.00</b>, the button\'s own address. Hold START.';
   $('#adSay').innerHTML=s}
 hold($('#adBtn'),()=>{AD.btn=true;adDraw()},()=>{AD.btn=false;adDraw()});
 $('#adBA').onchange=adDraw;$('#adLA').onchange=adDraw;adDraw();
 
 /* ===== Step-by-step windows (drawn after the lecturer's CX-One screens) ===== */
-const MENU_CXP=['File','Edit','View','Insert','PLC','Program','Simulation','Tools','Window','Help'];
-const MENU_CXD=['File','Find','View','PT','Functional Objects','Fixed Objects','Tools','Window','Help'];
-function stepper(id,steps,title,menus){let i=0;const w=$('#'+id+'Win'),cap=$('#'+id+'Cap');
-  function draw(){const s=steps[i],mm=s.menus||menus;
-    w.innerHTML=`<div class="tt"><i></i>${s.title||title}</div>${mm?`<div class="mb">${mm.map(x=>`<span${s.menu===x?' class="hi"':''}>${x}</span>`).join('')}</div>`:''}<div class="cxbody">${s.body()}</div>${s.shot?`<figure class="shot"><figcaption>📷 The real screen in CX-Designer${s.shot[3]?`<span class="sn">${s.shot[3]}</span>`:""}</figcaption><a href="img/lab7/${s.shot[0]}.jpg" target="_blank" rel="noopener" title="Open the full-size picture"><img src="img/lab7/${s.shot[0]}.jpg" alt="${s.shot[1]}" loading="lazy"${s.shot[2]?' class="tall"':''}></a><small class="zm">Tap the picture to open it full size.</small></figure>`:''}`;
+function stepper(id,steps){let i=0;const w=$('#'+id+'Win'),cap=$('#'+id+'Cap');
+  function draw(){const s=steps[i];w.hidden=!s.shot;
+    w.innerHTML=s.shot?`<figure class="shot">${s.shot[3]?`<figcaption>${s.shot[3]}</figcaption>`:''}<a href="img/lab7/${s.shot[0]}.jpg" target="_blank" rel="noopener" title="Open the full-size picture"><img src="img/lab7/${s.shot[0]}.jpg" alt="${s.shot[1]}" loading="lazy"${s.shot[2]?' class="tall"':''}></a><small class="zm">Tap the picture to open it full size.</small></figure>`:'';
     cap.innerHTML=`<b>Step ${i+1}:</b> ${s.cap}`;
     $('#'+id+'Num').textContent=`Step ${i+1} of ${steps.length}`;
     $('#'+id+'Back').disabled=i===0;$('#'+id+'Next').disabled=i===steps.length-1}
   $('#'+id+'Back').onclick=()=>{if(i>0){i--;draw()}};$('#'+id+'Next').onclick=()=>{if(i<steps.length-1){i++;draw()}};draw()}
-/* dialog: rows [label, value, highlight?, button?] ; btns [[text, primary?]] */
-const dlg=(t,rows,btns)=>`<div class="dlg in"><div class="dt">${t}</div><div class="dbd">${rows.map(r=>`<div class="drow"><span class="lbl">${r[0]}</span><span class="fld${r[2]?' hi':''}">${r[1]}</span>${r[3]?`<span class="dbtn">${r[3]}</span>`:''}</div>`).join('')}<div class="btns">${(btns||[['OK',1],['Cancel']]).map(b=>`<span${b[1]?' class="pri"':''}>${b[0]}</span>`).join('')}</div></div></div>`;
-const radio=(on,t,hi)=>`<div class="rad${hi?' hi':''}"><i class="${on?'on':''}"></i>${t}</div>`;
-const EX=[{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'10.00',l:'MOTOR'}}];
-const ladW=(m,live)=>`<div class="board scroll-x" style="background:#fff;border:0">${lad(EX,m||{},{live:!!live,end:true})}</div>`;
-
 stepper('pg',[
- {menu:'File',cap:'Open <b>CX-Programmer</b> and choose <b>File → New</b>. Type a device name and choose the <b>Device Type</b> on your lab sheet (for simulation the sheet says <b>CP1E</b>). Press OK.',
-  body:()=>dlg('Change PLC',[['Device Name','Lab7 Example'],['Device Type','CP1E',1,'Settings…'],['Network Type','USB','','Settings…']])},
- {menu:'Insert',cap:'Draw the rung. Place a <b>contact</b> (shortcut C) and type <b>0.00</b>, then a <b>coil</b> (shortcut O) and type <b>10.00</b>. Give them comments START and MOTOR so they are easy to find.',
-  body:()=>ladW({})},
- {menu:'Program',cap:'Choose <b>Program → Compile</b>. Read the Output window: it must say <b>0 errors</b>. A program with errors cannot run in the simulator.',
-  body:()=>ladW({})+`<div class="out">Compiling…<br>NewProgram1 - 0 errors, 0 warnings<br><span class="k">Compile completed: 0 errors.</span></div>`},
- {menu:'File',cap:'Choose <b>File → Save As</b> and save the project in the folder with <b>your full name</b> on the desktop. Remember this place: CX-Designer will ask for this file (<b>.cxp</b>) in Step 3.',
-  body:()=>dlg('Save CX-Programmer File',[['Save in','Desktop\\YOUR FULL NAME'],['File name','Lab7 Example.cxp',1],['Save as type','CX-Programmer Project Files (*.cxp)']],[['Save',1],['Cancel']])}
-],'CX-Programmer · Lab7 Example',MENU_CXP);
+ {cap:'<b>Make your folder first.</b> On the <b>Desktop</b>, right-click → <b>New → Folder</b> and name it with <b>your full name</b>. Save <b>both</b> files of this lab in it: the CX-Programmer project (.cxp) and the CX-Designer project. CX-Designer needs to find your .cxp file later, so keep them together.'},
+ {cap:'Open <b>CX-Programmer</b> and choose <b>File → New</b>. Type a device name and choose the <b>Device Type</b> on your lab sheet (our lab PLC is the <b>CP1L</b>). Press OK.'},
+ {cap:'Draw the rung. Place a <b>contact</b> (shortcut C) and type <b>0.00</b>, then a <b>coil</b> (shortcut O) and type <b>100.00</b>. Give them comments START and MOTOR so they are easy to find.'},
+ {cap:'Choose <b>Program → Compile</b>. Read the Output window: it must say <b>0 errors</b>. A program with errors cannot run in the simulator.'},
+ {cap:'Choose <b>File → Save As</b> and save the project in <b>your folder</b> (the one you made in step 1). Remember this place: CX-Designer will ask for this file (<b>.cxp</b>) in Step 3.'}
+]);
 
-/* CX-Designer screen with the object toolbar */
-const PAL=[['PB','Bit Button'],['W','Word Button'],['CMD','Command Button'],['B','Bit Lamp'],['W','Word Lamp'],['MF','Multifunction'],['LABEL','Label'],['12','Numeral Display & Input']];
-const dsc=(o)=>`<div class="cxdes"><div class="pal">${PAL.map(p=>`<span class="pi${o.pal===p[1]?' hi':''}${p[1].includes('Lamp')?' rnd':''}" title="${p[1]}">${p[0]}</span>`).join('')}</div>
-  <div class="dsc">${o.btn?`<div class="h7obj${o.hiB?' hi':''}"><button class="h7btn" tabindex="-1">START</button><small>SERIALA:00000.00</small></div>`:'<div class="ph">bit button</div>'}${o.lamp?`<div class="h7obj${o.hiL?' hi':''}"><div class="h7lamp"><i></i>MOTOR</div><small>SERIALA:00010.00</small></div>`:'<div class="ph">bit lamp</div>'}</div></div>`;
-const props=(t,tabs,body)=>`<div class="dlg in wide"><div class="dt">${t}</div><div class="tabs">${tabs.map((x,i)=>`<span${i===0?' class="on"':''}>${x}</span>`).join('')}</div><div class="dbd">${body}<div class="btns"><span>Apply</span><span class="pri">OK</span><span>Cancel</span></div></div></div>`;
 stepper('ds',[
- {shot:['new-project','CX-Designer New Project dialog: Model NS15-TX0[]-V2, System Version 8.1, Project Title, File Name and Location'],menu:'File',cap:'Open <b>CX-Designer</b> and choose <b>File → New Project</b>. Choose the <b>Model</b> (PT) your lecturer gives, for example <b>NS15-TX0[]-V2</b>, type a <b>Project Title</b>, and set the <b>Location</b> to the folder with your full name. Press OK.',
-  body:()=>dlg('New Project',[['Model','NS15-TX0[]-V2','','▾'],['System Version','8.1','','▾'],['Project Title','Lab7 Example',1],['File Name','Lab7 Example'],['Location','Desktop\\YOUR FULL NAME','','Browse']],[['System Setting'],['Comm. Setting'],['OK',1],['Cancel']])},
- {shot:['new-screen','New Screen dialog with No. 0 and title Screen Page0000'],menu:'PT',cap:'A <b>New Screen</b> box appears. Keep <b>No. 0</b> and the title <b>Screen Page0000</b> (or type your own), then OK. You get an empty black screen.',
-  body:()=>dlg('New Screen',[['No.','0'],['Title','Screen Page0000',1]])},
- {shot:['object-toolbar','CX-Designer object toolbar: PB is the bit button and B is the bit lamp',1],menu:'Functional Objects',pal:'Bit Button',cap:'On the object toolbar, click <b>PB</b> (<b>Bit Button</b>) and drag a box on the screen. Double-click the button to open its properties.',
-  body:()=>dsc({pal:'Bit Button',btn:true,hiB:true})},
- {shot:['bit-button','Bit Button properties: Action Type Momentary and Write Address SERIALA:00000.00'],menu:'Functional Objects',cap:'In the <b>General</b> tab, choose Action Type <b>Momentary</b> and set the <b>Write Address</b> with <b>Set1…</b> to <b>SERIALA:00000.00</b>. That is address <b>0.00</b>, the START contact in the ladder. Put the text START in the <b>Label</b> tab, then OK.',
-  body:()=>props('Bit Button - PB0001',['General','Color/Shape','Label','Frame','Flicker','Write','Password','…'],
-    `<div class="pgrid"><div class="grp"><b>Action Type</b>${radio(1,'Momentary',1)}${radio(0,'Alternate')}${radio(0,'SET')}${radio(0,'RESET')}</div>
-     <div class="grp"><b>Address</b><div class="drow"><span class="lbl">Write Address</span><span class="fld hi">SERIALA:00000.00</span><span class="dbtn">Set1…</span></div></div></div>`)},
- {shot:['bit-lamp','Bit Lamp properties: Display Address SERIALA:00000.00 (change it to SERIALA:00010.00)',0,'Here the lamp still shows the default address 00000.00. Change it to <b>SERIALA:00010.00</b> so it reads the MOTOR coil.'],menu:'Functional Objects',pal:'Bit Lamp',cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00010.00</b>: address <b>10.00</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.',
-  body:()=>props('Bit Lamp - PL0001',['General','Color/Shape','Label','Frame','Flicker','Control Flag','…'],
-    `<div class="grp"><b>Address</b><div class="drow"><span class="lbl">Display Address</span><span class="fld hi">SERIALA:00010.00</span><span class="dbtn">Set1…</span></div></div>`)+dsc({pal:'Bit Lamp',btn:true,lamp:true,hiL:true})},
- {menu:'File',cap:'Choose <b>File → Save</b>. Your screen is ready: one button writing 0.00 and one lamp reading 10.00.',
-  body:()=>dsc({btn:true,lamp:true})+`<div class="out"><span class="k">Project saved:</span> Desktop\\YOUR FULL NAME\\Lab7 Example</div>`}
-],'CX-Designer · Lab7 Example - [0000:Screen Page0000]',MENU_CXD);
+ {shot:['new-project','CX-Designer New Project dialog: Model NS15-TX0[]-V2, System Version 8.1, Project Title, File Name and Location'],cap:'Open <b>CX-Designer</b> and choose <b>File → New Project</b>. Choose the <b>Model</b> (PT) your lecturer gives, for example <b>NS15-TX0[]-V2</b>, type a <b>Project Title</b>, and set the <b>Location</b> to <b>your folder</b> (the same folder as your .cxp file). Press OK.'},
+ {shot:['new-screen','New Screen dialog with No. 0 and title Screen Page0000'],cap:'A <b>New Screen</b> box appears. Keep <b>No. 0</b> and the title <b>Screen Page0000</b> (or type your own), then OK. You get an empty black screen.'},
+ {shot:['object-toolbar','CX-Designer object toolbar: PB is the bit button and B is the bit lamp',1],cap:'On the object toolbar, click <b>PB</b> (<b>Bit Button</b>) and drag a box on the screen. Double-click the button to open its properties.'},
+ {shot:['bit-button','Bit Button properties: Action Type Momentary and Write Address SERIALA:00000.00'],cap:'In the <b>General</b> tab, choose Action Type <b>Momentary</b> and set the <b>Write Address</b> with <b>Set1…</b> to <b>SERIALA:00000.00</b>. That is address <b>0.00</b>, the START contact in the ladder. Put the text START in the <b>Label</b> tab, then OK.'},
+ {shot:['bit-lamp','Bit Lamp properties: Display Address SERIALA:00000.00 (change it to SERIALA:00100.00)',0,'Here the lamp still shows the default address 00000.00. Change it to <b>SERIALA:00100.00</b> so it reads the MOTOR coil.'],cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00100.00</b>: address <b>100.00</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.'},
+ {cap:'Choose <b>File → Save</b>. Your screen is ready: one button writing 0.00 and one lamp reading 100.00.'}
+]);
 
 stepper('ln',[
- {shot:['tools-menu','CX-Designer Tools menu with Test… Ctrl+T at the top'],menu:'Tools',cap:'In <b>CX-Designer</b>, open the <b>Tools</b> menu and choose <b>Test…</b> (or press <b>Ctrl+T</b>).',
-  body:()=>`<div class="tree">Tools<br>&nbsp;&nbsp;<span class="hi">Test…&nbsp;&nbsp;&nbsp;&nbsp;Ctrl+T</span><br>&nbsp;&nbsp;PLC Error Simulator<br>&nbsp;&nbsp;Resource Report…<br>&nbsp;&nbsp;Validation ▸<br>&nbsp;&nbsp;Library…<br>&nbsp;&nbsp;Option…</div>`},
- {shot:['test-dialog','CX-Designer Test box with Connect to CX-Simulator selected, Host Name SERIALA and a Browse button for the File Name'],menu:'Tools',cap:'In the <b>Test</b> box choose <b>Connect to CX-Simulator</b> (this is the integrated simulation). Host Name stays <b>SERIALA</b>. Press <b>Browse</b> and choose your CX-Programmer file <b>Lab7 Example.cxp</b> from Step 1, then press <b>Start</b>.',
-  body:()=>`<div class="dlg in wide"><div class="dt">Test</div><div class="dbd">${radio(0,'Start testing offline')}${radio(1,'<b>Connect to CX-Simulator</b> · Perform Integrated Simulation with the running …',1)}
-    <div class="grp"><div class="drow"><span class="lbl">Host Name</span><span class="fld">SERIALA</span></div><div class="drow"><span class="lbl">File Name</span><span class="fld hi">Desktop\\YOUR FULL NAME\\Lab7 Example.cxp</span><span class="dbtn">Browse</span></div></div>
-    ${radio(0,'Connect to PLC')}<div class="btns"><span class="pri">Start</span><span>Cancel</span></div></div></div>`},
- {title:'CX-Programmer · Lab7 Example · Online (simulator)',menus:MENU_CXP,menu:'Simulation',cap:'CX-Programmer opens your ladder, starts <b>CX-Simulator</b> and goes <b>online</b>. The ladder now shows live power flow. Leave it open.',
-  body:()=>ladW({},true)+`<div class="out"><span class="k">Connected to CX-Simulator.</span> Mode: RUN / MONITOR</div>`},
- {title:'CX-Designer · Test · Screen Page0000',cap:'The <b>test window</b> opens with your screen. Press <b>START</b>: in CX-Programmer, contact 0.00 and coil 10.00 turn green, and the <b>MOTOR</b> lamp lights. You have linked them! Close the test window when you finish.',
-  body:()=>`<div class="dsc"><div class="h7obj"><button class="h7btn" aria-pressed="true" tabindex="-1">START</button><small>00000.00 = 1</small></div><div class="h7obj"><div class="h7lamp on"><i></i>MOTOR</div><small>00010.00 = 1</small></div></div>`+ladW({'0.00':1},true)}
-],'CX-Designer · Lab7 Example',MENU_CXD);
+ {shot:['tools-menu','CX-Designer Tools menu with Test… Ctrl+T at the top'],cap:'In <b>CX-Designer</b>, open the <b>Tools</b> menu and choose <b>Test…</b> (or press <b>Ctrl+T</b>).'},
+ {shot:['test-dialog','CX-Designer Test box with Connect to CX-Simulator selected, Host Name SERIALA and a Browse button for the File Name'],cap:'In the <b>Test</b> box choose <b>Connect to CX-Simulator</b> (this is the integrated simulation). Host Name stays <b>SERIALA</b>. Press <b>Browse</b> and choose your CX-Programmer file <b>Lab7 Example.cxp</b> from Step 1, then press <b>Start</b>.'},
+ {title:'CX-Programmer · Lab7 Example · Online (simulator)',cap:'CX-Programmer opens your ladder, starts <b>CX-Simulator</b> and goes <b>online</b>. The ladder now shows live power flow. Leave it open.'},
+ {title:'CX-Designer · Test · Screen Page0000',cap:'The <b>test window</b> opens with your screen. Press <b>START</b>: in CX-Programmer, contact 0.00 and coil 100.00 turn green, and the <b>MOTOR</b> lamp lights. You have linked them! Close the test window when you finish.'}
+]);
 
 /* Live: both programs on the same memory */
 const LV={a:false,b:false,force:false};
-const LV_R=[{s:[{a:'0.00',l:'PUMP A'}],out:{t:'coil',a:'10.00',l:'PUMP A'}},{s:[{a:'0.01',l:'PUMP B'}],out:{t:'coil',a:'10.01',l:'PUMP B'}}];
-function lvDraw(msg){const m={'0.00':+LV.a,'0.01':+(LV.b||LV.force)};m['10.00']=m['0.00'];m['10.01']=m['0.01'];
+const LV_R=[{s:[{a:'0.00',l:'PUMP A'}],out:{t:'coil',a:'100.00',l:'PUMP A'}},{s:[{a:'0.01',l:'PUMP B'}],out:{t:'coil',a:'100.01',l:'PUMP B'}}];
+function lvDraw(msg){const m={'0.00':+LV.a,'0.01':+(LV.b||LV.force)};m['100.00']=m['0.00'];m['100.01']=m['0.01'];
   $('#lvLad').innerHTML=lad(LV_R,m,{live:true,rn:true});
-  $('#lvLA').classList.toggle('on',!!m['10.00']);$('#lvLB').classList.toggle('on',!!m['10.01']);
+  $('#lvLA').classList.toggle('on',!!m['100.00']);$('#lvLB').classList.toggle('on',!!m['100.01']);
   $('#lvF').classList.toggle('act',LV.force);
   $('#lvSay').innerHTML=msg||'Hold <b>PUMP A</b> or <b>PUMP B</b> on the HMI, or press <b>Force ON 0.01</b> in CX-Programmer.'}
-hold($('#lvA'),()=>{LV.a=true;lvDraw('The HMI wrote <b>0.00 = 1</b>. Rung 0 sees it, so coil <b>10.00</b> turns ON and the PUMP A lamp lights.')},()=>{LV.a=false;lvDraw()});
-hold($('#lvB'),()=>{LV.b=true;lvDraw('The HMI wrote <b>0.01 = 1</b>. Rung 1 turns <b>10.01</b> ON and the PUMP B lamp lights.')},()=>{LV.b=false;lvDraw()});
+hold($('#lvA'),()=>{LV.a=true;lvDraw('The HMI wrote <b>0.00 = 1</b>. Rung 0 sees it, so coil <b>100.00</b> turns ON and the PUMP A lamp lights.')},()=>{LV.a=false;lvDraw()});
+hold($('#lvB'),()=>{LV.b=true;lvDraw('The HMI wrote <b>0.01 = 1</b>. Rung 1 turns <b>100.01</b> ON and the PUMP B lamp lights.')},()=>{LV.b=false;lvDraw()});
 $('#lvF').onclick=()=>{LV.force=true;lvDraw('You forced <b>0.01</b> ON in CX-Programmer. The HMI lamp PUMP B lights too: <b>both programs share the same memory</b>. Press Cancel force when you finish.')};
 $('#lvC').onclick=()=>{LV.force=false;lvDraw('Force cancelled. 0.01 follows the HMI button again.')};
 lvDraw();
@@ -853,7 +822,7 @@ const TS=[
  ['Nothing happens when I press the button.','Check the <b>address</b> first. The bit button must use the same address as the ladder contact (here 0.00 = <b>SERIALA:00000.00</b>). Compare them side by side.'],
  ['The ladder does not move at all in CX-Programmer.','The simulation is not <b>online</b>. In CX-Designer use <b>Tools → Test…</b> and choose <b>Connect to CX-Simulator</b> (not <i>Start testing offline</i>), and check that CX-Programmer says <i>Online</i> and is in run or monitor mode.'],
  ['Integrated simulation will not start, or it shows an error.','<b>Compile</b> the ladder in CX-Programmer (0 errors), then <b>save</b> it. Also check that you chose the right .cxp file and the PLC model on the lab sheet.'],
- ['The lamp lights, but the motor coil is OFF in the ladder.','The lamp is reading the <b>button</b> address (0.00) instead of the <b>output</b> (10.00). A lamp should show the result of the ladder, so give it the coil address.'],
+ ['The lamp lights, but the motor coil is OFF in the ladder.','The lamp is reading the <b>button</b> address (0.00) instead of the <b>output</b> (100.00). A lamp should show the result of the ladder, so give it the coil address.'],
  ['The button only works while I keep pressing it.','That is a <b>momentary</b> button: ON while pressed. To keep a motor running after you let go, the <b>ladder</b> needs a self-holding (latch) rung, as you learned in <a href="lab2.html">Lab 2</a>.'],
  ['I changed the ladder but the simulation still runs the old one.','Stop the simulation, make the change, <b>compile and save</b> again, then start the test again (Tools → Test… → Connect to CX-Simulator).']];
 $('#tsList').innerHTML=TS.map(t=>`<details><summary>${t[0]}</summary><p>${t[1]}</p></details>`).join('');
@@ -861,8 +830,8 @@ $('#tsList').innerHTML=TS.map(t=>`<details><summary>${t[0]}</summary><p>${t[1]}<
 /* ===== L7.7 Quick check ===== */
 const QC=[
  ['Which software do you use to draw the HMI screen?',['CX-Programmer','CX-Designer','CX-Simulator'],1,'CX-Designer draws the screen; CX-Programmer writes the ladder; CX-Simulator runs the ladder on the PC.'],
- ['The ladder uses contact <b>0.00</b> for START. Which Write Address do you give the START bit button in CX-Designer?',['SERIALA:00000.00','SERIALA:00010.00','SERIALA:00000.01'],0,'0.00 in CX-Programmer is written SERIALA:00000.00 in CX-Designer: the same bit.'],
- ['The ladder turns ON coil <b>10.01</b> for a fan. Which address do you give the FAN bit lamp?',['0.01','10.00','10.01'],2,'A lamp reads the output that the ladder turns ON: 10.01.'],
+ ['The ladder uses contact <b>0.00</b> for START. Which Write Address do you give the START bit button in CX-Designer?',['SERIALA:00000.00','SERIALA:00100.00','SERIALA:00000.01'],0,'0.00 in CX-Programmer is written SERIALA:00000.00 in CX-Designer: the same bit.'],
+ ['The ladder turns ON coil <b>100.01</b> for a fan. Which address do you give the FAN bit lamp?',['0.01','100.00','100.01'],2,'A lamp reads the output that the ladder turns ON: 100.01.'],
  ['What must you do in CX-Programmer before you start integrated simulation?',['Compile the ladder and save the project','Print the ladder','Close CX-Programmer'],0,'The simulator needs a compiled, saved project (.cxp) with 0 errors; you choose that file in the Test box.'],
  ['You press START on the screen but the lamp stays OFF. The button is set to <b>0.01</b> and the ladder contact is <b>0.00</b>. What is wrong?',['The PLC is broken','The addresses do not match','The lamp is too small'],1,'Change the button address to 0.00 so it matches the ladder.']];
 let qcOk=0,qcDone=0;
