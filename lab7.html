@@ -571,6 +571,14 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
   <h2><span class="n">L7.3</span>Step 1: write the ladder in CX-Programmer</h2>
   <div class="key"><b>In one sentence</b><span>Make the PLC program first: choose the PLC model, draw the rung, compile it, and save it where you can find it again.</span></div>
   <div class="prose"><p>We use a small example: an HMI button on <b>0.00</b> runs a motor lamp on <b>100.00</b>. Start by making your own folder, then step through it, then do the same on the lab PC.</p></div>
+  <h3>The example: 1 switch, 1 output</h3>
+  <div class="prose"><p>A switch is wired to input <b>0.00</b> of the CP1L, and a motor to output <b>100.00</b>. The ladder joins them. Hold the switch and follow the signal.</p></div>
+  <div class="board scroll-x"><svg id="swSvg" viewBox="0 0 720 220" style="min-width:600px" role="img" aria-label="A START switch wired to input 0.00 of a CP1L PLC, and a motor wired to output 100.00"></svg></div>
+  <div class="pan-hint">↔ Swipe sideways to see the whole picture</div>
+  <div class="row" style="margin:10px 0"><button class="btn primary" id="swBtn" aria-pressed="false">Hold the START switch</button></div>
+  <div class="board scroll-x" id="swLad"></div>
+  <div class="explain" id="swSay" aria-live="polite"></div>
+  <h3>Now build it in CX-Programmer</h3>
   <div class="cxw st" id="pgWin"></div>
   <div class="stepcap" id="pgCap" aria-live="polite"></div>
   <div class="row" style="margin-top:10px"><button class="btn" id="pgBack">◀ Back</button><button class="btn primary" id="pgNext">Next step ▶</button><span class="muted" id="pgNum"></span></div>
@@ -770,6 +778,31 @@ function adDraw(){const ba=adScan(),la=$('#adLA').value,m=AD.mem,lampOn=!!m[la];
   $('#adSay').innerHTML=s}
 hold($('#adBtn'),()=>{AD.btn=true;adDraw()},()=>{AD.btn=false;adDraw()});
 $('#adBA').onchange=adDraw;$('#adLA').onchange=adDraw;adDraw();
+
+/* ===== L7.3 example: 1 switch → input 0.00, output 100.00 → 1 motor ===== */
+function swDraw(on){const w=on?'var(--ok)':'var(--pipe)',led=on?'var(--ok)':'var(--off)',t='font-family:var(--cond);font-weight:600';
+  let h=`<text x="100" y="52" text-anchor="middle" font-size="16" style="${t};fill:var(--ink)">START switch</text>
+  <path d="M70,${on?122:110}H130M100,${on?122:110}V${on?96:84}M88,${on?96:84}H112" style="stroke:var(--ink);stroke-width:3;fill:none"/>
+  <circle cx="70" cy="128" r="5" style="fill:var(--panel);stroke:var(--ink);stroke-width:2"/><circle cx="130" cy="128" r="5" style="fill:var(--panel);stroke:var(--ink);stroke-width:2"/>
+  <text x="100" y="158" text-anchor="middle" font-size="13" style="fill:var(--ink2)">${on?'pressed (closed)':'released (open)'}</text>
+  <path d="M135,128H262" style="stroke:${w};stroke-width:4;fill:none"/>
+  <rect x="262" y="40" width="196" height="140" rx="8" style="fill:var(--panel2);stroke:var(--ink);stroke-width:2"/>
+  <text x="360" y="66" text-anchor="middle" font-size="17" style="${t};fill:var(--ink)">CP1L PLC</text>
+  <text x="360" y="88" text-anchor="middle" font-size="13" style="fill:var(--ink2)">runs the ladder</text>
+  <rect x="272" y="120" width="16" height="16" rx="3" style="fill:${led}"/><text x="294" y="133" font-size="14" style="${t};fill:var(--ink)">IN 0.00</text>
+  <rect x="432" y="120" width="16" height="16" rx="3" style="fill:${led}"/><text x="426" y="133" text-anchor="end" font-size="14" style="${t};fill:var(--ink)">OUT 100.00</text>
+  <text x="360" y="166" text-anchor="middle" font-size="13" style="fill:var(--ink2)">0.00 = ${+on} → 100.00 = ${+on}</text>
+  <path d="M458,128H568" style="stroke:${w};stroke-width:4;fill:none"/>
+  <circle cx="606" cy="128" r="36" style="fill:${on?'var(--ok)':'var(--panel)'};stroke:var(--ink);stroke-width:2"/>
+  <text x="606" y="137" text-anchor="middle" font-size="26" style="${t};fill:${on?'#fff':'var(--ink)'}">M</text>
+  <text x="606" y="52" text-anchor="middle" font-size="16" style="${t};fill:var(--ink)">MOTOR</text>
+  <text x="606" y="186" text-anchor="middle" font-size="13" style="fill:var(--ink2)">${on?'running':'stopped'}</text>
+  <text x="360" y="212" text-anchor="middle" font-size="12" style="fill:var(--ink2)">Power wiring (24 V and COM) is left out to keep the picture simple.</text>`;
+  $('#swSvg').innerHTML=h;
+  $('#swLad').innerHTML=lad([{s:[{a:'0.00',l:'START'}],out:{t:'coil',a:'100.00',l:'MOTOR'}}],{'0.00':+on,'100.00':+on},{live:true,end:true});
+  $('#swSay').innerHTML=on?'<b>Switch pressed:</b> input <b>0.00 = 1</b> → contact 0.00 in the ladder closes → coil <b>100.00 = 1</b> → the motor runs. Let go and it stops.'
+    :'<b>Switch released:</b> input 0.00 = 0, so the ladder keeps output 100.00 OFF. In L7.5 an <b>HMI button</b> on 0.00 does the same job as this switch.'}
+hold($('#swBtn'),()=>swDraw(true),()=>swDraw(false));swDraw(false);
 
 /* ===== Step-by-step windows (drawn after the lecturer's CX-One screens) ===== */
 function stepper(id,steps){let i=0;const w=$('#'+id+'Win'),cap=$('#'+id+'Cap');
