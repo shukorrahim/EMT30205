@@ -510,6 +510,12 @@ code{font:15px Consolas,"Courier New",monospace;background:var(--panel2);padding
 .pal .pi{width:34px;height:26px;display:flex;align-items:center;justify-content:center;font:600 10px "Segoe UI",sans-serif;color:#1B4F9C;border:1px solid #7A8CA8;background:#fff}
 .pal .pi.rnd{border-radius:50%;color:#8A6A00;border-color:#C8A000;background:#FFF4B0}
 .pal .pi.hi{outline:3px solid #E8A400;background:#FFE58A}
+.cxw .shot{margin:0;border-top:3px solid #E8A400;background:#FFFDF5;padding:8px 10px 12px}
+.cxw .shot figcaption{font:600 13px "Segoe UI",sans-serif;color:#7A5200;margin-bottom:6px}
+.cxw .shot img{display:block;max-width:100%;height:auto;margin:0 auto;border:1px solid #C8C8C8;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.cxw .shot img.tall{max-height:340px;width:auto}
+.cxw .shot .sn{display:block;font-weight:400;color:#7A2E00;margin-top:3px}
+.cxw .shot .zm{display:block;text-align:center;font-size:12px;color:#7A5200;margin-top:6px}
 </style>
 </head>
 <body>
@@ -770,7 +776,7 @@ const MENU_CXP=['File','Edit','View','Insert','PLC','Program','Simulation','Tool
 const MENU_CXD=['File','Find','View','PT','Functional Objects','Fixed Objects','Tools','Window','Help'];
 function stepper(id,steps,title,menus){let i=0;const w=$('#'+id+'Win'),cap=$('#'+id+'Cap');
   function draw(){const s=steps[i],mm=s.menus||menus;
-    w.innerHTML=`<div class="tt"><i></i>${s.title||title}</div>${mm?`<div class="mb">${mm.map(x=>`<span${s.menu===x?' class="hi"':''}>${x}</span>`).join('')}</div>`:''}<div class="cxbody">${s.body()}</div>`;
+    w.innerHTML=`<div class="tt"><i></i>${s.title||title}</div>${mm?`<div class="mb">${mm.map(x=>`<span${s.menu===x?' class="hi"':''}>${x}</span>`).join('')}</div>`:''}<div class="cxbody">${s.body()}</div>${s.shot?`<figure class="shot"><figcaption>📷 The real screen in CX-Designer${s.shot[3]?`<span class="sn">${s.shot[3]}</span>`:""}</figcaption><a href="img/lab7/${s.shot[0]}.jpg" target="_blank" rel="noopener" title="Open the full-size picture"><img src="img/lab7/${s.shot[0]}.jpg" alt="${s.shot[1]}" loading="lazy"${s.shot[2]?' class="tall"':''}></a><small class="zm">Tap the picture to open it full size.</small></figure>`:''}`;
     cap.innerHTML=`<b>Step ${i+1}:</b> ${s.cap}`;
     $('#'+id+'Num').textContent=`Step ${i+1} of ${steps.length}`;
     $('#'+id+'Back').disabled=i===0;$('#'+id+'Next').disabled=i===steps.length-1}
@@ -798,17 +804,17 @@ const dsc=(o)=>`<div class="cxdes"><div class="pal">${PAL.map(p=>`<span class="p
   <div class="dsc">${o.btn?`<div class="h7obj${o.hiB?' hi':''}"><button class="h7btn" tabindex="-1">START</button><small>SERIALA:00000.00</small></div>`:'<div class="ph">bit button</div>'}${o.lamp?`<div class="h7obj${o.hiL?' hi':''}"><div class="h7lamp"><i></i>MOTOR</div><small>SERIALA:00010.00</small></div>`:'<div class="ph">bit lamp</div>'}</div></div>`;
 const props=(t,tabs,body)=>`<div class="dlg in wide"><div class="dt">${t}</div><div class="tabs">${tabs.map((x,i)=>`<span${i===0?' class="on"':''}>${x}</span>`).join('')}</div><div class="dbd">${body}<div class="btns"><span>Apply</span><span class="pri">OK</span><span>Cancel</span></div></div></div>`;
 stepper('ds',[
- {menu:'File',cap:'Open <b>CX-Designer</b> and choose <b>File → New Project</b>. Choose the <b>Model</b> (PT) your lecturer gives, for example <b>NS15-TX0[]-V2</b>, type a <b>Project Title</b>, and set the <b>Location</b> to the folder with your full name. Press OK.',
+ {shot:['new-project','CX-Designer New Project dialog: Model NS15-TX0[]-V2, System Version 8.1, Project Title, File Name and Location'],menu:'File',cap:'Open <b>CX-Designer</b> and choose <b>File → New Project</b>. Choose the <b>Model</b> (PT) your lecturer gives, for example <b>NS15-TX0[]-V2</b>, type a <b>Project Title</b>, and set the <b>Location</b> to the folder with your full name. Press OK.',
   body:()=>dlg('New Project',[['Model','NS15-TX0[]-V2','','▾'],['System Version','8.1','','▾'],['Project Title','Lab7 Example',1],['File Name','Lab7 Example'],['Location','Desktop\\YOUR FULL NAME','','Browse']],[['System Setting'],['Comm. Setting'],['OK',1],['Cancel']])},
- {menu:'PT',cap:'A <b>New Screen</b> box appears. Keep <b>No. 0</b> and the title <b>Screen Page0000</b> (or type your own), then OK. You get an empty black screen.',
+ {shot:['new-screen','New Screen dialog with No. 0 and title Screen Page0000'],menu:'PT',cap:'A <b>New Screen</b> box appears. Keep <b>No. 0</b> and the title <b>Screen Page0000</b> (or type your own), then OK. You get an empty black screen.',
   body:()=>dlg('New Screen',[['No.','0'],['Title','Screen Page0000',1]])},
- {menu:'Functional Objects',pal:'Bit Button',cap:'On the object toolbar, click <b>PB</b> (<b>Bit Button</b>) and drag a box on the screen. Double-click the button to open its properties.',
+ {shot:['object-toolbar','CX-Designer object toolbar: PB is the bit button and B is the bit lamp',1],menu:'Functional Objects',pal:'Bit Button',cap:'On the object toolbar, click <b>PB</b> (<b>Bit Button</b>) and drag a box on the screen. Double-click the button to open its properties.',
   body:()=>dsc({pal:'Bit Button',btn:true,hiB:true})},
- {menu:'Functional Objects',cap:'In the <b>General</b> tab, choose Action Type <b>Momentary</b> and set the <b>Write Address</b> with <b>Set1…</b> to <b>SERIALA:00000.00</b>. That is address <b>0.00</b>, the START contact in the ladder. Put the text START in the <b>Label</b> tab, then OK.',
+ {shot:['bit-button','Bit Button properties: Action Type Momentary and Write Address SERIALA:00000.00'],menu:'Functional Objects',cap:'In the <b>General</b> tab, choose Action Type <b>Momentary</b> and set the <b>Write Address</b> with <b>Set1…</b> to <b>SERIALA:00000.00</b>. That is address <b>0.00</b>, the START contact in the ladder. Put the text START in the <b>Label</b> tab, then OK.',
   body:()=>props('Bit Button - PB0001',['General','Color/Shape','Label','Frame','Flicker','Write','Password','…'],
     `<div class="pgrid"><div class="grp"><b>Action Type</b>${radio(1,'Momentary',1)}${radio(0,'Alternate')}${radio(0,'SET')}${radio(0,'RESET')}</div>
      <div class="grp"><b>Address</b><div class="drow"><span class="lbl">Write Address</span><span class="fld hi">SERIALA:00000.00</span><span class="dbtn">Set1…</span></div></div></div>`)},
- {menu:'Functional Objects',pal:'Bit Lamp',cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00010.00</b>: address <b>10.00</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.',
+ {shot:['bit-lamp','Bit Lamp properties: Display Address SERIALA:00000.00 (change it to SERIALA:00010.00)',0,'Here the lamp still shows the default address 00000.00. Change it to <b>SERIALA:00010.00</b> so it reads the MOTOR coil.'],menu:'Functional Objects',pal:'Bit Lamp',cap:'Click <b>B</b> (<b>Bit Lamp</b>), drag it on the screen and double-click it. Set the <b>Display Address</b> to <b>SERIALA:00010.00</b>: address <b>10.00</b>, the MOTOR coil. A lamp only <b>reads</b> the address; it never changes it.',
   body:()=>props('Bit Lamp - PL0001',['General','Color/Shape','Label','Frame','Flicker','Control Flag','…'],
     `<div class="grp"><b>Address</b><div class="drow"><span class="lbl">Display Address</span><span class="fld hi">SERIALA:00010.00</span><span class="dbtn">Set1…</span></div></div>`)+dsc({pal:'Bit Lamp',btn:true,lamp:true,hiL:true})},
  {menu:'File',cap:'Choose <b>File → Save</b>. Your screen is ready: one button writing 0.00 and one lamp reading 10.00.',
@@ -816,9 +822,9 @@ stepper('ds',[
 ],'CX-Designer · Lab7 Example - [0000:Screen Page0000]',MENU_CXD);
 
 stepper('ln',[
- {menu:'Tools',cap:'In <b>CX-Designer</b>, open the <b>Tools</b> menu and choose <b>Test…</b> (or press <b>Ctrl+T</b>).',
+ {shot:['tools-menu','CX-Designer Tools menu with Test… Ctrl+T at the top'],menu:'Tools',cap:'In <b>CX-Designer</b>, open the <b>Tools</b> menu and choose <b>Test…</b> (or press <b>Ctrl+T</b>).',
   body:()=>`<div class="tree">Tools<br>&nbsp;&nbsp;<span class="hi">Test…&nbsp;&nbsp;&nbsp;&nbsp;Ctrl+T</span><br>&nbsp;&nbsp;PLC Error Simulator<br>&nbsp;&nbsp;Resource Report…<br>&nbsp;&nbsp;Validation ▸<br>&nbsp;&nbsp;Library…<br>&nbsp;&nbsp;Option…</div>`},
- {menu:'Tools',cap:'In the <b>Test</b> box choose <b>Connect to CX-Simulator</b> (this is the integrated simulation). Host Name stays <b>SERIALA</b>. Press <b>Browse</b> and choose your CX-Programmer file <b>Lab7 Example.cxp</b> from Step 1, then press <b>Start</b>.',
+ {shot:['test-dialog','CX-Designer Test box with Connect to CX-Simulator selected, Host Name SERIALA and a Browse button for the File Name'],menu:'Tools',cap:'In the <b>Test</b> box choose <b>Connect to CX-Simulator</b> (this is the integrated simulation). Host Name stays <b>SERIALA</b>. Press <b>Browse</b> and choose your CX-Programmer file <b>Lab7 Example.cxp</b> from Step 1, then press <b>Start</b>.',
   body:()=>`<div class="dlg in wide"><div class="dt">Test</div><div class="dbd">${radio(0,'Start testing offline')}${radio(1,'<b>Connect to CX-Simulator</b> · Perform Integrated Simulation with the running …',1)}
     <div class="grp"><div class="drow"><span class="lbl">Host Name</span><span class="fld">SERIALA</span></div><div class="drow"><span class="lbl">File Name</span><span class="fld hi">Desktop\\YOUR FULL NAME\\Lab7 Example.cxp</span><span class="dbtn">Browse</span></div></div>
     ${radio(0,'Connect to PLC')}<div class="btns"><span class="pri">Start</span><span>Cancel</span></div></div></div>`},
